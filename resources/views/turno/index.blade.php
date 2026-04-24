@@ -15,7 +15,7 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title">Lista de Turnos</h5>
-                    <a href="{{ route('turnos.create') }}" class="btn btn-primary">Crear Nuevo Turno</a>
+                    <a href="{{ route('turno.create') }}" class="btn btn-primary">Crear Nuevo Turno</a>
                 </div>
 
                 <div class="table-responsive">
@@ -41,9 +41,9 @@
                                     <td>{{ $turno->hora_fin }}</td>
                                     <td>{{ $turno->fecha_laboral }}</td>
                                     <td>
-                                        <a href="{{ route('turnos.show', $turno->id) }}" class="btn btn-sm btn-info me-1">Ver</a>
-                                        <a href="{{ route('turnos.edit', $turno->id) }}" class="btn btn-sm btn-warning me-1">Editar</a>
-                                        <form action="{{ route('turnos.destroy', $turno->id) }}" method="POST" class="d-inline">
+                                        <a href="{{ route('turno.show', $turno->id) }}" class="btn btn-sm btn-info me-1">Ver</a>
+                                        <a href="{{ route('turno.edit', $turno->id) }}" class="btn btn-sm btn-warning me-1">Editar</a>
+                                        <form action="{{ route('turno.destroy', $turno->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" onclick="return confirm('¿Eliminar?')" class="btn btn-sm btn-danger">Eliminar</button>

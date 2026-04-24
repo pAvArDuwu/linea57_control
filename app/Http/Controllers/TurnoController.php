@@ -39,7 +39,7 @@ class TurnoController extends Controller
     {
         Turno::create($request->validated());
 
-        return Redirect::route('turnos.index')
+        return Redirect::route('turno.index')
             ->with('success', 'Turno created successfully.');
     }
 
@@ -70,7 +70,7 @@ class TurnoController extends Controller
     {
         $turno->update($request->validated());
 
-        return Redirect::route('turnos.index')
+        return Redirect::route('turno.index')
             ->with('success', 'Turno updated successfully');
     }
 
@@ -78,7 +78,7 @@ class TurnoController extends Controller
     {
         Turno::find($id)->delete();
 
-        return Redirect::route('turnos.index')
+        return Redirect::route('turno.index')
             ->with('success', 'Turno deleted successfully');
     }
 }

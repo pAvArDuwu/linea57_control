@@ -14,7 +14,7 @@
                         <span class="card-title">{{ __('Create') }} Turno</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('turnos.store') }}"  role="form" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('turno.store') }}"  role="form" enctype="multipart/form-data">
                             @csrf
 
                             @include('turno.form')

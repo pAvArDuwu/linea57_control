@@ -7,7 +7,7 @@
     <div class="container py-4">
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('conductores.store') }}" method="POST">
+                <form action="{{ route('conductor.store') }}" method="POST">
                     @csrf
 
                     <div class="mb-3">
@@ -51,7 +51,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end">
-                        <a href="{{ route('conductores.index') }}" class="btn btn-secondary me-2">Cancelar</a>
+                        <a href="{{ route('conductor.index') }}" class="btn btn-secondary me-2">Cancelar</a>
                         <button type="submit" class="btn btn-primary">Guardar</button>
                     </div>
                 </form>

@@ -15,16 +15,16 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title">Lista de Conductores</h5>
-                    @can('conductores.create')
-                        <a href="{{ route('conductores.create') }}" class="btn btn-primary">Crear Nuevo Conductor</a>
+                    @can('conductor.create')
+                        <a href="{{ route('conductor.create') }}" class="btn btn-primary">Crear Nuevo Conductor</a>
                     @endcan
                 </div>
 
-                <form action="{{ route('conductores.index') }}" method="GET" class="d-flex mb-3">
+                <form action="{{ route('conductor.index') }}" method="GET" class="d-flex mb-3">
                     <input type="text" name="buscar" class="form-control me-2" placeholder="Buscar conductor..." value="{{ $buscar }}">
                     <button type="submit" class="btn btn-outline-secondary">Buscar</button>
                     @if($buscar)
-                        <a href="{{ route('conductores.index') }}" class="btn btn-outline-secondary ms-2">Limpiar</a>
+                        <a href="{{ route('conductor.index') }}" class="btn btn-outline-secondary ms-2">Limpiar</a>
                     @endif
                 </form>
 
@@ -51,14 +51,14 @@
                                     <td>{{ $conductor->correo }}</td>
                                     <td>{{ $conductor->ci }}</td>
                                     <td>
-                                        @can('conductores.show')
-                                            <a href="{{ route('conductores.show', $conductor->id) }}" class="btn btn-sm btn-info me-1">Ver</a>
+                                        @can('conductor.show')
+                                            <a href="{{ route('conductor.show', $conductor->id) }}" class="btn btn-sm btn-info me-1">Ver</a>
                                         @endcan
-                                        @can('conductores.edit')
-                                            <a href="{{ route('conductores.edit', $conductor->id) }}" class="btn btn-sm btn-warning me-1">Editar</a>
+                                        @can('conductor.edit')
+                                            <a href="{{ route('conductor.edit', $conductor->id) }}" class="btn btn-sm btn-warning me-1">Editar</a>
                                         @endcan
-                                        @can('conductores.destroy')
-                                            <form action="{{ route('conductores.destroy', $conductor->id) }}" method="POST" class="d-inline">
+                                        @can('conductor.destroy')
+                                            <form action="{{ route('conductor.destroy', $conductor->id) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" onclick="return confirm('¿Eliminar?')" class="btn btn-sm btn-danger">Eliminar</button>

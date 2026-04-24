@@ -17,7 +17,7 @@
                             </span>
 
                              <div class="float-right">
-                                <a href="{{ route('internos.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
+                                <a href="{{ route('interno.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
                                   {{ __('Create New') }}
                                 </a>
                               </div>
@@ -55,9 +55,9 @@
 										<td >{{ $interno->fecha_ingreso }}</td>
 
                                             <td>
-                                                <form action="{{ route('internos.destroy', $interno->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('internos.show', $interno->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('internos.edit', $interno->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
+                                                <form action="{{ route('interno.destroy', $interno->id) }}" method="POST">
+                                                    <a class="btn btn-sm btn-primary " href="{{ route('interno.show', $interno->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
+                                                    <a class="btn btn-sm btn-success" href="{{ route('interno.edit', $interno->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>

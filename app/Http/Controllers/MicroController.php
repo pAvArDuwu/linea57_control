@@ -39,7 +39,7 @@ class MicroController extends Controller
     {
         Micro::create($request->validated());
 
-        return Redirect::route('micros.index')
+        return Redirect::route('micro.index')
             ->with('success', 'Micro created successfully.');
     }
 
@@ -70,7 +70,7 @@ class MicroController extends Controller
     {
         $micro->update($request->validated());
 
-        return Redirect::route('micros.index')
+        return Redirect::route('micro.index')
             ->with('success', 'Micro updated successfully');
     }
 
@@ -78,7 +78,7 @@ class MicroController extends Controller
     {
         Micro::find($id)->delete();
 
-        return Redirect::route('micros.index')
+        return Redirect::route('micro.index')
             ->with('success', 'Micro deleted successfully');
     }
 }

@@ -39,7 +39,7 @@ class DueñoController extends Controller
     {
         Dueño::create($request->validated());
 
-        return Redirect::route('dueños.index')
+        return Redirect::route('dueño.index')
             ->with('success', 'Dueño created successfully.');
     }
 
@@ -70,7 +70,7 @@ class DueñoController extends Controller
     {
         $dueño->update($request->validated());
 
-        return Redirect::route('dueños.index')
+        return Redirect::route('dueño.index')
             ->with('success', 'Dueño updated successfully');
     }
 
@@ -78,7 +78,7 @@ class DueñoController extends Controller
     {
         Dueño::find($id)->delete();
 
-        return Redirect::route('dueños.index')
+        return Redirect::route('dueño.index')
             ->with('success', 'Dueño deleted successfully');
     }
 }

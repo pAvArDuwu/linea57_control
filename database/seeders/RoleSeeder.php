@@ -20,18 +20,18 @@ class RoleSeeder extends Seeder
         $dueño = Role::firstOrCreate(['name' => 'dueño']);
 
         // Crear permisos para conductores
-        Permission::firstOrCreate(['name' => 'conductores.index']);
-        Permission::firstOrCreate(['name' => 'conductores.create']);
-        Permission::firstOrCreate(['name' => 'conductores.edit']);
-        Permission::firstOrCreate(['name' => 'conductores.destroy']);
-        Permission::firstOrCreate(['name' => 'conductores.show']);
+        Permission::firstOrCreate(['name' => 'conductor.index']);
+        Permission::firstOrCreate(['name' => 'conductor.create']);
+        Permission::firstOrCreate(['name' => 'conductor.edit']);
+        Permission::firstOrCreate(['name' => 'conductor.destroy']);
+        Permission::firstOrCreate(['name' => 'conductor.show']);
 
         // Crear permisos para micros
-        Permission::firstOrCreate(['name' => 'micros.index']);
-        Permission::firstOrCreate(['name' => 'micros.create']);
-        Permission::firstOrCreate(['name' => 'micros.edit']);
-        Permission::firstOrCreate(['name' => 'micros.destroy']);
-        Permission::firstOrCreate(['name' => 'micros.show']);
+        Permission::firstOrCreate(['name' => 'micro.index']);
+        Permission::firstOrCreate(['name' => 'micro.create']);
+        Permission::firstOrCreate(['name' => 'micro.edit']);
+        Permission::firstOrCreate(['name' => 'micro.destroy']);
+        Permission::firstOrCreate(['name' => 'micro.show']);
 
         // Crear permisos para rutas
         Permission::firstOrCreate(['name' => 'ruta.index']);
@@ -41,11 +41,11 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'ruta.show']);
 
         // Crear permisos para turnos
-        Permission::firstOrCreate(['name' => 'turnos.index']);
-        Permission::firstOrCreate(['name' => 'turnos.create']);
-        Permission::firstOrCreate(['name' => 'turnos.edit']);
-        Permission::firstOrCreate(['name' => 'turnos.destroy']);
-        Permission::firstOrCreate(['name' => 'turnos.show']);
+        Permission::firstOrCreate(['name' => 'turno.index']);
+        Permission::firstOrCreate(['name' => 'turno.create']);
+        Permission::firstOrCreate(['name' => 'turno.edit']);
+        Permission::firstOrCreate(['name' => 'turno.destroy']);
+        Permission::firstOrCreate(['name' => 'turno.show']);
 
         // Asignar permisos a roles
         // Admin tiene todos los permisos
@@ -53,14 +53,14 @@ class RoleSeeder extends Seeder
 
         // Conductor: solo ver conductores y turnos (index, show), no puede eliminar turnos
         $conductor->syncPermissions([
-            'conductores.index', 'conductores.show',
-            'turnos.index', 'turnos.show'
+            'conductor.index', 'conductor.show',
+            'turno.index', 'turno.show'
         ]);
 
         // Dueño: permisos para conductores y micros (index, create, edit, show), rutas (index, create, edit, show)
         $dueño->syncPermissions([
-            'conductores.index', 'conductores.create', 'conductores.edit', 'conductores.show',
-            'micros.index', 'micros.create', 'micros.edit', 'micros.show',
+            'conductor.index', 'conductor.create', 'conductor.edit', 'conductor.show',
+            'micro.index', 'micro.create', 'micro.edit', 'micro.show',
             'ruta.index', 'ruta.create', 'ruta.edit', 'ruta.show'
         ]);
     }

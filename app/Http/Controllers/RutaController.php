@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Rutum;
+use App\Models\Ruta;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\RutumRequest;
+use App\Http\Requests\RutaRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
-class RutumController extends Controller
+class RutaController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): View
     {
-        $ruta = Rutum::paginate();
+        $ruta = Ruta::paginate();
 
-        return view('rutum.index', compact('ruta'))
+        return view('ruta.index', compact('ruta'))
             ->with('i', ($request->input('page', 1) - 1) * $ruta->perPage());
     }
 
@@ -27,20 +27,20 @@ class RutumController extends Controller
      */
     public function create(): View
     {
-        $rutum = new Rutum();
+        $ruta = new Ruta();
 
-        return view('rutum.create', compact('rutum'));
+        return view('ruta.create', compact('ruta'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(RutumRequest $request): RedirectResponse
+    public function store(RutaRequest $request): RedirectResponse
     {
-        Rutum::create($request->validated());
+        Ruta::create($request->validated());
 
         return Redirect::route('ruta.index')
-            ->with('success', 'Rutum created successfully.');
+            ->with('success', 'Ruta created successfully.');
     }
 
     /**
@@ -48,9 +48,9 @@ class RutumController extends Controller
      */
     public function show($id): View
     {
-        $rutum = Rutum::find($id);
+        $ruta = Ruta::find($id);
 
-        return view('rutum.show', compact('rutum'));
+        return view('ruta.show', compact('ruta'));
     }
 
     /**
@@ -58,27 +58,27 @@ class RutumController extends Controller
      */
     public function edit($id): View
     {
-        $rutum = Rutum::find($id);
+        $ruta = Ruta::find($id);
 
-        return view('rutum.edit', compact('rutum'));
+        return view('ruta.edit', compact('ruta'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(RutumRequest $request, Rutum $rutum): RedirectResponse
+    public function update(RutaRequest $request, Ruta $ruta): RedirectResponse
     {
-        $rutum->update($request->validated());
+        $ruta->update($request->validated());
 
         return Redirect::route('ruta.index')
-            ->with('success', 'Rutum updated successfully');
+            ->with('success', 'Ruta updated successfully');
     }
 
     public function destroy($id): RedirectResponse
     {
-        Rutum::find($id)->delete();
+        Ruta::find($id)->delete();
 
         return Redirect::route('ruta.index')
-            ->with('success', 'Rutum deleted successfully');
+            ->with('success', 'Ruta deleted successfully');
     }
 }

@@ -18,7 +18,7 @@ public function index(Request $request)
     $roles = Role::where('name', 'LIKE', '%' . $buscar . '%')->get();
 
     // Pasamos 'roles' y 'buscar' a la vista
-    return view('roles.index', compact('roles', 'buscar'));
+    return view('role.index', compact('roles', 'buscar'));
 }
 
 
@@ -28,7 +28,7 @@ public function index(Request $request)
     public function create()
     {
         $permissions = Permission::all();
-        return view('roles.create', compact('permissions'));
+        return view('role.create', compact('permissions'));
 
     }
 
@@ -41,7 +41,7 @@ public function index(Request $request)
         $role = role::create(['name'=>$request->name]);
         $role->syncPermissions($request->permissions);
         
-        return redirect()->route('roles.index')->with('info','Rol creado con exito');
+        return redirect()->route('role.index')->with('info','Rol creado con exito');
     }
    
     
@@ -57,7 +57,7 @@ public function index(Request $request)
     {   
               $role = Role::findById($id); // Corregido: Necesitamos buscar el rol antes de enviarlo a la vista
         $permissions = Permission::all();
-        return view('roles.edit', compact('role', 'permissions'));
+        return view('role.edit', compact('role', 'permissions'));
        
     }
 
@@ -76,7 +76,7 @@ public function index(Request $request)
         $role->update(['name' => $request->name]);
         $role->syncPermissions($request->permissions);
 
-        return redirect()->route('roles.index')->with('info', 'Rol actualizado con éxito');
+        return redirect()->route('role.index')->with('info', 'Rol actualizado con éxito');
    
     }
 
@@ -88,7 +88,7 @@ public function index(Request $request)
          $role = Role::findById($id);
         $role->delete();
 
-        return redirect()->route('roles.index')->with('info', 'Rol eliminado con éxito');
+        return redirect()->route('role.index')->with('info', 'Rol eliminado con éxito');
 
     }
 }

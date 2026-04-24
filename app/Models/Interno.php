@@ -26,6 +26,8 @@ class Interno extends Model
     
     protected $perPage = 20;
 
+    protected $table = 'interno';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -55,7 +57,7 @@ class Interno extends Model
      */
     public function turnos()
     {
-        return $this->hasMany(\App\Models\Turno::class, 'id', 'interno_id');
+        return $this->hasMany(\App\Models\Turno::class, 'interno_id', 'id');
     }
     
 }

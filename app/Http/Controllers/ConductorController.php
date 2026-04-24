@@ -9,11 +9,11 @@ class ConductorController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:conductores.index')->only('index');
-        $this->middleware('permission:conductores.create')->only(['create', 'store']);
-        $this->middleware('permission:conductores.show')->only('show');
-        $this->middleware('permission:conductores.edit')->only(['edit', 'update']);
-        $this->middleware('permission:conductores.destroy')->only('destroy');
+        $this->middleware('permission:conductor.index')->only('index');
+        $this->middleware('permission:conductor.create')->only(['create', 'store']);
+        $this->middleware('permission:conductor.show')->only('show');
+        $this->middleware('permission:conductor.edit')->only(['edit', 'update']);
+        $this->middleware('permission:conductor.destroy')->only('destroy');
     }
 
     /**
@@ -27,7 +27,7 @@ class ConductorController extends Controller
                                 ->orWhere('correo', 'LIKE', '%' . $buscar . '%')
                                 ->paginate(10);
 
-        return view('conductores.index', compact('conductores', 'buscar'));
+        return view('conductor.index', compact('conductores', 'buscar'));
     }
 
     /**
@@ -35,7 +35,7 @@ class ConductorController extends Controller
      */
     public function create()
     {
-        return view('conductores.create');
+        return view('conductor.create');
     }
 
     /**
@@ -53,7 +53,7 @@ class ConductorController extends Controller
 
         Conductor::create($request->all());
 
-        return redirect()->route('conductores.index')->with('info', 'Conductor creado con éxito');
+        return redirect()->route('conductor.index')->with('info', 'Conductor creado con éxito');
     }
 
     /**
@@ -62,7 +62,7 @@ class ConductorController extends Controller
     public function show(string $id)
     {
         $conductor = Conductor::findOrFail($id);
-        return view('conductores.show', compact('conductor'));
+        return view('conductor.show', compact('conductor'));
     }
 
     /**
@@ -71,7 +71,7 @@ class ConductorController extends Controller
     public function edit(string $id)
     {
         $conductor = Conductor::findOrFail($id);
-        return view('conductores.edit', compact('conductor'));
+        return view('conductor.edit', compact('conductor'));
     }
 
     /**
@@ -91,7 +91,7 @@ class ConductorController extends Controller
 
         $conductor->update($request->all());
 
-        return redirect()->route('conductores.index')->with('info', 'Conductor actualizado con éxito');
+        return redirect()->route('conductor.index')->with('info', 'Conductor actualizado con éxito');
     }
 
     /**
@@ -102,6 +102,6 @@ class ConductorController extends Controller
         $conductor = Conductor::findOrFail($id);
         $conductor->delete();
 
-        return redirect()->route('conductores.index')->with('info', 'Conductor eliminado con éxito');
+        return redirect()->route('conductor.index')->with('info', 'Conductor eliminado con éxito');
     }
 }

@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property $updated_at
  *
  * @property Interno $interno
- * @property Rutum $rutum
+ * @property Ruta $ruta
  * @package App
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
@@ -25,6 +25,8 @@ class Turno extends Model
 {
     
     protected $perPage = 20;
+
+    protected $table = 'turno';
 
     /**
      * The attributes that are mass assignable.
@@ -45,9 +47,9 @@ class Turno extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function rutum()
+    public function ruta()
     {
-        return $this->belongsTo(\App\Models\Rutum::class, 'ruta_id', 'id');
+        return $this->belongsTo(\App\Models\Ruta::class, 'ruta_id', 'id');
     }
     
 }

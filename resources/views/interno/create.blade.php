@@ -14,7 +14,7 @@
                         <span class="card-title">{{ __('Create') }} Interno</span>
                     </div>
                     <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('internos.store') }}"  role="form" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('interno.store') }}"  role="form" enctype="multipart/form-data">
                             @csrf
 
                             @include('interno.form')

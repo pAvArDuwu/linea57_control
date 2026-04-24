@@ -1,30 +1,26 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+    <div class="mb-4 small text-muted">
+        ¡Gracias por registrarte! Antes de comenzar, ¿podrías verificar tu dirección de correo electrónico haciendo clic en el enlace que te acabamos de enviar? Si no recibiste el correo, con gusto te enviaremos otro.
     </div>
 
     @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
+        <div class="alert alert-success mb-3" role="alert">
+            Se ha enviado un nuevo enlace de verificación a la dirección de correo electrónico que proporcionaste durante el registro.
         </div>
     @endif
 
-    <div class="mt-4 flex items-center justify-between">
+    <div class="d-flex justify-content-between align-items-center mt-4">
         <form method="POST" action="{{ route('verification.send') }}">
             @csrf
-
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
-            </div>
+            <button type="submit" class="btn btn-primary btn-sm">
+                Reenviar correo de verificación
+            </button>
         </form>
 
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-
-            <button type="submit" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                {{ __('Log Out') }}
+            <button type="submit" class="btn btn-link btn-sm text-decoration-none text-muted">
+                Cerrar sesión
             </button>
         </form>
     </div>

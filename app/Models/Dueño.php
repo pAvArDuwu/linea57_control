@@ -25,6 +25,8 @@ class Dueño extends Model
     
     protected $perPage = 20;
 
+    protected $table = 'dueño';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -38,7 +40,7 @@ class Dueño extends Model
      */
     public function micros()
     {
-        return $this->hasMany(\App\Models\Micro::class, 'id', 'dueño_id');
+        return $this->hasMany(\App\Models\Micro::class, 'dueño_id', 'id');
     }
     
 }

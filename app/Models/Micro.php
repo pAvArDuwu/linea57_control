@@ -26,6 +26,8 @@ class Micro extends Model
     
     protected $perPage = 20;
 
+    protected $table = 'micro';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -47,7 +49,7 @@ class Micro extends Model
      */
     public function internos()
     {
-        return $this->hasMany(\App\Models\Interno::class, 'id', 'micro_id');
+        return $this->hasMany(\App\Models\Interno::class, 'micro_id', 'id');
     }
     
 }

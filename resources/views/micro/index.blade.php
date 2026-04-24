@@ -15,7 +15,7 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title">Lista de Micros</h5>
-                    <a href="{{ route('micros.create') }}" class="btn btn-primary">Crear Nuevo Micro</a>
+                    <a href="{{ route('micro.create') }}" class="btn btn-primary">Crear Nuevo Micro</a>
                 </div>
 
                 <div class="table-responsive">
@@ -41,9 +41,9 @@
                                     <td>{{ $micro->marca }}</td>
                                     <td>{{ $micro->capacidad_pasajeros }}</td>
                                     <td>
-                                        <a href="{{ route('micros.show', $micro->id) }}" class="btn btn-sm btn-info me-1">Ver</a>
-                                        <a href="{{ route('micros.edit', $micro->id) }}" class="btn btn-sm btn-warning me-1">Editar</a>
-                                        <form action="{{ route('micros.destroy', $micro->id) }}" method="POST" class="d-inline">
+                                        <a href="{{ route('micro.show', $micro->id) }}" class="btn btn-sm btn-info me-1">Ver</a>
+                                        <a href="{{ route('micro.edit', $micro->id) }}" class="btn btn-sm btn-warning me-1">Editar</a>
+                                        <form action="{{ route('micro.destroy', $micro->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" onclick="return confirm('¿Eliminar?')" class="btn btn-sm btn-danger">Eliminar</button>

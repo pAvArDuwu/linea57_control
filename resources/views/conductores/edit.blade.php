@@ -10,7 +10,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <form action="{{ route('conductores.update', $conductor->id) }}" method="POST">
+                    <form action="{{ route('conductor.update', $conductor->id) }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -50,7 +50,7 @@
                         </div>
 
                         <div class="flex items-center justify-end mt-6">
-                            <a href="{{ route('conductores.index') }}" class="mr-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Cancelar</a>
+                            <a href="{{ route('conductor.index') }}" class="mr-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Cancelar</a>
                             <x-primary-button>
                                 {{ __('Actualizar Conductor') }}
                             </x-primary-button>

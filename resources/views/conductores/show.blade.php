@@ -50,8 +50,8 @@
                     </div>
 
                     <div class="flex items-center justify-end mt-6">
-                        <a href="{{ route('conductores.index') }}" class="mr-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Volver</a>
-                        <a href="{{ route('conductores.edit', $conductor->id) }}" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                        <a href="{{ route('conductor.index') }}" class="mr-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Volver</a>
+                        <a href="{{ route('conductor.edit', $conductor->id) }}" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
                             Editar
                         </a>
                     </div>

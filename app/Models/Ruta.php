@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Rutum
+ * Class Ruta
  *
  * @property $id
  * @property $origen
@@ -18,10 +18,12 @@ use Illuminate\Database\Eloquent\Model;
  * @package App
  * @mixin \Illuminate\Database\Eloquent\Builder
  */
-class Rutum extends Model
+class Ruta extends Model
 {
     
     protected $perPage = 20;
+
+    protected $table = 'ruta';
 
     /**
      * The attributes that are mass assignable.
@@ -36,7 +38,7 @@ class Rutum extends Model
      */
     public function turnos()
     {
-        return $this->hasMany(\App\Models\Turno::class, 'id', 'ruta_id');
+        return $this->hasMany(\App\Models\Turno::class, 'ruta_id', 'id');
     }
     
 }

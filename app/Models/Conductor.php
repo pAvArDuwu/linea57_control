@@ -9,6 +9,8 @@ class Conductor extends Model
 {
     use HasFactory;
 
+    protected $table = 'conductor';
+
     protected $fillable = [
         'nombre',
         'apellido',

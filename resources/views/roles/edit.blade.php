@@ -7,7 +7,7 @@
     <div class="container py-4">
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('roles.update', $role->id) }}" method="POST">
+                <form action="{{ route('role.update', $role->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 
@@ -40,7 +40,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end">
-                        <a href="{{ route('roles.index') }}" class="btn btn-secondary me-2">Cancelar</a>
+                        <a href="{{ route('role.index') }}" class="btn btn-secondary me-2">Cancelar</a>
                         <button type="submit" class="btn btn-primary">Actualizar Rol</button>
                     </div>
                 </form>

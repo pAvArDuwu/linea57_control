@@ -2,6 +2,12 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ConductorController;
+use App\Http\Controllers\DueñoController;
+use App\Http\Controllers\InternoController;
+use App\Http\Controllers\MicroController;
+use App\Http\Controllers\RutaController;
+use App\Http\Controllers\TurnoController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,7 +23,13 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('conductores', ConductorController::class);
+    Route::resource('conductor', ConductorController::class);
+    Route::resource('dueño', DueñoController::class);
+    Route::resource('micro', MicroController::class);
+    Route::resource('interno', InternoController::class);
+    Route::resource('ruta', RutaController::class);
+    Route::resource('turno', TurnoController::class);
+    Route::resource('role', RoleController::class);
 });
 
 require __DIR__.'/auth.php';

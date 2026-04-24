@@ -39,7 +39,7 @@ class InternoController extends Controller
     {
         Interno::create($request->validated());
 
-        return Redirect::route('internos.index')
+        return Redirect::route('interno.index')
             ->with('success', 'Interno created successfully.');
     }
 
@@ -70,7 +70,7 @@ class InternoController extends Controller
     {
         $interno->update($request->validated());
 
-        return Redirect::route('internos.index')
+        return Redirect::route('interno.index')
             ->with('success', 'Interno updated successfully');
     }
 
@@ -78,7 +78,7 @@ class InternoController extends Controller
     {
         Interno::find($id)->delete();
 
-        return Redirect::route('internos.index')
+        return Redirect::route('interno.index')
             ->with('success', 'Interno deleted successfully');
     }
 }
