@@ -9,10 +9,17 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('roles')->paginate(10);
-        return view('users.index', compact('users'));
+        $buscar = $request->input('buscar');
+        $users = User::with('roles')
+            ->where(function($query) use ($buscar) {
+                $query->where('name', 'LIKE', '%' . $buscar . '%')
+                      ->orWhere('email', 'LIKE', '%' . $buscar . '%');
+            })
+            ->paginate(10);
+
+        return view('users.index', compact('users', 'buscar'));
     }
 
     public function create()

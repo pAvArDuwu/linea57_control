@@ -1,49 +1,47 @@
 @extends('layouts.app')
 
-@section('template_title')
-    {{ $micro->name ?? __('Show') . " " . __('Micro') }}
-@endsection
-
 @section('content')
-    <section class="content container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Micro</span>
-                        </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('micro.index') }}"> {{ __('Back') }}</a>
-                        </div>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 text-dark">Detalles del Micro</h5>
+                    <a href="{{ route('micro.index') }}" class="btn btn-sm btn-outline-secondary">Volver</a>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Dueño ID:</div>
+                        <div class="col-sm-8 text-muted">{{ $micro->dueño_id }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Placa:</div>
+                        <div class="col-sm-8 text-muted">{{ $micro->placa }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Modelo:</div>
+                        <div class="col-sm-8 text-muted">{{ $micro->modelo }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Marca:</div>
+                        <div class="col-sm-8 text-muted">{{ $micro->marca }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Capacidad Pasajeros:</div>
+                        <div class="col-sm-8 text-muted">{{ $micro->capacidad_pasajeros }}</div>
                     </div>
 
-                    <div class="card-body bg-white">
-                        
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Dueño Id:</strong>
-                                    {{ $micro->dueño_id }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Placa:</strong>
-                                    {{ $micro->placa }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Modelo:</strong>
-                                    {{ $micro->modelo }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Marca:</strong>
-                                    {{ $micro->marca }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Capacidad Pasajeros:</strong>
-                                    {{ $micro->capacidad_pasajeros }}
-                                </div>
-
+                    <div class="mt-4 pt-3 border-top">
+                        <a href="{{ route('micro.edit', $micro->id) }}" class="btn btn-warning btn-sm">Editar</a>
+                        <form action="{{ route('micro.destroy', $micro->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar?')">Eliminar</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</div>
 @endsection

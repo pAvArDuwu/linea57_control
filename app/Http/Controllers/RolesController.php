@@ -15,10 +15,10 @@ public function index(Request $request)
     // Usamos 'buscar' porque así lo nombraste en el input de la vista
     $buscar = $request->input('buscar');
 
-    $roles = Role::where('name', 'LIKE', '%' . $buscar . '%')->get();
+        $roles = Role::where('name', 'LIKE', '%' . $buscar . '%')->paginate(10);
 
-    // Pasamos 'roles' y 'buscar' a la vista
-    return view('roles.index', compact('roles', 'buscar'));
+        // Pasamos 'roles' y 'buscar' a la vista
+        return view('roles.index', compact('roles', 'buscar'));
 }
 
 
@@ -38,7 +38,7 @@ public function index(Request $request)
     public function store(Request $request)
     {
         $request->validate(['name'=>'required|unique:roles,name','permissions'=>'array']);
-        $role = Roles::create(['name'=>$request->name]);
+        $role = Role::create(['name'=>$request->name]);
         $role->syncPermissions($request->permissions);
         
         return redirect()->route('roles.index')->with('info','Rol creado con exito');

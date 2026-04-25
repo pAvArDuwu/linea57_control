@@ -1,29 +1,22 @@
 @extends('layouts.app')
 
-@section('template_title')
-    {{ __('Update') }} Interno
-@endsection
-
 @section('content')
-    <section class="content container-fluid">
-        <div class="">
-            <div class="col-md-12">
-
-                <div class="card card-default">
-                    <div class="card-header">
-                        <span class="card-title">{{ __('Update') }} Interno</span>
-                    </div>
-                    <div class="card-body bg-white">
-                        <form method="POST" action="{{ route('interno.update', $interno->id) }}"  role="form" enctype="multipart/form-data">
-                            {{ method_field('PATCH') }}
-                            @csrf
-
-                            @include('interno.form')
-
-                        </form>
-                    </div>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 text-dark">Editar Interno</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('interno.update', $interno->id) }}" role="form" enctype="multipart/form-data">
+                        {{ method_field('PATCH') }}
+                        @csrf
+                        @include('interno.form')
+                    </form>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</div>
 @endsection

@@ -1,49 +1,47 @@
 @extends('layouts.app')
 
-@section('template_title')
-    {{ $dueño->name ?? __('Show') . " " . __('Dueño') }}
-@endsection
-
 @section('content')
-    <section class="content container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Dueño</span>
-                        </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('dueño.index') }}"> {{ __('Back') }}</a>
-                        </div>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 text-dark">Detalles del Dueño</h5>
+                    <a href="{{ route('dueño.index') }}" class="btn btn-sm btn-outline-secondary">Volver</a>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Nombre:</div>
+                        <div class="col-sm-8 text-muted">{{ $dueño->nombre }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Apellido:</div>
+                        <div class="col-sm-8 text-muted">{{ $dueño->apellido }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Teléfono:</div>
+                        <div class="col-sm-8 text-muted">{{ $dueño->telefono }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Correo:</div>
+                        <div class="col-sm-8 text-muted">{{ $dueño->correo }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">CI:</div>
+                        <div class="col-sm-8 text-muted">{{ $dueño->ci }}</div>
                     </div>
 
-                    <div class="card-body bg-white">
-                        
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Nombre:</strong>
-                                    {{ $dueño->nombre }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Apellido:</strong>
-                                    {{ $dueño->apellido }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Telefono:</strong>
-                                    {{ $dueño->telefono }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Correo:</strong>
-                                    {{ $dueño->correo }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Ci:</strong>
-                                    {{ $dueño->ci }}
-                                </div>
-
+                    <div class="mt-4 pt-3 border-top">
+                        <a href="{{ route('dueño.edit', $dueño->id) }}" class="btn btn-warning btn-sm">Editar</a>
+                        <form action="{{ route('dueño.destroy', $dueño->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar?')">Eliminar</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</div>
 @endsection

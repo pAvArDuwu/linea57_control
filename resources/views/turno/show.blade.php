@@ -1,49 +1,47 @@
 @extends('layouts.app')
 
-@section('template_title')
-    {{ $turno->name ?? __('Show') . " " . __('Turno') }}
-@endsection
-
 @section('content')
-    <section class="content container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Turno</span>
-                        </div>
-                        <div class="float-right">
-                            <a class="btn btn-primary btn-sm" href="{{ route('turno.index') }}"> {{ __('Back') }}</a>
-                        </div>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 text-dark">Detalles del Turno</h5>
+                    <a href="{{ route('turno.index') }}" class="btn btn-sm btn-outline-secondary">Volver</a>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Interno ID:</div>
+                        <div class="col-sm-8 text-muted">{{ $turno->interno_id }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Ruta ID:</div>
+                        <div class="col-sm-8 text-muted">{{ $turno->ruta_id }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Hora Inicio:</div>
+                        <div class="col-sm-8 text-muted">{{ $turno->hora_inicio }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Hora Fin:</div>
+                        <div class="col-sm-8 text-muted">{{ $turno->hora_fin }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Fecha Laboral:</div>
+                        <div class="col-sm-8 text-muted">{{ $turno->fecha_laboral }}</div>
                     </div>
 
-                    <div class="card-body bg-white">
-                        
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Interno Id:</strong>
-                                    {{ $turno->interno_id }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Ruta Id:</strong>
-                                    {{ $turno->ruta_id }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Hora Inicio:</strong>
-                                    {{ $turno->hora_inicio }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Hora Fin:</strong>
-                                    {{ $turno->hora_fin }}
-                                </div>
-                                <div class="form-group mb-2 mb20">
-                                    <strong>Fecha Laboral:</strong>
-                                    {{ $turno->fecha_laboral }}
-                                </div>
-
+                    <div class="mt-4 pt-3 border-top">
+                        <a href="{{ route('turno.edit', $turno->id) }}" class="btn btn-warning btn-sm">Editar</a>
+                        <form action="{{ route('turno.destroy', $turno->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar?')">Eliminar</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</div>
 @endsection
