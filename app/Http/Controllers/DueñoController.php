@@ -16,10 +16,14 @@ class DueñoController extends Controller
      */
     public function index(Request $request): View
     {
-        $dueños = Dueño::paginate();
+        $buscar = $request->input('buscar');
+        $dueños = Dueño::where('nombre', 'LIKE', '%' . $buscar . '%')
+                       ->orWhere('apellido', 'LIKE', '%' . $buscar . '%')
+                       ->orWhere('correo', 'LIKE', '%' . $buscar . '%')
+                       ->orWhere('ci', 'LIKE', '%' . $buscar . '%')
+                       ->paginate(10);
 
-        return view('dueño.index', compact('dueños'))
-            ->with('i', ($request->input('page', 1) - 1) * $dueños->perPage());
+        return view('dueño.index', compact('dueños', 'buscar'));
     }
 
     /**

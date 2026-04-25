@@ -16,10 +16,13 @@ class RutaController extends Controller
      */
     public function index(Request $request): View
     {
-        $ruta = Ruta::paginate();
+        $buscar = $request->input('buscar');
+        $rutas = Ruta::where('origen', 'LIKE', '%' . $buscar . '%')
+                     ->orWhere('destino', 'LIKE', '%' . $buscar . '%')
+                     ->orWhere('nombre_ruta', 'LIKE', '%' . $buscar . '%')
+                     ->paginate(10);
 
-        return view('ruta.index', compact('ruta'))
-            ->with('i', ($request->input('page', 1) - 1) * $ruta->perPage());
+        return view('ruta.index', compact('rutas', 'buscar'));
     }
 
     /**

@@ -16,10 +16,11 @@ class TurnoController extends Controller
      */
     public function index(Request $request): View
     {
-        $turnos = Turno::paginate();
+        $buscar = $request->input('buscar');
+        $turnos = Turno::where('fecha_laboral', 'LIKE', '%' . $buscar . '%')
+                       ->paginate(10);
 
-        return view('turno.index', compact('turnos'))
-            ->with('i', ($request->input('page', 1) - 1) * $turnos->perPage());
+        return view('turno.index', compact('turnos', 'buscar'));
     }
 
     /**

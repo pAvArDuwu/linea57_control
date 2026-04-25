@@ -1,77 +1,71 @@
 @extends('layouts.app')
 
-@section('template_title')
-    Internos
-@endsection
-
 @section('content')
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-header">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
+<div class="container py-4">
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-                            <span id="card_title">
-                                {{ __('Internos') }}
-                            </span>
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0 text-dark">Lista de Internos</h5>
+            <a href="{{ route('interno.create') }}" class="btn btn-sm fw-bold" style="background-color:#E07B15;border-color:#E07B15;color:white;">
+                + Crear Nuevo Interno
+            </a>
+        </div>
+        <div class="card-body">
+            <!-- Buscador -->
+            <form method="GET" action="{{ route('interno.index') }}" class="mb-3 d-flex gap-2">
+                <input type="text" name="buscar" class="form-control form-control-sm" placeholder="Buscar por estado..." value="{{ $buscar ?? '' }}">
+                <button type="submit" class="btn btn-sm btn-secondary">Buscar</button>
+                @if(!empty($buscar))
+                    <a href="{{ route('interno.index') }}" class="btn btn-sm btn-outline-secondary">Limpiar</a>
+                @endif
+            </form>
 
-                             <div class="float-right">
-                                <a href="{{ route('interno.create') }}" class="btn btn-primary btn-sm float-right"  data-placement="left">
-                                  {{ __('Create New') }}
-                                </a>
-                              </div>
-                        </div>
-                    </div>
-                    @if ($message = Session::get('success'))
-                        <div class="alert alert-success m-4">
-                            <p>{{ $message }}</p>
-                        </div>
-                    @endif
-
-                    <div class="card-body bg-white">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead class="thead">
-                                    <tr>
-                                        <th>No</th>
-                                        
-									<th >Estado</th>
-									<th >Micro Id</th>
-									<th >Conductor Id</th>
-									<th >Fecha Ingreso</th>
-
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($internos as $interno)
-                                        <tr>
-                                            <td>{{ ++$i }}</td>
-                                            
-										<td >{{ $interno->estado }}</td>
-										<td >{{ $interno->micro_id }}</td>
-										<td >{{ $interno->conductor_id }}</td>
-										<td >{{ $interno->fecha_ingreso }}</td>
-
-                                            <td>
-                                                <form action="{{ route('interno.destroy', $interno->id) }}" method="POST">
-                                                    <a class="btn btn-sm btn-primary " href="{{ route('interno.show', $interno->id) }}"><i class="fa fa-fw fa-eye"></i> {{ __('Show') }}</a>
-                                                    <a class="btn btn-sm btn-success" href="{{ route('interno.edit', $interno->id) }}"><i class="fa fa-fw fa-edit"></i> {{ __('Edit') }}</a>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="event.preventDefault(); confirm('Are you sure to delete?') ? this.closest('form').submit() : false;"><i class="fa fa-fw fa-trash"></i> {{ __('Delete') }}</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                {!! $internos->withQueryString()->links() !!}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Estado</th>
+                            <th>Micro</th>
+                            <th>Conductor</th>
+                            <th>Fecha Ingreso</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($internos as $interno)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $interno->estado }}</td>
+                                <td>{{ $interno->micro_id }}</td>
+                                <td>{{ $interno->conductor_id }}</td>
+                                <td>{{ $interno->fecha_ingreso }}</td>
+                                <td>
+                                    <a href="{{ route('interno.show', $interno->id) }}" class="btn btn-sm btn-outline-info">Ver</a>
+                                    <a href="{{ route('interno.edit', $interno->id) }}" class="btn btn-sm btn-outline-warning">Editar</a>
+                                    <form action="{{ route('interno.destroy', $interno->id) }}" method="POST" class="d-inline"
+                                        onsubmit="return confirm('¿Seguro que deseas eliminar este interno?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">No se encontraron internos.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+                {{ $internos->withQueryString()->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </div>
+</div>
 @endsection

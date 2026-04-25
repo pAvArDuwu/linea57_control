@@ -16,10 +16,11 @@ class InternoController extends Controller
      */
     public function index(Request $request): View
     {
-        $internos = Interno::paginate();
+        $buscar = $request->input('buscar');
+        $internos = Interno::where('estado', 'LIKE', '%' . $buscar . '%')
+                           ->paginate(10);
 
-        return view('interno.index', compact('internos'))
-            ->with('i', ($request->input('page', 1) - 1) * $internos->perPage());
+        return view('interno.index', compact('internos', 'buscar'));
     }
 
     /**

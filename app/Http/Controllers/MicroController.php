@@ -16,10 +16,13 @@ class MicroController extends Controller
      */
     public function index(Request $request): View
     {
-        $micros = Micro::paginate();
+        $buscar = $request->input('buscar');
+        $micros = Micro::where('placa', 'LIKE', '%' . $buscar . '%')
+                       ->orWhere('modelo', 'LIKE', '%' . $buscar . '%')
+                       ->orWhere('marca', 'LIKE', '%' . $buscar . '%')
+                       ->paginate(10);
 
-        return view('micro.index', compact('micros'))
-            ->with('i', ($request->input('page', 1) - 1) * $micros->perPage());
+        return view('micro.index', compact('micros', 'buscar'));
     }
 
     /**

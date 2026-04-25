@@ -7,7 +7,7 @@ use App\Http\Controllers\InternoController;
 use App\Http\Controllers\MicroController;
 use App\Http\Controllers\RutaController;
 use App\Http\Controllers\TurnoController;
-use App\Http\Controllers\RoleController;
+use App\Http\Controllers\RolesController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,7 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('interno', InternoController::class);
     Route::resource('ruta', RutaController::class);
     Route::resource('turno', TurnoController::class);
-    Route::resource('role', RoleController::class);
+    Route::resource('roles', RolesController::class);
+    Route::resource('users', App\Http\Controllers\UserController::class);
 });
 
 require __DIR__.'/auth.php';

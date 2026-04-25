@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('template_title')
-    {{ $rutum->name ?? __('Show') . " " . __('Rutum') }}
+    {{ $ruta->name ?? __('Show') . " " . __('Ruta') }}
 @endsection
 
 @section('content')
@@ -11,7 +11,7 @@
                 <div class="card">
                     <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
                         <div class="float-left">
-                            <span class="card-title">{{ __('Show') }} Rutum</span>
+                            <span class="card-title">{{ __('Show') }} Ruta</span>
                         </div>
                         <div class="float-right">
                             <a class="btn btn-primary btn-sm" href="{{ route('ruta.index') }}"> {{ __('Back') }}</a>
@@ -22,15 +22,15 @@
                         
                                 <div class="form-group mb-2 mb20">
                                     <strong>Origen:</strong>
-                                    {{ $rutum->origen }}
+                                    {{ $ruta->origen }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Destino:</strong>
-                                    {{ $rutum->destino }}
+                                    {{ $ruta->destino }}
                                 </div>
                                 <div class="form-group mb-2 mb20">
                                     <strong>Nombre Ruta:</strong>
-                                    {{ $rutum->nombre_ruta }}
+                                    {{ $ruta->nombre_ruta }}
                                 </div>
 
                     </div>

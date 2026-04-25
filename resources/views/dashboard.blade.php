@@ -101,8 +101,20 @@
                 <div class="card-body">
                     <h5 class="card-title text-dark">Roles</h5>
                     <p class="card-text text-muted">Gestiona los roles y permisos.</p>
-                    <a href="{{ route('role.index') }}" class="btn btn-dark btn-sm text-uppercase fw-bold">
+                    <a href="{{ route('roles.index') }}" class="btn btn-dark btn-sm text-uppercase fw-bold">
                         Ver Roles
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- Usuarios -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm border-0 border-top border-primary border-4" style="border-top-color: #1A2D4F !important;">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">Usuarios</h5>
+                    <p class="card-text text-muted">Gestiona los usuarios y asígnales roles.</p>
+                    <a href="{{ route('users.index') }}" class="btn btn-primary btn-sm text-uppercase fw-bold text-white">
+                        Ver Usuarios
                     </a>
                 </div>
             </div>
