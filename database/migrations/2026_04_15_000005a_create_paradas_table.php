@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('interno', function (Blueprint $table) {
+        Schema::create('paradas', function (Blueprint $table) {
             $table->id();
-            $estado_interno = ['activo', 'inactivo'];
-            $table->enum('estado', $estado_interno)->default('inactivo');
-            $table->foreignId('micro_id')->constrained('micro'); 
-            $table->foreignId('conductor_id')->constrained('conductor');
-            $table->datetime('fecha_ingreso');
+            $table->string('nombre', 100);
+            $table->string('ubicacion', 255)->nullable();
+            $table->decimal('latitud', 10, 8)->nullable();
+            $table->decimal('longitud', 11, 8)->nullable();
+            $table->enum('estado', ['activo', 'inactivo'])->default('activo');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('interno');
+        Schema::dropIfExists('paradas');
     }
 };

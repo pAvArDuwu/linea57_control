@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('turno', function (Blueprint $table) {
+        Schema::create('propietarios', function (Blueprint $table) {
             $table->id();
-            $table->enum('tipo', ['mañana', 'tarde', 'noche']);
-            $table->time('hora_inicio');
-            $table->time('hora_fin');
-            $table->foreignId('fiscalizador_id')->nullable()->constrained('fiscalizadors')->nullOnDelete();
             $table->timestamps();
         });
     }
@@ -26,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('turno');
+        Schema::dropIfExists('propietarios');
     }
 };

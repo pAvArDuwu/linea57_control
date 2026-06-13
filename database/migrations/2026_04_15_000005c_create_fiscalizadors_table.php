@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('turno', function (Blueprint $table) {
+        Schema::create('fiscalizadors', function (Blueprint $table) {
             $table->id();
-            $table->enum('tipo', ['mañana', 'tarde', 'noche']);
-            $table->time('hora_inicio');
-            $table->time('hora_fin');
-            $table->foreignId('fiscalizador_id')->nullable()->constrained('fiscalizadors')->nullOnDelete();
+            $table->string('nombres', 100);
+            $table->string('apellidos', 100);
+            $table->string('ci', 20)->unique();
+            $table->string('telefono', 20)->nullable();
+            $table->enum('estado', ['activo', 'inactivo', 'suspendido'])->default('activo');
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('turno');
+        Schema::dropIfExists('fiscalizadors');
     }
 };

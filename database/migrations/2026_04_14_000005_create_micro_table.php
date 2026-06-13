@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('micro', function (Blueprint $table) {
             $table->id(); 
-            $table->foreignId('dueño_id')->constrained('dueño');
+            $table->foreignId('propietario_id')->constrained('propietarios');
+            $table->foreignId('interno_id')->nullable()->constrained('interno'); 
             $table->string('placa', 20);
+            $table->string('chasis', 50)->nullable();
+            $table->year('anio_fabricacion')->nullable();
             $table->string('modelo', 30);
             $table->string('marca', 30);
             $table->integer('capacidad_pasajeros'); 
+            $table->enum('estado', ['activo', 'en_taller', 'baja'])->default('activo');
             $table->timestamps();
         });
     }

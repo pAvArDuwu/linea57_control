@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('dueño', function (Blueprint $table) {
+        Schema::create('interno', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', 30);
-            $table->string('apellido', 30);
-            $table->string('telefono', 15);
-            $table->string('correo', 50)->unique();
-            $table->string('ci', 20)->unique();
+            $estado_interno = ['activo', 'inactivo'];
+            $table->enum('estado', $estado_interno)->default('inactivo');
+          
+            $table->string('numero_interno', 10)->unique();
+            $table->datetime('fecha_ingreso');
+            $table->text('observaciones')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('interno');
     }
 };
