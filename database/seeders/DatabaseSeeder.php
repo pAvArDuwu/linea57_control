@@ -37,5 +37,8 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Ejecutar los datos de prueba del sistema de transporte
+        $this->call(TransporteSeeder::class);
     }
 }
