@@ -26,7 +26,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'conductor.destroy']);
         Permission::firstOrCreate(['name' => 'conductor.show']);
 
-        // Crear permisos para micros
+        // Crear permisos para micro
         Permission::firstOrCreate(['name' => 'micro.index']);
         Permission::firstOrCreate(['name' => 'micro.create']);
         Permission::firstOrCreate(['name' => 'micro.edit']);
@@ -40,7 +40,7 @@ class RoleSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'ruta.destroy']);
         Permission::firstOrCreate(['name' => 'ruta.show']);
 
-        // Crear permisos para turnos
+        // Crear permisos para turno
         Permission::firstOrCreate(['name' => 'turno.index']);
         Permission::firstOrCreate(['name' => 'turno.create']);
         Permission::firstOrCreate(['name' => 'turno.edit']);
@@ -51,13 +51,13 @@ class RoleSeeder extends Seeder
         // Admin tiene todos los permisos
         $admin->syncPermissions(Permission::all());
 
-        // Conductor: solo ver conductores y turnos (index, show), no puede eliminar turnos
+        // Conductor: solo ver conductores y turno (index, show), no puede eliminar turnos
         $conductor->syncPermissions([
             'conductor.index', 'conductor.show',
             'turno.index', 'turno.show'
         ]);
 
-        // Dueño: permisos para conductores y micros (index, create, edit, show), rutas (index, create, edit, show)
+        // Dueño: permisos para conductores y micro (index, create, edit, show), rutas (index, create, edit, show)
         $dueño->syncPermissions([
             'conductor.index', 'conductor.create', 'conductor.edit', 'conductor.show',
             'micro.index', 'micro.create', 'micro.edit', 'micro.show',

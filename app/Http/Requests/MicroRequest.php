@@ -22,11 +22,15 @@ class MicroRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'dueño_id' => 'required',
-			'placa' => 'required|string',
-			'modelo' => 'required|string',
-			'marca' => 'required|string',
-			'capacidad_pasajeros' => 'required',
+            'propietario_id' => 'required|exists:propietarios,id',
+            'interno_id' => 'nullable|exists:interno,id',
+            'placa' => 'required|string|max:20',
+            'chasis' => 'nullable|string|max:50',
+            'anio_fabricacion' => 'nullable|integer',
+            'modelo' => 'required|string|max:30',
+            'marca' => 'required|string|max:30',
+            'capacidad_pasajeros' => 'required|integer',
+            'estado' => 'required|in:activo,inactivo',
         ];
     }
 }

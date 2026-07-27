@@ -1,47 +1,41 @@
 @extends('layouts.app')
-
 @section('content')
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
-                    <h5 class="mb-0 text-dark">Detalles del Interno</h5>
-                    <a href="{{ route('interno.index') }}" class="btn btn-sm btn-outline-secondary">Volver</a>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-sm-4 fw-bold">ID:</div>
-                        <div class="col-sm-8 text-muted">{{ $interno->id }}</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4 fw-bold">Estado:</div>
-                        <div class="col-sm-8 text-muted">{{ $interno->estado }}</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4 fw-bold">Micro ID:</div>
-                        <div class="col-sm-8 text-muted">{{ $interno->micro_id }}</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4 fw-bold">Conductor ID:</div>
-                        <div class="col-sm-8 text-muted">{{ $interno->conductor_id }}</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-sm-4 fw-bold">Fecha Ingreso:</div>
-                        <div class="col-sm-8 text-muted">{{ $interno->fecha_ingreso }}</div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-top">
-                        <a href="{{ route('interno.edit', $interno->id) }}" class="btn btn-warning btn-sm">Editar</a>
-                        <form action="{{ route('interno.destroy', $interno->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar?')">Eliminar</button>
-                        </form>
+<div class="container-fluid py-4">
+    <div class="row justify-content-center"><div class="col-lg-8">
+        <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{{ route('interno.index') }}" class="text-decoration-none">Internos</a></li>
+            <li class="breadcrumb-item active">{{ $interno->numero_interno }}</li>
+        </ol></nav>
+        <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+            <div class="card-header bg-white border-bottom py-3 px-4" style="border-radius: 16px 16px 0 0;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold" style="color: var(--primary);">Detalle del Interno</h5>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('interno.edit', $interno->id) }}" class="btn btn-outline-warning btn-sm px-3" style="border-radius: 8px;">Editar</a>
+                        @if($interno->estado !== 'inactivo')
+                            <form action="{{ route('interno.destroy', $interno->id) }}" method="POST" class="d-inline">
+                                @csrf @method('DELETE')
+                                <button type="submit" onclick="return confirm('¿Desactivar?')" class="btn btn-outline-secondary btn-sm px-3" style="border-radius: 8px;">Desactivar</button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             </div>
+            <div class="card-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-4"><div class="p-3 rounded-3" style="background: #f8f9fc;"><div class="text-muted small mb-1">N° Interno</div><div class="fw-bold fs-5 font-monospace">{{ $interno->numero_interno }}</div></div></div>
+                    <div class="col-md-4"><div class="p-3 rounded-3" style="background: #f8f9fc;"><div class="text-muted small mb-1">Fecha Ingreso</div><div class="fw-semibold">{{ \Carbon\Carbon::parse($interno->fecha_ingreso)->format('d/m/Y H:i') }}</div></div></div>
+                    <div class="col-md-4"><div class="p-3 rounded-3" style="background: #f8f9fc;"><div class="text-muted small mb-1">Estado</div>
+                        @php $estados = ['disponible' => ['bg' => '#e6f4ea', 'color' => '#1e7e34', 'label' => 'Disponible'], 'asignado' => ['bg' => '#e8f0fe', 'color' => '#1565c0', 'label' => 'Asignado'], 'inactivo' => ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => 'Inactivo']]; $e = $estados[$interno->estado] ?? $estados['inactivo']; @endphp
+                        <span class="badge rounded-pill px-3 py-2" style="background: {{ $e['bg'] }}; color: {{ $e['color'] }}; font-weight: 500;">{{ $e['label'] }}</span>
+                    </div></div>
+                    <div class="col-12"><div class="p-3 rounded-3" style="background: #f8f9fc;"><div class="text-muted small mb-1">Observaciones</div><div class="text-secondary">{{ $interno->observaciones ?: 'Sin observaciones.' }}</div></div></div>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top py-3 px-4" style="border-radius: 0 0 16px 16px;">
+                <a href="{{ route('interno.index') }}" class="btn btn-outline-secondary px-4" style="border-radius: 10px;"><i class="bi bi-arrow-left me-2"></i>Volver</a>
+            </div>
         </div>
-    </div>
+    </div></div>
 </div>
 @endsection

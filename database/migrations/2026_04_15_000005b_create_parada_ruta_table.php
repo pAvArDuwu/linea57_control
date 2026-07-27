@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('ruta_id')->constrained('ruta')->onDelete('cascade');
             $table->foreignId('parada_id')->constrained('paradas')->onDelete('cascade');
             $table->integer('orden');
-            $table->enum('sentido', ['ida', 'vuelta'])->default('ida');
             $table->enum('estado', ['activo', 'inactivo'])->default('activo');
             $table->timestamps();
         });

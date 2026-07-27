@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property $telefono
  * @property $correo
  * @property $ci
+ * @property $estado
+ * @property $fecha_registro
  * @property $created_at
  * @property $updated_at
  *
@@ -22,25 +24,14 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Dueño extends Model
 {
-    
     protected $perPage = 20;
 
-    protected $table = 'dueño';
+    protected $table = 'propietarios';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = ['nombre', 'apellido', 'telefono', 'correo', 'ci'];
+    protected $fillable = ['nombre', 'apellido', 'telefono', 'correo', 'ci', 'estado', 'fecha_registro'];
 
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function micros()
     {
-        return $this->hasMany(\App\Models\Micro::class, 'dueño_id', 'id');
+        return $this->hasMany(\App\Models\Micro::class, 'propietario_id', 'id');
     }
-    
 }

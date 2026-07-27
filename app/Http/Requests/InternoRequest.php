@@ -22,10 +22,10 @@ class InternoRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'estado' => 'required|string',
-			'micro_id' => 'required',
-			'conductor_id' => 'required',
-			'fecha_ingreso' => 'required',
+            'numero_interno' => 'required|string|max:10',
+            'fecha_ingreso' => 'required',
+            'observaciones' => 'nullable|string',
+            'estado' => 'required|in:disponible,asignado,inactivo',
         ];
     }
 }

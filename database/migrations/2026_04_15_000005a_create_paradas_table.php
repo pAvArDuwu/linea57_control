@@ -9,18 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+   public function up(): void
     {
         Schema::create('paradas', function (Blueprint $table) {
             $table->id();
             $table->string('nombre', 100);
-            $table->string('ubicacion', 255)->nullable();
+            $table->string('referencia', 255)->nullable();
             $table->decimal('latitud', 10, 8)->nullable();
             $table->decimal('longitud', 11, 8)->nullable();
             $table->enum('estado', ['activo', 'inactivo'])->default('activo');
             $table->timestamps();
         });
     }
+
 
     /**
      * Reverse the migrations.

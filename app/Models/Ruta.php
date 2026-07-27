@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Model;
  * Class Ruta
  *
  * @property $id
- * @property $origen
- * @property $destino
- * @property $nombre_ruta
+ * @property $nombre
+ * @property $descripcion
+ * @property $sentido
+ * @property $estado
  * @property $created_at
  * @property $updated_at
  *
@@ -30,7 +31,7 @@ class Ruta extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['origen', 'destino', 'nombre_ruta'];
+    protected $fillable = ['nombre', 'descripcion', 'sentido', 'estado'];
 
 
     /**
@@ -40,5 +41,12 @@ class Ruta extends Model
     {
         return $this->hasMany(\App\Models\Turno::class, 'ruta_id', 'id');
     }
-    
+
+    public function paradas()
+    {
+        return $this->belongsToMany(\App\Models\parada::class, 'parada_ruta', 'ruta_id', 'parada_id')
+                    ->withPivot(['orden', 'estado'])
+                    ->orderByPivot('orden')
+                    ->withTimestamps();
+    }
 }

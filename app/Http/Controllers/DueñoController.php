@@ -41,10 +41,14 @@ class DueñoController extends Controller
      */
     public function store(DueñoRequest $request): RedirectResponse
     {
-        Dueño::create($request->validated());
+        $data = $request->validated();
+        if (empty($data['fecha_registro'])) {
+            $data['fecha_registro'] = now()->toDateString();
+        }
+        Dueño::create($data);
 
-        return Redirect::route('dueño.index')
-            ->with('success', 'Dueño created successfully.');
+        return Redirect::route('propietario.index')
+            ->with('success', 'Propietario creado correctamente.');
     }
 
     /**
@@ -52,7 +56,7 @@ class DueñoController extends Controller
      */
     public function show($id): View
     {
-        $dueño = Dueño::find($id);
+        $dueño = Dueño::findOrFail($id);
 
         return view('dueño.show', compact('dueño'));
     }
@@ -62,7 +66,7 @@ class DueñoController extends Controller
      */
     public function edit($id): View
     {
-        $dueño = Dueño::find($id);
+        $dueño = Dueño::findOrFail($id);
 
         return view('dueño.edit', compact('dueño'));
     }
@@ -70,19 +74,24 @@ class DueñoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(DueñoRequest $request, Dueño $dueño): RedirectResponse
+    public function update(DueñoRequest $request, $id): RedirectResponse
     {
+        $dueño = Dueño::findOrFail($id);
         $dueño->update($request->validated());
 
-        return Redirect::route('dueño.index')
-            ->with('success', 'Dueño updated successfully');
+        return Redirect::route('propietario.index')
+            ->with('success', 'Propietario actualizado correctamente.');
     }
 
+    /**
+     * Logical delete: set estado to inactivo
+     */
     public function destroy($id): RedirectResponse
     {
-        Dueño::find($id)->delete();
+        $dueño = Dueño::findOrFail($id);
+        $dueño->update(['estado' => 'inactivo']);
 
-        return Redirect::route('dueño.index')
-            ->with('success', 'Dueño deleted successfully');
+        return Redirect::route('propietario.index')
+            ->with('success', 'Propietario desactivado correctamente.');
     }
 }

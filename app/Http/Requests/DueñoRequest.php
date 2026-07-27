@@ -22,11 +22,12 @@ class DueñoRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'nombre' => 'required|string',
-			'apellido' => 'required|string',
-			'telefono' => 'required|string',
-			'correo' => 'required|string',
-			'ci' => 'required|string',
+            'nombre' => 'required|string|max:50',
+            'apellido' => 'required|string|max:50',
+            'telefono' => 'nullable|string|max:20',
+            'correo' => 'required|string|max:100',
+            'ci' => 'required|string|max:20',
+            'estado' => 'required|in:activo,inactivo',
         ];
     }
 }

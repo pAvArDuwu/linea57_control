@@ -22,9 +22,10 @@ class RutaRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'origen' => 'required|string',
-			'destino' => 'required|string',
-			'nombre_ruta' => 'required|string',
+			'nombre' => 'required|string|max:50',
+			'descripcion' => 'nullable|string',
+			'sentido' => 'required|in:Ida,Vuelta',
+			'estado' => 'required|in:activo,inactivo',
         ];
     }
 }

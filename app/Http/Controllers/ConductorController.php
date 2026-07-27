@@ -25,6 +25,7 @@ class ConductorController extends Controller
         $conductores = Conductor::where('nombre', 'LIKE', '%' . $buscar . '%')
                                 ->orWhere('apellido', 'LIKE', '%' . $buscar . '%')
                                 ->orWhere('correo', 'LIKE', '%' . $buscar . '%')
+                                ->orWhere('ci', 'LIKE', '%' . $buscar . '%')
                                 ->paginate(10);
 
         return view('conductor.index', compact('conductores', 'buscar'));
@@ -35,7 +36,8 @@ class ConductorController extends Controller
      */
     public function create()
     {
-        return view('conductor.create');
+        $conductor = new Conductor();
+        return view('conductor.create', compact('conductor'));
     }
 
     /**
@@ -49,11 +51,12 @@ class ConductorController extends Controller
             'telefono' => 'required|string|max:15',
             'correo' => 'required|email|unique:conductor,correo|max:50',
             'ci' => 'required|string|unique:conductor,ci|max:20',
+            'estado' => 'required|in:activo,inactivo',
         ]);
 
         Conductor::create($request->all());
 
-        return redirect()->route('conductor.index')->with('info', 'Conductor creado con éxito');
+        return redirect()->route('conductor.index')->with('success', 'Conductor creado con éxito.');
     }
 
     /**
@@ -87,21 +90,22 @@ class ConductorController extends Controller
             'telefono' => 'required|string|max:15',
             'correo' => 'required|email|unique:conductor,correo,' . $id . '|max:50',
             'ci' => 'required|string|unique:conductor,ci,' . $id . '|max:20',
+            'estado' => 'required|in:activo,inactivo',
         ]);
 
         $conductor->update($request->all());
 
-        return redirect()->route('conductor.index')->with('info', 'Conductor actualizado con éxito');
+        return redirect()->route('conductor.index')->with('success', 'Conductor actualizado con éxito.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Logical delete: set estado to inactivo
      */
     public function destroy(string $id)
     {
         $conductor = Conductor::findOrFail($id);
-        $conductor->delete();
+        $conductor->update(['estado' => 'inactivo']);
 
-        return redirect()->route('conductor.index')->with('info', 'Conductor eliminado con éxito');
+        return redirect()->route('conductor.index')->with('success', 'Conductor desactivado con éxito.');
     }
 }

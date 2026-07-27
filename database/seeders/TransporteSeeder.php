@@ -15,9 +15,12 @@ class TransporteSeeder extends Seeder
         // 1. Propietarios
         $propietarioId = DB::table('propietarios')->insertGetId([
             'nombre' => 'Juan',
-            'apellidos' => 'Perez',
-            'ci' => '1234567',
+            'apellido' => 'Perez',
             'telefono' => '77712345',
+            'correo' => 'juan.perez@example.com',
+            'ci' => '1234567',
+            'estado' => 'activo',
+            'fecha_registro' => $now->toDateString(),
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -29,6 +32,7 @@ class TransporteSeeder extends Seeder
             'telefono' => '77798765',
             'correo' => 'carlos@example.com',
             'ci' => '9876543',
+            'estado' => 'activo',
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -36,7 +40,7 @@ class TransporteSeeder extends Seeder
         // 3. Interno
         $internoId = DB::table('interno')->insertGetId([
             'numero_interno' => 'A-01',
-            'estado' => 'activo',
+            'estado' => 'disponible',
             'fecha_ingreso' => $now,
             'observaciones' => 'Vehículo en perfectas condiciones',
             'created_at' => $now,
@@ -60,9 +64,10 @@ class TransporteSeeder extends Seeder
 
         // 5. Ruta
         $rutaId = DB::table('ruta')->insertGetId([
-            'origen' => 'Plaza Principal',
-            'destino' => 'Terminal de Buses',
-            'nombre_ruta' => 'Línea 57 - Centro',
+            'nombre' => 'Línea 61 - Centro',
+            'descripcion' => 'Ruta Principal Centro',
+            'sentido' => 'Ida',
+            'estado' => 'activo',
             'created_at' => $now,
             'updated_at' => $now,
         ]);
@@ -70,7 +75,7 @@ class TransporteSeeder extends Seeder
         // 6. Paradas
         $parada1Id = DB::table('paradas')->insertGetId([
             'nombre' => 'Parada Mercado Central',
-            'ubicacion' => 'Av. San Martín esq. Bolívar',
+            'referencia' => 'Av. San Martín esq. Bolívar',
             'latitud' => -17.3935,
             'longitud' => -66.1570,
             'estado' => 'activo',
@@ -80,7 +85,7 @@ class TransporteSeeder extends Seeder
 
         $parada2Id = DB::table('paradas')->insertGetId([
             'nombre' => 'Parada Hospital',
-            'ubicacion' => 'Av. Papa Paulo',
+            'referencia' => 'Av. Papa Paulo',
             'latitud' => -17.3850,
             'longitud' => -66.1500,
             'estado' => 'activo',
@@ -94,7 +99,6 @@ class TransporteSeeder extends Seeder
                 'ruta_id' => $rutaId,
                 'parada_id' => $parada1Id,
                 'orden' => 1,
-                'sentido' => 'ida',
                 'estado' => 'activo',
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -103,7 +107,6 @@ class TransporteSeeder extends Seeder
                 'ruta_id' => $rutaId,
                 'parada_id' => $parada2Id,
                 'orden' => 2,
-                'sentido' => 'ida',
                 'estado' => 'activo',
                 'created_at' => $now,
                 'updated_at' => $now,

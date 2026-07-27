@@ -4,52 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * Class Micro
- *
- * @property $id
- * @property $dueño_id
- * @property $placa
- * @property $modelo
- * @property $marca
- * @property $capacidad_pasajeros
- * @property $created_at
- * @property $updated_at
- *
- * @property Dueño $dueño
- * @property Interno[] $internos
- * @package App
- * @mixin \Illuminate\Database\Eloquent\Builder
- */
 class Micro extends Model
 {
-    
     protected $perPage = 20;
 
     protected $table = 'micro';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = ['dueño_id', 'placa', 'modelo', 'marca', 'capacidad_pasajeros'];
+    protected $fillable = [
+        'propietario_id',
+        'interno_id',
+        'placa',
+        'chasis',
+        'anio_fabricacion',
+        'modelo',
+        'marca',
+        'capacidad_pasajeros',
+        'estado',
+    ];
 
+    public function propietario()
+    {
+        return $this->belongsTo(\App\Models\Dueño::class, 'propietario_id', 'id');
+    }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function dueño()
+    public function interno()
     {
-        return $this->belongsTo(\App\Models\Dueño::class, 'dueño_id', 'id');
+        return $this->belongsTo(\App\Models\Interno::class, 'interno_id', 'id');
     }
-    
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function internos()
-    {
-        return $this->hasMany(\App\Models\Interno::class, 'micro_id', 'id');
-    }
-    
 }

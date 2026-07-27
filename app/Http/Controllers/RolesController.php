@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
@@ -47,7 +49,29 @@ public function index(Request $request)
     
     public function show(string $id)
     {
-      
+        // Este método no se usa actualmente. Se puede habilitar para mostrar detalles del rol.
+    }
+
+    public function assignUsers()
+    {
+        $users = User::with('roles')->paginate(12);
+        $roles = Role::all();
+
+        return view('roles.assign', compact('users', 'roles'));
+    }
+
+    public function storeUserRoles(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'roles' => 'array',
+            'roles.*' => 'exists:roles,name',
+        ]);
+
+        $user = User::findOrFail($request->user_id);
+        $user->syncRoles($request->input('roles', []));
+
+        return redirect()->route('roles.assign')->with('success', 'Roles asignados correctamente al usuario.');
     }
 
     /**

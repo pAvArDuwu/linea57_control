@@ -17,5 +17,6 @@ class Conductor extends Model
         'telefono',
         'correo',
         'ci',
+        'estado',
     ];
 }

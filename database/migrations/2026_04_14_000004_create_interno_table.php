@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::create('interno', function (Blueprint $table) {
             $table->id();
-            $estado_interno = ['activo', 'inactivo'];
-            $table->enum('estado', $estado_interno)->default('inactivo');
-          
+            $table->enum('estado', ['disponible', 'asignado', 'inactivo'])->default('disponible');
             $table->string('numero_interno', 10)->unique();
             $table->datetime('fecha_ingreso');
             $table->text('observaciones')->nullable();
