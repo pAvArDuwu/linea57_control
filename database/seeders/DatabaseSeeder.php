@@ -33,12 +33,15 @@ class DatabaseSeeder extends Seeder
 
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
+        User::firstOrCreate([
             'email' => 'test@example.com',
+        ], [
+            'name' => 'Test User',
+            'password' => bcrypt('password'),
+            'email_verified_at' => now(),
         ]);
 
-        // Ejecutar los datos de prueba del sistema de transporte
-        $this->call(TransporteSeeder::class);
+        // Ejecutar los datos de prueba del módulo de parametrización.
+        $this->call(ParametrizacionSeeder::class);
     }
 }

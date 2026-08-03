@@ -1,0 +1,51 @@
+<?php
+
+namespace Tests\Feature\Api;
+
+use App\Models\Conductor;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
+
+class ConductorCrudTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_authenticated_user_can_manage_conductores(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+
+        $payload = [
+            'nombre' => 'Ana',
+            'apellido' => 'Pérez',
+            'telefono' => '70000000',
+            'correo' => 'ana@example.test',
+            'ci' => '1234567',
+            'estado' => 'activo',
+        ];
+
+        $id = $this->postJson('/api/conductores', $payload)
+            ->assertCreated()
+            ->assertJsonPath('nombre', 'Ana')
+            ->json('id');
+
+        $this->getJson('/api/conductores')
+            ->assertOk()
+            ->assertJsonPath('0.id', $id);
+
+        $this->putJson("/api/conductores/{$id}", [...$payload, 'telefono' => '71111111'])
+            ->assertOk()
+            ->assertJsonPath('telefono', '71111111');
+
+        $this->deleteJson("/api/conductores/{$id}")
+            ->assertOk();
+
+        $this->assertDatabaseMissing('conductor', ['id' => $id]);
+    }
+
+    public function test_crud_endpoints_require_a_sanctum_token(): void
+    {
+        $this->getJson('/api/conductores')->assertUnauthorized();
+    }
+}

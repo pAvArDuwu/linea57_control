@@ -33,7 +33,7 @@ class Turno extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['interno_id', 'ruta_id', 'hora_inicio', 'hora_fin', 'fecha_laboral'];
+    protected $fillable = ['tipo', 'hora_inicio', 'hora_fin', 'fiscalizador_id'];
 
 
     /**
