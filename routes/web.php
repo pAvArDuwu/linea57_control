@@ -8,6 +8,7 @@ use App\Http\Controllers\MicroController;
 use App\Http\Controllers\ParadaController;
 use App\Http\Controllers\RutaController;
 use App\Http\Controllers\TurnoController;
+use App\Http\Controllers\AsignacionTurnoController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\RutaParadaController;
 use Illuminate\Support\Facades\Route;
@@ -32,10 +33,12 @@ Route::middleware('auth')->group(function () {
     Route::resource('ruta', RutaController::class);
     Route::resource('parada', ParadaController::class);
     Route::resource('turno', TurnoController::class);
+    Route::resource('asignacion-turno', AsignacionTurnoController::class);
     Route::resource('rutas-paradas', RutaParadaController::class);
 
     Route::get('roles/asignar', [RolesController::class, 'assignUsers'])->name('roles.assign');
     Route::post('roles/asignar', [RolesController::class, 'storeUserRoles'])->name('roles.assign.store');
+    Route::delete('roles/asignar/{id}', [RolesController::class, 'destroyUserRoles'])->name('roles.assign.destroy');
     Route::resource('roles', RolesController::class);
     Route::resource('users', App\Http\Controllers\UserController::class);
 });

@@ -42,7 +42,10 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
                                         @if($rp->ruta)
-                                            <strong>{{ $rp->ruta->nombre_ruta }}</strong> ({{ $rp->ruta->origen }} - {{ $rp->ruta->destino }})
+                                            <strong>{{ $rp->ruta->nombre }}</strong>
+                                            @if($rp->ruta->descripcion)
+                                                <span class="text-muted">({{ $rp->ruta->descripcion }})</span>
+                                            @endif
                                         @else
                                             <span class="text-danger">Ruta Eliminada</span>
                                         @endif

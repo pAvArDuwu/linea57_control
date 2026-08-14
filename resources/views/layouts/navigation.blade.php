@@ -50,7 +50,8 @@
                                  request()->routeIs('micro.*') || 
                                  request()->routeIs('interno.*') || 
                                  request()->routeIs('ruta.*') || 
-                                 request()->routeIs('parada.*');
+                                 request()->routeIs('parada.*') ||
+                                 request()->routeIs('turno.*');
     @endphp
     <a class="nav-link {{ $parametrizacionActive ? 'active' : '' }}" 
        data-bs-toggle="collapse" 
@@ -81,11 +82,14 @@
         <a class="nav-link {{ request()->routeIs('parada.*') ? 'active' : '' }}" href="{{ route('parada.index') }}">
             <i class="bi bi-geo-alt me-2"></i><span>Paradas</span>
         </a>
+        <a class="nav-link {{ request()->routeIs('turno.*') ? 'active' : '' }}" href="{{ route('turno.index') }}">
+            <i class="bi bi-clock me-2"></i><span>Turnos</span>
+        </a>
     </div>
 
     <!-- Transacciones Module (Collapsible) -->
     @php
-        $transaccionesActive = request()->routeIs('turno.*');
+        $transaccionesActive = request()->routeIs('asignacion-turno.*');
     @endphp
     <a class="nav-link {{ $transaccionesActive ? 'active' : '' }}" 
        data-bs-toggle="collapse" 
@@ -98,8 +102,8 @@
         <i class="bi bi-caret-down-fill ms-auto"></i>
     </a>
     <div class="collapse submenu {{ $transaccionesActive ? 'show' : '' }}" id="transaccionesSubmenu">
-        <a class="nav-link {{ request()->routeIs('turno.*') ? 'active' : '' }}" href="{{ route('turno.index') }}">
-            <i class="bi bi-calendar2-check me-2"></i><span>Asignación</span>
+        <a class="nav-link {{ request()->routeIs('asignacion-turno.*') ? 'active' : '' }}" href="{{ route('asignacion-turno.index') }}">
+            <i class="bi bi-calendar2-check me-2"></i><span>Asignación de Turnos</span>
         </a>
         <a class="nav-link" href="#">
             <i class="bi bi-play-circle me-2"></i><span>Inicio recorrido</span>

@@ -5,81 +5,103 @@ namespace App\Http\Controllers;
 use App\Models\Turno;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\TurnoRequest;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
 class TurnoController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Lista todos los turnos del catálogo.
      */
     public function index(Request $request): View
     {
         $buscar = $request->input('buscar');
-        $turnos = Turno::where('fecha_laboral', 'LIKE', '%' . $buscar . '%')
-                       ->paginate(10);
+
+        $turnos = Turno::when($buscar, function ($q) use ($buscar) {
+                        $q->where('nombre', 'LIKE', '%' . $buscar . '%')
+                          ->orWhere('descripcion', 'LIKE', '%' . $buscar . '%');
+                    })
+                    ->orderBy('id')
+                    ->paginate(10);
 
         return view('turno.index', compact('turnos', 'buscar'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Formulario de creación de un nuevo turno del catálogo.
      */
     public function create(): View
     {
         $turno = new Turno();
-
         return view('turno.create', compact('turno'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Almacena un nuevo turno del catálogo.
      */
-    public function store(TurnoRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        Turno::create($request->validated());
+        $data = $request->validate([
+            'nombre'      => ['required', 'in:mañana,tarde,noche'],
+            'hora_inicio' => ['required', 'date_format:H:i'],
+            'hora_fin'    => ['required', 'date_format:H:i'],
+            'descripcion' => ['nullable', 'string', 'max:255'],
+            'estado'      => ['required', 'in:activo,inactivo'],
+        ]);
 
-        return Redirect::route('turno.index')
-            ->with('success', 'Turno created successfully.');
+        Turno::create($data);
+
+        return redirect()->route('turno.index')
+            ->with('success', 'Turno creado correctamente.');
     }
 
     /**
-     * Display the specified resource.
+     * Muestra los detalles de un turno del catálogo.
      */
-    public function show($id): View
+    public function show(int $id): View
     {
-        $turno = Turno::find($id);
-
+        $turno = Turno::findOrFail($id);
         return view('turno.show', compact('turno'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Formulario de edición.
      */
-    public function edit($id): View
+    public function edit(int $id): View
     {
-        $turno = Turno::find($id);
-
+        $turno = Turno::findOrFail($id);
         return view('turno.edit', compact('turno'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza el turno del catálogo.
      */
-    public function update(TurnoRequest $request, Turno $turno): RedirectResponse
+    public function update(Request $request, int $id): RedirectResponse
     {
-        $turno->update($request->validated());
+        $turno = Turno::findOrFail($id);
 
-        return Redirect::route('turno.index')
-            ->with('success', 'Turno updated successfully');
+        $data = $request->validate([
+            'nombre'      => ['required', 'in:mañana,tarde,noche'],
+            'hora_inicio' => ['required', 'date_format:H:i'],
+            'hora_fin'    => ['required', 'date_format:H:i'],
+            'descripcion' => ['nullable', 'string', 'max:255'],
+            'estado'      => ['required', 'in:activo,inactivo'],
+        ]);
+
+        $turno->update($data);
+
+        return redirect()->route('turno.index')
+            ->with('success', 'Turno actualizado correctamente.');
     }
 
-    public function destroy($id): RedirectResponse
+    /**
+     * Desactivación lógica (no eliminación física).
+     */
+    public function destroy(int $id): RedirectResponse
     {
-        Turno::find($id)->delete();
+        $turno = Turno::findOrFail($id);
+        $turno->update(['estado' => 'inactivo']);
 
-        return Redirect::route('turno.index')
-            ->with('success', 'Turno deleted successfully');
+        return redirect()->route('turno.index')
+            ->with('info', 'Turno desactivado correctamente.');
     }
 }

@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Bootstrap also uses `.collapse`; Tailwind's utility hides opened submenus. */
+.collapse {
+    visibility: visible;
+}

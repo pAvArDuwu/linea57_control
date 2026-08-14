@@ -5,51 +5,58 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Turno
+ * Modelo Turno – catálogo estático de horarios de operación.
  *
- * @property $id
- * @property $interno_id
- * @property $ruta_id
- * @property $hora_inicio
- * @property $hora_fin
- * @property $fecha_laboral
- * @property $created_at
- * @property $updated_at
+ * Un turno representa un bloque horario (Mañana / Tarde / Noche).
+ * NO se crea un registro por cada día; es un parámetro reutilizable.
  *
- * @property Interno $interno
- * @property Ruta $ruta
- * @package App
- * @mixin \Illuminate\Database\Eloquent\Builder
+ * @property int    $id
+ * @property string $nombre      Enum: mañana | tarde | noche
+ * @property string $hora_inicio Hora habitual de inicio (HH:MM:SS)
+ * @property string $hora_fin    Hora habitual de finalización (HH:MM:SS)
+ * @property string|null $descripcion
+ * @property string $estado      activo | inactivo
+ * @property \Carbon\Carbon $created_at
+ * @property \Carbon\Carbon $updated_at
  */
 class Turno extends Model
 {
-    
-    protected $perPage = 20;
-
     protected $table = 'turno';
 
+    protected $perPage = 20;
+
+    protected $fillable = [
+        'nombre',
+        'hora_inicio',
+        'hora_fin',
+        'descripcion',
+        'estado',
+    ];
+
     /**
-     * The attributes that are mass assignable.
+     * Etiquetas legibles para el enum `nombre`.
+     */
+    public const NOMBRES = [
+        'mañana' => 'Mañana',
+        'tarde'  => 'Tarde',
+        'noche'  => 'Noche',
+    ];
+
+    /**
+     * Devuelve la etiqueta capitalizada del turno.
+     */
+    public function getNombreLabelAttribute(): string
+    {
+        return self::NOMBRES[$this->nombre] ?? ucfirst($this->nombre);
+    }
+
+    /**
+     * Un turno puede estar asociado a muchas asignaciones de turno.
      *
-     * @var array<int, string>
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    protected $fillable = ['tipo', 'hora_inicio', 'hora_fin', 'fiscalizador_id'];
-
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function interno()
+    public function asignaciones()
     {
-        return $this->belongsTo(\App\Models\Interno::class, 'interno_id', 'id');
+        return $this->hasMany(\App\Models\AsignacionTurno::class, 'turno_id');
     }
-    
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function ruta()
-    {
-        return $this->belongsTo(\App\Models\Ruta::class, 'ruta_id', 'id');
-    }
-    
 }

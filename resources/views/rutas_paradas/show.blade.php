@@ -13,7 +13,10 @@
                         <p class="text-muted mb-1">Ruta</p>
                         <p class="fs-5 fw-semibold">
                             @if($rutaParada->ruta)
-                                {{ $rutaParada->ruta->nombre_ruta }} <span class="text-muted fs-6">({{ $rutaParada->ruta->origen }} - {{ $rutaParada->ruta->destino }})</span>
+                                {{ $rutaParada->ruta->nombre }}
+                                @if($rutaParada->ruta->descripcion)
+                                    <span class="text-muted fs-6">({{ $rutaParada->ruta->descripcion }})</span>
+                                @endif
                             @else
                                 <span class="text-danger">Ruta no asignada/eliminada</span>
                             @endif

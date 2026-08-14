@@ -5,7 +5,7 @@
             <option value="" disabled {{ old('ruta_id', $rutaParada->ruta_id) ? '' : 'selected' }}>Seleccione una ruta...</option>
             @foreach($rutas as $ruta)
                 <option value="{{ $ruta->id }}" {{ old('ruta_id', $rutaParada->ruta_id) == $ruta->id ? 'selected' : '' }}>
-                    {{ $ruta->nombre_ruta }} ({{ $ruta->origen }} - {{ $ruta->destino }})
+                    {{ $ruta->nombre }} @if($ruta->descripcion) ({{ $ruta->descripcion }}) @endif
                 </option>
             @endforeach
         </select>

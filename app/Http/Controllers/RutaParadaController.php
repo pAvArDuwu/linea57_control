@@ -19,7 +19,7 @@ class RutaParadaController extends Controller
         $rutasParadas = RutaParada::with(['ruta', 'parada'])
             ->when($buscar, function ($query) use ($buscar) {
                 $query->whereHas('ruta', function ($q) use ($buscar) {
-                    $q->where('nombre_ruta', 'like', "%{$buscar}%");
+                    $q->where('nombre', 'like', "%{$buscar}%");
                 })
                 ->orWhereHas('parada', function ($q) use ($buscar) {
                     $q->where('nombre', 'like', "%{$buscar}%");

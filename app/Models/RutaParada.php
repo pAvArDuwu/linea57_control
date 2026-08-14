@@ -22,6 +22,7 @@ class RutaParada extends Model
         'ruta_id',
         'parada_id',
         'orden',
+        'sentido',
         'estado',
     ];
 
