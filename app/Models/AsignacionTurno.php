@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int         $turno_id
  * @property int         $ruta_id
  * @property int         $micro_id
- * @property int|null    $interno_id
  * @property int         $conductor_id
  * @property string|null $hora_salida
  * @property string|null $hora_llegada
@@ -31,7 +30,6 @@ class AsignacionTurno extends Model
         'turno_id',
         'ruta_id',
         'micro_id',
-        'interno_id',
         'conductor_id',
         'hora_salida',
         'hora_llegada',
@@ -57,12 +55,6 @@ class AsignacionTurno extends Model
     public function micro()
     {
         return $this->belongsTo(\App\Models\Micro::class, 'micro_id');
-    }
-
-    /** @return \Illuminate\Database\Eloquent\Relations\BelongsTo */
-    public function interno()
-    {
-        return $this->belongsTo(\App\Models\Interno::class, 'interno_id');
     }
 
     /** @return \Illuminate\Database\Eloquent\Relations\BelongsTo */

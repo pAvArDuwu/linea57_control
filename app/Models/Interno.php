@@ -12,10 +12,7 @@ class Interno extends Model
 
     protected $fillable = ['numero_interno', 'fecha_ingreso', 'observaciones', 'estado'];
 
-    public function asignaciones()
-    {
-        return $this->hasMany(\App\Models\AsignacionTurno::class, 'interno_id', 'id');
-    }
+    
 
     public function micro()
     {

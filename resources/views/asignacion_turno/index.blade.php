@@ -89,13 +89,17 @@
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
-                                </td>
                                 <td class="text-muted small">
-                                    @if($a->interno)
-                                        <div><i class="bi bi-hdd-stack me-1"></i>Int. {{ $a->interno->numero_interno }}</div>
-                                    @endif
                                     @if($a->micro)
-                                        <div><i class="bi bi-bus-front me-1"></i>{{ $a->micro->placa }}</div>
+                                        <div>
+                                            <i class="bi bi-hdd-stack me-1"></i>
+                                            Int. {{ $a->micro->interno->numero_interno ?? 'Sin asignar' }}
+                                        </div>
+
+                                        <div>
+                                            <i class="bi bi-bus-front me-1"></i>
+                                            {{ $a->micro->placa }}
+                                        </div>
                                     @endif
                                 </td>
                                 <td class="text-muted small">{{ $a->ruta?->nombre ?? '—' }}</td>

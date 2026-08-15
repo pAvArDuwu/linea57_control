@@ -42,47 +42,37 @@
         <div class="form-text">Solo se muestran turnos activos. No es posible crear turnos aquí.</div>
     </div>
 
-    {{-- Interno --}}
-    <div class="col-md-6">
-        <label for="interno_id" class="form-label fw-semibold">
-            <i class="bi bi-hdd-stack me-1" style="color: var(--primary);"></i>Interno
-        </label>
-        <select name="interno_id" id="interno_id"
-                class="form-select @error('interno_id') is-invalid @enderror"
-                style="border-radius: 10px;">
-            <option value="">— Ninguno —</option>
-            @foreach($internos as $interno)
-                <option value="{{ $interno->id }}"
-                    {{ old('interno_id', $asignacion->interno_id ?? '') == $interno->id ? 'selected' : '' }}>
-                    Interno {{ $interno->numero_interno }}
-                </option>
-            @endforeach
-        </select>
-        @error('interno_id')
-            <div class="invalid-feedback"><strong>{{ $message }}</strong></div>
-        @enderror
-    </div>
+    
+<div class="col-md-6">
+    <label for="micro_id" class="form-label fw-semibold">
+        <i class="bi bi-bus-front me-1" style="color: var(--primary);"></i>Micro
+    </label>
 
-    {{-- Micro --}}
-    <div class="col-md-6">
-        <label for="micro_id" class="form-label fw-semibold">
-            <i class="bi bi-bus-front me-1" style="color: var(--primary);"></i>Micro
-        </label>
-        <select name="micro_id" id="micro_id"
-                class="form-select @error('micro_id') is-invalid @enderror"
-                style="border-radius: 10px;">
-            <option value="">— Seleccionar micro —</option>
-            @foreach($micros as $micro)
-                <option value="{{ $micro->id }}"
-                    {{ old('micro_id', $asignacion->micro_id ?? '') == $micro->id ? 'selected' : '' }}>
-                    {{ $micro->placa }} — {{ $micro->marca }} {{ $micro->modelo }}
-                </option>
-            @endforeach
-        </select>
-        @error('micro_id')
-            <div class="invalid-feedback"><strong>{{ $message }}</strong></div>
-        @enderror
-    </div>
+    <select name="micro_id" id="micro_id"
+            class="form-select @error('micro_id') is-invalid @enderror"
+            style="border-radius: 10px;">
+
+        <option value="">— Seleccionar micro —</option>
+
+        @foreach($micros as $micro)
+            <option value="{{ $micro->id }}"
+                {{ old('micro_id', $asignacion->micro_id ?? '') == $micro->id ? 'selected' : '' }}>
+
+                Interno {{ $micro->interno->numero_interno ?? 'Sin interno' }}
+                — {{ $micro->placa }}
+                — {{ $micro->marca }} {{ $micro->modelo }}
+
+            </option>
+        @endforeach
+
+    </select>
+
+    @error('micro_id')
+        <div class="invalid-feedback">
+            <strong>{{ $message }}</strong>
+        </div>
+    @enderror
+</div>
 
     {{-- Conductor --}}
     <div class="col-md-6">
