@@ -74,7 +74,7 @@
                     </div>
 
                     {{-- Coordenadas --}}
-                    <div class="row g-4 mb-4">
+                    {{--<div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <div class="p-3 rounded-3" style="background: #f8f9fc;">
                                 <div class="text-muted small mb-1"><i class="bi bi-crosshair me-1"></i>Latitud</div>
@@ -87,7 +87,7 @@
                                 <div class="fw-semibold font-monospace">{{ $parada->longitud ?? '—' }}</div>
                             </div>
                         </div>
-                    </div>
+                    </div>--}}
 
                     {{-- Map --}}
                     @if($parada->latitud && $parada->longitud)

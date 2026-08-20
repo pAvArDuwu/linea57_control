@@ -77,7 +77,7 @@
     </div>
 
     {{-- Coordinates --}}
-    <div class="row g-3">
+    {{--<div class="row g-3">
         <div class="col-md-6">
             <label for="latitud" class="form-label fw-semibold">
                 <i class="bi bi-crosshair me-1 text-muted"></i>Latitud
@@ -98,7 +98,18 @@
                    placeholder="Seleccione en el mapa" readonly>
             @error('longitud')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
         </div>
-    </div>
+    </div>--}}
+
+    {{-- Hidden inputs to store coordinates --}}
+    <input type="hidden" name="latitud" id="latitud" value="{{ old('latitud', $parada->latitud) }}">
+    <input type="hidden" name="longitud" id="longitud" value="{{ old('longitud', $parada->longitud) }}">
+
+    @error('latitud')
+        <div class="text-danger small mt-1"><i class="bi bi-exclamation-triangle me-1"></i>{{ $message }}</div>
+    @enderror
+    @error('longitud')
+        <div class="text-danger small mt-1"><i class="bi bi-exclamation-triangle me-1"></i>{{ $message }}</div>
+    @enderror
 </div>
 
 <hr class="my-4">
@@ -146,9 +157,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if (marker) {
             map.removeLayer(marker);
         }
+        
+        var stopName = document.getElementById('nombre').value.trim() || 'Nueva Parada';
+        
         marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
-        document.getElementById('latitud').value = lat.toFixed(8);
-        document.getElementById('longitud').value = lng.toFixed(8);
+        marker.bindPopup('<b style="color: var(--primary);">' + stopName + '</b>').openPopup();
+
+        var latInput = document.getElementById('latitud');
+        var lngInput = document.getElementById('longitud');
+        if (latInput) latInput.value = lat.toFixed(8);
+        if (lngInput) lngInput.value = lng.toFixed(8);
+    }
+
+    // Dynamic popup updater when typing the name
+    var nombreInput = document.getElementById('nombre');
+    if (nombreInput) {
+        nombreInput.addEventListener('input', function() {
+            if (marker) {
+                var stopName = nombreInput.value.trim() || 'Nueva Parada';
+                marker.setPopupContent('<b style="color: var(--primary);">' + stopName + '</b>');
+            }
+        });
     }
 
     // If editing and has location, place marker
@@ -156,10 +185,40 @@ document.addEventListener('DOMContentLoaded', function() {
         setMarker(defaultLat, defaultLng);
     }
 
-    // Click on map
+    // Click on map — reverse geocoding to auto-fill nombre
     map.on('click', function(e) {
-        setMarker(e.latlng.lat, e.latlng.lng);
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        setMarker(lat, lng);
         map.setView(e.latlng, Math.max(map.getZoom(), 16));
+
+        // Geocodificación inversa: obtener nombre del lugar
+        fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&accept-language=es')
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                var nombreInput = document.getElementById('nombre');
+                if (nombreInput && data && data.address) {
+                    // Priorizar: nombre del local, calle, barrio, ciudad
+                    var name = data.name
+                        || data.address.road
+                        || data.address.neighbourhood
+                        || data.address.suburb
+                        || data.address.city
+                        || data.display_name.split(',').slice(0, 2).join(', ');
+
+                    // Siempre actualizar con el nombre de la nueva ubicación
+                    nombreInput.value = name;
+
+                    // Actualizar popup del marcador con el nuevo nombre
+                    if (marker) {
+                        marker.setPopupContent('<b style="color: var(--primary);">' + name + '</b>');
+                    }
+                }
+            })
+            .catch(function() {
+                // Si falla la geocodificación inversa, no pasa nada
+            });
     });
 
     // Search with Nominatim
@@ -189,6 +248,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         div.addEventListener('click', function() {
                             var lat = parseFloat(item.lat);
                             var lng = parseFloat(item.lon);
+
+                            // Rellenar nombre de la parada con el nombre abreviado del lugar
+                            var nombreInput = document.getElementById('nombre');
+                            if (nombreInput && !nombreInput.value.trim()) {
+                                nombreInput.value = item.display_name.split(',').slice(0, 2).join(', ');
+                            }
+
                             setMarker(lat, lng);
                             map.setView([lat, lng], 17);
                             resultsContainer.style.display = 'none';

@@ -57,7 +57,7 @@
                             <th class="ps-4 py-3 text-muted fw-semibold" style="font-size: 0.85rem;">No</th>
                             <th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Nombre</th>
                             <th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Referencia</th>
-                            <th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Coordenadas</th>
+                            {{--<th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Coordenadas</th>--}}
                             <th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Estado</th>
                             <th class="py-3 text-muted fw-semibold text-end pe-4" style="font-size: 0.85rem;">Acciones</th>
                         </tr>
@@ -78,7 +78,7 @@
                                     </div>
                                 </td>
                                 <td class="text-muted">{{ $parada->referencia ?? '—' }}</td>
-                                <td>
+                                {{--<td>
                                     @if($parada->latitud && $parada->longitud)
                                         <small class="text-muted font-monospace">
                                             {{ number_format($parada->latitud, 6) }}, {{ number_format($parada->longitud, 6) }}
@@ -86,7 +86,7 @@
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
-                                </td>
+                                </td>--}}
                                 <td>
                                     @if($parada->estado === 'activo')
                                         <span class="badge rounded-pill px-3 py-2" style="background: #e6f4ea; color: #1e7e34; font-weight: 500;">
