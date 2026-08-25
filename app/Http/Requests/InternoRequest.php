@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class InternoRequest extends FormRequest
 {
@@ -21,11 +22,27 @@ class InternoRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('interno');
+
         return [
-            'numero_interno' => 'required|string|max:10',
-            'fecha_ingreso' => 'required',
+            'numero_interno' => [
+                'required',
+                'string',
+                'max:10',
+                Rule::unique('interno', 'numero_interno')->ignore($id),
+            ],
+            'fecha_ingreso' => 'required|date',
             'observaciones' => 'nullable|string',
             'estado' => 'required|in:disponible,asignado,inactivo',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'numero_interno.unique' => 'Este número de interno ya se encuentra registrado.',
+            'numero_interno.required' => 'El número de interno es obligatorio.',
+            'fecha_ingreso.required' => 'La fecha de ingreso es obligatoria.',
         ];
     }
 }

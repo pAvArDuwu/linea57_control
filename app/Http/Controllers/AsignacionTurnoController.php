@@ -7,12 +7,17 @@ use App\Models\Conductor;
 use App\Models\Micro;
 use App\Models\Ruta;
 use App\Models\Turno;
+use App\Services\AsignacionTurnoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class AsignacionTurnoController extends Controller
 {
+    public function __construct(
+        protected AsignacionTurnoService $asignacionTurnoService
+    ) {}
+
     /**
      * Lista de asignaciones de turno.
      */
@@ -23,23 +28,14 @@ class AsignacionTurnoController extends Controller
         $asignaciones = AsignacionTurno::with([
                 'turno',
                 'conductor',
-                'micro',
+                'micro.interno',
                 'ruta'
             ])
-            ->when($buscar, function ($q) use ($buscar) {
-                $q->whereHas('conductor', function ($c) use ($buscar) {
-                    $c->where('nombre', 'LIKE', "%$buscar%")
-                      ->orWhere('apellido', 'LIKE', "%$buscar%");
-                })
-                ->orWhere('fecha', 'LIKE', "%$buscar%");
-            })
+            ->when($buscar, fn ($q) => $q->buscarPorConductor($buscar))
             ->orderByDesc('fecha')
             ->paginate(10);
 
-        return view('asignacion_turno.index', compact(
-            'asignaciones',
-            'buscar'
-        ));
+        return view('asignacion_turno.index', compact('asignaciones', 'buscar'));
     }
 
     /**
@@ -47,22 +43,10 @@ class AsignacionTurnoController extends Controller
      */
     public function create(): View
     {
-        $turnos = Turno::where('estado', 'activo')
-            ->orderBy('nombre')
-            ->get();
-
-        $rutas = Ruta::where('estado', 'activo')
-            ->orderBy('nombre')
-            ->get();
-
-        $micros = Micro::where('estado', 'activo')
-            ->orderBy('placa')
-            ->get();
-
-        $conductores = Conductor::where('estado', 'activo')
-            ->orderBy('nombre')
-            ->get();
-
+        $turnos = Turno::where('estado', 'activo')->orderBy('nombre')->get();
+        $rutas = Ruta::where('estado', 'activo')->orderBy('nombre')->get();
+        $micros = Micro::where('estado', 'activo')->with('interno')->orderBy('placa')->get();
+        $conductores = Conductor::where('estado', 'activo')->orderBy('nombre')->get();
         $asignacion = new AsignacionTurno();
 
         return view('asignacion_turno.create', compact(
@@ -87,25 +71,11 @@ class AsignacionTurnoController extends Controller
             'conductor_id' => ['required', 'integer', 'exists:conductor,id'],
             'hora_salida'  => ['nullable', 'date_format:H:i'],
             'hora_llegada' => ['nullable', 'date_format:H:i'],
-            'estado'       => [
-                'required',
-                'in:pendiente,en_curso,completado,retrasado,cancelado'
-            ],
+            'estado'       => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
             'observaciones' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        // Validación adicional: el turno seleccionado debe estar activo
-        $turno = Turno::findOrFail($data['turno_id']);
-
-        if ($turno->estado !== 'activo') {
-            return back()
-                ->withErrors([
-                    'turno_id' => 'El turno seleccionado está inactivo.'
-                ])
-                ->withInput();
-        }
-
-        AsignacionTurno::create($data);
+        $this->asignacionTurnoService->crear($data);
 
         return redirect()
             ->route('asignacion-turno.index')
@@ -120,14 +90,11 @@ class AsignacionTurnoController extends Controller
         $asignacion = AsignacionTurno::with([
             'turno',
             'conductor',
-            'micro',
+            'micro.interno',
             'ruta'
         ])->findOrFail($id);
 
-        return view(
-            'asignacion_turno.show',
-            compact('asignacion')
-        );
+        return view('asignacion_turno.show', compact('asignacion'));
     }
 
     /**
@@ -136,22 +103,10 @@ class AsignacionTurnoController extends Controller
     public function edit(int $id): View
     {
         $asignacion = AsignacionTurno::findOrFail($id);
-
-        $turnos = Turno::where('estado', 'activo')
-            ->orderBy('nombre')
-            ->get();
-
-        $rutas = Ruta::where('estado', 'activo')
-            ->orderBy('nombre')
-            ->get();
-
-        $micros = Micro::where('estado', 'activo')
-            ->orderBy('placa')
-            ->get();
-
-        $conductores = Conductor::where('estado', 'activo')
-            ->orderBy('nombre')
-            ->get();
+        $turnos = Turno::where('estado', 'activo')->orderBy('nombre')->get();
+        $rutas = Ruta::where('estado', 'activo')->orderBy('nombre')->get();
+        $micros = Micro::where('estado', 'activo')->with('interno')->orderBy('placa')->get();
+        $conductores = Conductor::where('estado', 'activo')->orderBy('nombre')->get();
 
         return view('asignacion_turno.edit', compact(
             'asignacion',
@@ -165,10 +120,8 @@ class AsignacionTurnoController extends Controller
     /**
      * Actualiza una asignación de turno.
      */
-    public function update(
-        Request $request,
-        int $id
-    ): RedirectResponse {
+    public function update(Request $request, int $id): RedirectResponse
+    {
         $asignacion = AsignacionTurno::findOrFail($id);
 
         $data = $request->validate([
@@ -179,31 +132,15 @@ class AsignacionTurnoController extends Controller
             'conductor_id' => ['required', 'integer', 'exists:conductor,id'],
             'hora_salida'  => ['nullable', 'date_format:H:i'],
             'hora_llegada' => ['nullable', 'date_format:H:i'],
-            'estado'       => [
-                'required',
-                'in:pendiente,en_curso,completado,retrasado,cancelado'
-            ],
+            'estado'       => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
             'observaciones' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $turno = Turno::findOrFail($data['turno_id']);
-
-        if ($turno->estado !== 'activo') {
-            return back()
-                ->withErrors([
-                    'turno_id' => 'El turno seleccionado está inactivo.'
-                ])
-                ->withInput();
-        }
-
-        $asignacion->update($data);
+        $this->asignacionTurnoService->actualizar($asignacion, $data);
 
         return redirect()
             ->route('asignacion-turno.index')
-            ->with(
-                'success',
-                'Asignación de turno actualizada correctamente.'
-            );
+            ->with('success', 'Asignación de turno actualizada correctamente.');
     }
 
     /**
@@ -212,16 +149,10 @@ class AsignacionTurnoController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         $asignacion = AsignacionTurno::findOrFail($id);
-
-        $asignacion->update([
-            'estado' => 'cancelado'
-        ]);
+        $this->asignacionTurnoService->cancelar($asignacion);
 
         return redirect()
             ->route('asignacion-turno.index')
-            ->with(
-                'info',
-                'Asignación cancelada correctamente.'
-            );
+            ->with('info', 'Asignación cancelada correctamente.');
     }
 }

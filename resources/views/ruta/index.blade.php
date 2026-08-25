@@ -110,20 +110,22 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
-                                        <a href="{{ route('ruta.show', $ruta->id) }}" class="btn btn-sm btn-outline-primary btn-action" title="Ver detalle">
-                                            <i class="bi bi-eye"></i>
+                                        <a href="{{ route('ruta.show', $ruta->id) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-eye me-1"></i>Ver
                                         </a>
-                                        <a href="{{ route('ruta.edit', $ruta->id) }}" class="btn btn-sm btn-outline-warning btn-action" title="Editar">
-                                            <i class="bi bi-pencil"></i>
+                                        <a href="{{ route('ruta.edit', $ruta->id) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-pencil-square me-1"></i>Editar
                                         </a>
-                                        <form action="{{ route('ruta.destroy', $ruta->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" onclick="return confirm('¿Está seguro de eliminar esta ruta?')"
-                                                    class="btn btn-sm btn-outline-danger btn-action" title="Eliminar">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
+                                        @if($ruta->estado === 'activo')
+                                            <form action="{{ route('ruta.destroy', $ruta->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" onclick="return confirm('¿Eliminar esta ruta?')"
+                                                        class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;">
+                                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

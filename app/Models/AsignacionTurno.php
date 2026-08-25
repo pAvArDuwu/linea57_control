@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -36,6 +38,50 @@ class AsignacionTurno extends Model
         'estado',
         'observaciones',
     ];
+
+    // ─── Scopes ────────────────────────────────────────────────────────
+
+    public function scopeBuscarPorConductor(Builder $query, string $criterio): Builder
+    {
+        return $query->where(function ($q) use ($criterio) {
+            $q->whereHas('conductor', function ($c) use ($criterio) {
+                $c->where('nombre', 'like', "%{$criterio}%")
+                  ->orWhere('apellido', 'like', "%{$criterio}%");
+            })->orWhere('fecha', 'like', "%{$criterio}%");
+        });
+    }
+
+    // ─── Accessors ─────────────────────────────────────────────────────
+
+    protected function estadoBadge(): Attribute
+    {
+        return Attribute::get(function () {
+            $badges = [
+                'pendiente'  => ['bg' => '#fff9c4', 'color' => '#795548', 'label' => 'Pendiente'],
+                'en_curso'   => ['bg' => '#e3f2fd', 'color' => '#1565c0', 'label' => 'En curso'],
+                'completado' => ['bg' => '#e6f4ea', 'color' => '#1e7e34', 'label' => 'Completado'],
+                'retrasado'  => ['bg' => '#fff3e0', 'color' => '#e65100', 'label' => 'Retrasado'],
+                'cancelado'  => ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => 'Cancelado'],
+            ];
+
+            return $badges[$this->estado] ?? ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => ucfirst($this->estado)];
+        });
+    }
+
+    protected function turnoEmoji(): Attribute
+    {
+        return Attribute::get(function () {
+            $iconos = ['mañana' => '☀️', 'tarde' => '🌤️', 'noche' => '🌙'];
+            $nombre = $this->turno?->nombre ?? '';
+
+            return $iconos[$nombre] ?? '';
+        });
+    }
+
+    public function estaActivo(): bool
+    {
+        return !in_array($this->estado, ['cancelado', 'completado']);
+    }
 
     // ─── Relaciones ────────────────────────────────────────────────────
 

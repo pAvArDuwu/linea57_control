@@ -6,13 +6,13 @@
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{{ route('propietario.index') }}" class="text-decoration-none">Propietarios</a></li>
-                    <li class="breadcrumb-item active">Editar: {{ $dueño->nombre }} {{ $dueño->apellido }}</li>
+                    <li class="breadcrumb-item active">Editar: {{ $propietario->nombre }} {{ $propietario->apellido }}</li>
                 </ol>
             </nav>
-            <form method="POST" action="{{ route('propietario.update', $dueño->id) }}">
+            <form method="POST" action="{{ route('propietario.update', $propietario->id) }}">
                 @csrf
                 @method('PATCH')
-                @include('dueño.form')
+                @include('propietario.form')
             </form>
         </div>
     </div>

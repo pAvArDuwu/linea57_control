@@ -48,14 +48,20 @@
                                         <span class="text-muted small">Sin rol</span>
                                     @endif
                                 </td>
-                                <td>
-                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-outline-warning">Editar</a>
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline"
-                                        onsubmit="return confirm('¿Seguro que deseas eliminar este usuario?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                    </form>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-1">
+                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-pencil-square me-1"></i>Editar
+                                        </a>
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" class="d-inline"
+                                            onsubmit="return confirm('¿Eliminar este usuario?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;">
+                                                <i class="bi bi-trash me-1"></i>Eliminar
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

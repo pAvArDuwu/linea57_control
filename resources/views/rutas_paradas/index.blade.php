@@ -64,14 +64,24 @@
                                             {{ ucfirst($rp->estado) }}
                                         </span>
                                     </td>
-                                    <td>
-                                        <a href="{{ route('rutas-paradas.show', $rp->id) }}" class="btn btn-sm btn-info me-1 text-white">Ver</a>
-                                        <a href="{{ route('rutas-paradas.edit', $rp->id) }}" class="btn btn-sm btn-warning me-1">Editar</a>
-                                        <form action="{{ route('rutas-paradas.destroy', $rp->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" onclick="return confirm('¿Está seguro de eliminar esta asociación?')" class="btn btn-sm btn-danger">Eliminar</button>
-                                        </form>
+                                    <td class="text-end pe-4">
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <a href="{{ route('rutas-paradas.show', $rp->id) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.75rem;">
+                                                <i class="bi bi-eye me-1"></i>Ver
+                                            </a>
+                                            <a href="{{ route('rutas-paradas.edit', $rp->id) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.75rem;">
+                                                <i class="bi bi-pencil-square me-1"></i>Editar
+                                            </a>
+                                            @if($rp->estado === 'activo')
+                                                <form action="{{ route('rutas-paradas.destroy', $rp->id) }}" method="POST" class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" onclick="return confirm('¿Eliminar esta asociación?')" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;">
+                                                        <i class="bi bi-trash me-1"></i>Eliminar
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

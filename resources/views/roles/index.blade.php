@@ -71,12 +71,16 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
-                                        <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.8rem;">Editar</a>
+                                        <a href="{{ route('roles.edit', $role->id) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-pencil-square me-1"></i>Editar
+                                        </a>
                                         @if(($role->estado ?? 'activo') === 'activo')
                                             <form action="{{ route('roles.destroy', $role->id) }}" method="POST" class="d-inline">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" onclick="return confirm('¿Eliminar/Desactivar este rol?')"
-                                                        class="btn btn-sm btn-outline-secondary" style="border-radius: 8px; font-size: 0.8rem;">Eliminar</button>
+                                                <button type="submit" onclick="return confirm('¿Eliminar este rol?')"
+                                                        class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;">
+                                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                                </button>
                                             </form>
                                         @endif
                                     </div>

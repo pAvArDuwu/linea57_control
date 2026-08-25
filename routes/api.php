@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ParadaController;
 use App\Http\Controllers\Api\PropietarioController;
 use App\Http\Controllers\Api\RutaController;
 use App\Http\Controllers\Api\TurnoController;
+use App\Http\Controllers\Api\AsignacionTurnoApi;
 
 // Rutas públicas
 Route::post('/login',    [AuthController::class, 'login']);
@@ -25,4 +26,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('rutas', RutaController::class);
     Route::apiResource('paradas', ParadaController::class);
     Route::apiResource('turnos', TurnoController::class);
+    Route::apiResource('asignacion-turnos', AsignacionTurnoApi::class);
 });

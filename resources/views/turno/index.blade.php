@@ -67,14 +67,9 @@
                                 <td class="ps-4 text-muted">{{ $loop->iteration + ($turnos->currentPage() - 1) * $turnos->perPage() }}</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        @php
-                                            $iconos = ['mañana' => 'bi-sun', 'tarde' => 'bi-cloud-sun', 'noche' => 'bi-moon-stars'];
-                                            $colores = ['mañana' => '#fff8e1', 'tarde' => '#fff3e0', 'noche' => '#ede7f6'];
-                                            $iconColor = ['mañana' => '#f9a825', 'tarde' => '#ef6c00', 'noche' => '#5e35b1'];
-                                        @endphp
                                         <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                                             style="width: 38px; height: 38px; background: {{ $colores[$turno->nombre] ?? '#e3f2fd' }}; color: {{ $iconColor[$turno->nombre] ?? '#0B3C78' }}; font-size: 1.1rem;">
-                                            <i class="bi {{ $iconos[$turno->nombre] ?? 'bi-clock' }}"></i>
+                                             style="width: 38px; height: 38px; background: {{ $turno->turno_badge['bg'] }}; color: {{ $turno->turno_badge['color'] }}; font-size: 1.1rem;">
+                                            <i class="bi {{ $turno->turno_badge['icono'] }}"></i>
                                         </div>
                                         <span class="fw-semibold">{{ $turno->nombre_label }}</span>
                                     </div>
@@ -83,36 +78,29 @@
                                 <td class="text-muted font-monospace">{{ \Carbon\Carbon::parse($turno->hora_fin)->format('H:i') }}</td>
                                 <td class="text-muted">{{ $turno->descripcion ?? '—' }}</td>
                                 <td>
-                                    @if($turno->estado === 'activo')
-                                        <span class="badge rounded-pill px-3 py-2" style="background: #e6f4ea; color: #1e7e34; font-weight: 500;">Activo</span>
-                                    @else
-                                        <span class="badge rounded-pill px-3 py-2" style="background: #f0f0f0; color: #6c757d; font-weight: 500;">Inactivo</span>
-                                    @endif
+                                    <span class="badge rounded-pill px-3 py-2" style="background: {{ $turno->estado_badge['bg'] }}; color: {{ $turno->estado_badge['color'] }}; font-weight: 500;">
+                                        {{ $turno->estado_badge['label'] }}
+                                    </span>
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
                                         <a href="{{ route('turno.show', $turno->id) }}"
-                                           class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.8rem;">Ver</a>
+                                           class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-eye me-1"></i>Ver
+                                        </a>
                                         <a href="{{ route('turno.edit', $turno->id) }}"
-                                           class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.8rem;">Editar</a>
+                                           class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-pencil-square me-1"></i>Editar
+                                        </a>
                                         @if($turno->estado === 'activo')
                                             <form action="{{ route('turno.destroy', $turno->id) }}" method="POST" class="d-inline">
                                                 @csrf @method('DELETE')
                                                 <button type="submit"
-                                                        onclick="return confirm('¿Desactivar el turno {{ $turno->nombre_label }}?')"
-                                                        class="btn btn-sm btn-outline-secondary"
-                                                        style="border-radius: 8px; font-size: 0.8rem;">Desactivar</button>
-                                            </form>
-                                        @else
-                                            <form action="{{ route('turno.update', $turno->id) }}" method="POST" class="d-inline">
-                                                @csrf @method('PATCH')
-                                                <input type="hidden" name="nombre" value="{{ $turno->nombre }}">
-                                                <input type="hidden" name="hora_inicio" value="{{ $turno->hora_inicio }}">
-                                                <input type="hidden" name="hora_fin" value="{{ $turno->hora_fin }}">
-                                                <input type="hidden" name="estado" value="activo">
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-outline-success"
-                                                        style="border-radius: 8px; font-size: 0.8rem;">Activar</button>
+                                                        onclick="return confirm('¿Eliminar el turno {{ $turno->nombre_label }}?')"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        style="border-radius: 8px; font-size: 0.75rem;">
+                                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                                </button>
                                             </form>
                                         @endif
                                     </div>

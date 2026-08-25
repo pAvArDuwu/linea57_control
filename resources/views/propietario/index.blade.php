@@ -56,25 +56,25 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($dueños as $dueño)
+                        @forelse($propietarios as $propietario)
                             <tr>
-                                <td class="ps-4 text-muted" style="font-size: 0.88rem;">{{ $loop->iteration + ($dueños->currentPage() - 1) * $dueños->perPage() }}</td>
+                                <td class="ps-4 text-muted" style="font-size: 0.88rem;">{{ $loop->iteration + ($propietarios->currentPage() - 1) * $propietarios->perPage() }}</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
                                              style="width: 38px; height: 38px; background: linear-gradient(135deg, #e8f0fe 0%, #d4e4fc 100%); color: var(--primary); font-weight: 700; font-size: 0.85rem;">
-                                            {{ strtoupper(substr($dueño->nombre, 0, 1)) }}{{ strtoupper(substr($dueño->apellido, 0, 1)) }}
+                                            {{ strtoupper(substr($propietario->nombre, 0, 1)) }}{{ strtoupper(substr($propietario->apellido, 0, 1)) }}
                                         </div>
                                         <div>
-                                            <div class="fw-semibold">{{ $dueño->nombre }} {{ $dueño->apellido }}</div>
+                                            <div class="fw-semibold">{{ $propietario->nombre }} {{ $propietario->apellido }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="text-muted font-monospace">{{ $dueño->ci }}</td>
-                                <td class="text-muted">{{ $dueño->telefono ?? '—' }}</td>
-                                <td class="text-muted">{{ $dueño->correo }}</td>
+                                <td class="text-muted font-monospace">{{ $propietario->ci }}</td>
+                                <td class="text-muted">{{ $propietario->telefono ?? '—' }}</td>
+                                <td class="text-muted">{{ $propietario->correo }}</td>
                                 <td>
-                                    @if($dueño->estado === 'activo')
+                                    @if(($propietario->estado ?? 'activo') === 'activo')
                                         <span class="badge rounded-pill px-3 py-2" style="background: #e6f4ea; color: #1e7e34; font-weight: 500;">
                                             <i class="bi bi-check-circle-fill me-1"></i>Activo
                                         </span>
@@ -86,13 +86,19 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1 flex-wrap">
-                                        <a href="{{ route('propietario.show', $dueño->id) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.8rem;">Ver</a>
-                                        <a href="{{ route('propietario.edit', $dueño->id) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.8rem;">Editar</a>
-                                        @if($dueño->estado === 'activo')
-                                            <form action="{{ route('propietario.destroy', $dueño->id) }}" method="POST" class="d-inline">
+                                        <a href="{{ route('propietario.show', $propietario->id) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-eye me-1"></i>Ver
+                                        </a>
+                                        <a href="{{ route('propietario.edit', $propietario->id) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-pencil-square me-1"></i>Editar
+                                        </a>
+                                        @if(($propietario->estado ?? 'activo') === 'activo')
+                                            <form action="{{ route('propietario.destroy', $propietario->id) }}" method="POST" class="d-inline">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" onclick="return confirm('¿Desactivar este propietario?')"
-                                                        class="btn btn-sm btn-outline-secondary" style="border-radius: 8px; font-size: 0.8rem;">Desactivar</button>
+                                                <button type="submit" onclick="return confirm('¿Eliminar este propietario?')"
+                                                        class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;">
+                                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                                </button>
                                             </form>
                                         @endif
                                     </div>
@@ -110,9 +116,9 @@
                 </table>
             </div>
         </div>
-        @if($dueños->hasPages())
+        @if($propietarios->hasPages())
             <div class="card-footer bg-white border-top py-3 px-4" style="border-radius: 0 0 16px 16px;">
-                {{ $dueños->appends(['buscar' => $buscar])->links() }}
+                {{ $propietarios->appends(['buscar' => $buscar])->links() }}
             </div>
         @endif
     </div>

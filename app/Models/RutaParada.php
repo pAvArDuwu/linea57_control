@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TieneEstadoLogico;
 use Illuminate\Database\Eloquent\Model;
 
 class RutaParada extends Model
 {
+    use TieneEstadoLogico;
+
     /**
      * The table associated with the model.
      *
@@ -39,6 +42,6 @@ class RutaParada extends Model
      */
     public function parada()
     {
-        return $this->belongsTo(parada::class, 'parada_id');
+        return $this->belongsTo(Parada::class, 'parada_id');
     }
 }

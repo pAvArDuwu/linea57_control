@@ -3,21 +3,37 @@
 namespace App\Models;
 
 use App\Models\Concerns\TieneEstadoLogico;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Conductor extends Model
+/**
+ * Class Propietario
+ *
+ * @property $id
+ * @property $nombre
+ * @property $apellido
+ * @property $telefono
+ * @property $correo
+ * @property $ci
+ * @property $estado
+ * @property $fecha_registro
+ * @property $created_at
+ * @property $updated_at
+ *
+ * @property Micro[] $micros
+ * @package App
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ */
+class Propietario extends Model
 {
-    use HasFactory, TieneEstadoLogico;
+    use TieneEstadoLogico;
 
-    protected $table = 'conductor';
+    protected $perPage = 20;
 
-    protected $fillable = [
-        'user_id',
-        'licencia',
-        'estado',
-    ];
+    protected $table = 'propietarios';
+
+    protected $fillable = ['user_id', 'estado', 'fecha_registro'];
 
     public function user(): BelongsTo
     {
@@ -29,4 +45,9 @@ class Conductor extends Model
     public function getTelefonoAttribute($value): ?string { return $this->user?->telefono ?? $value; }
     public function getCorreoAttribute($value): ?string { return $this->user?->email ?? $value; }
     public function getCiAttribute($value): ?string { return $this->user?->ci ?? $value; }
+
+    public function micros(): HasMany
+    {
+        return $this->hasMany(Micro::class, 'propietario_id', 'id');
+    }
 }

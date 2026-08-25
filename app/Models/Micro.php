@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TieneEstadoLogico;
 use Illuminate\Database\Eloquent\Model;
 
 class Micro extends Model
 {
+    use TieneEstadoLogico;
+
     protected $perPage = 20;
 
     protected $table = 'micro';
@@ -24,7 +27,7 @@ class Micro extends Model
 
     public function propietario()
     {
-        return $this->belongsTo(\App\Models\Dueño::class, 'propietario_id', 'id');
+        return $this->belongsTo(\App\Models\Propietario::class, 'propietario_id', 'id');
     }
 
     public function interno()

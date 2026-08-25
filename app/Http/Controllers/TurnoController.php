@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Turno;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class TurnoController extends Controller
@@ -41,11 +42,21 @@ class TurnoController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'nombre'      => ['required', 'in:mañana,tarde,noche'],
+            'nombre'      => [
+                'required',
+                'in:mañana,tarde,noche',
+                Rule::unique('turno', 'nombre')->where(fn ($q) => 
+                    $q->where('hora_inicio', $request->input('hora_inicio'))
+                      ->where('hora_fin', $request->input('hora_fin'))
+                ),
+            ],
             'hora_inicio' => ['required', 'date_format:H:i'],
             'hora_fin'    => ['required', 'date_format:H:i'],
             'descripcion' => ['nullable', 'string', 'max:255'],
             'estado'      => ['required', 'in:activo,inactivo'],
+        ], [
+            'nombre.unique' => 'Ya existe un turno con este nombre y mismo horario de inicio/fin.',
+            'nombre.in' => 'El tipo de turno debe ser: mañana, tarde o noche.',
         ]);
 
         Turno::create($data);
@@ -80,11 +91,23 @@ class TurnoController extends Controller
         $turno = Turno::findOrFail($id);
 
         $data = $request->validate([
-            'nombre'      => ['required', 'in:mañana,tarde,noche'],
+            'nombre'      => [
+                'required',
+                'in:mañana,tarde,noche',
+                Rule::unique('turno', 'nombre')
+                    ->where(fn ($q) => 
+                        $q->where('hora_inicio', $request->input('hora_inicio'))
+                          ->where('hora_fin', $request->input('hora_fin'))
+                    )
+                    ->ignore($turno->id),
+            ],
             'hora_inicio' => ['required', 'date_format:H:i'],
             'hora_fin'    => ['required', 'date_format:H:i'],
             'descripcion' => ['nullable', 'string', 'max:255'],
             'estado'      => ['required', 'in:activo,inactivo'],
+        ], [
+            'nombre.unique' => 'Ya existe otro turno con este nombre y mismo horario de inicio/fin.',
+            'nombre.in' => 'El tipo de turno debe ser: mañana, tarde o noche.',
         ]);
 
         $turno->update($data);
@@ -99,7 +122,7 @@ class TurnoController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         $turno = Turno::findOrFail($id);
-        $turno->update(['estado' => 'inactivo']);
+        $turno->desactivar();
 
         return redirect()->route('turno.index')
             ->with('info', 'Turno desactivado correctamente.');

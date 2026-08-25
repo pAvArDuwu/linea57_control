@@ -11,7 +11,7 @@
             </nav>
             <form method="POST" action="{{ route('propietario.store') }}">
                 @csrf
-                @include('dueño.form')
+                @include('propietario.form')
             </form>
         </div>
     </div>

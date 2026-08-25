@@ -11,11 +11,15 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold" style="color: var(--primary);">Detalle del Interno</h5>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('interno.edit', $interno->id) }}" class="btn btn-outline-warning btn-sm px-3" style="border-radius: 8px;">Editar</a>
+                        <a href="{{ route('interno.edit', $interno->id) }}" class="btn btn-outline-warning btn-sm px-3" style="border-radius: 8px;">
+                            <i class="bi bi-pencil-square me-1"></i>Editar
+                        </a>
                         @if($interno->estado !== 'inactivo')
                             <form action="{{ route('interno.destroy', $interno->id) }}" method="POST" class="d-inline">
                                 @csrf @method('DELETE')
-                                <button type="submit" onclick="return confirm('¿Desactivar?')" class="btn btn-outline-secondary btn-sm px-3" style="border-radius: 8px;">Desactivar</button>
+                                <button type="submit" onclick="return confirm('¿Eliminar este interno?')" class="btn btn-outline-danger btn-sm px-3" style="border-radius: 8px;">
+                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                </button>
                             </form>
                         @endif
                     </div>
@@ -26,8 +30,7 @@
                     <div class="col-md-4"><div class="p-3 rounded-3" style="background: #f8f9fc;"><div class="text-muted small mb-1">N° Interno</div><div class="fw-bold fs-5 font-monospace">{{ $interno->numero_interno }}</div></div></div>
                     <div class="col-md-4"><div class="p-3 rounded-3" style="background: #f8f9fc;"><div class="text-muted small mb-1">Fecha Ingreso</div><div class="fw-semibold">{{ \Carbon\Carbon::parse($interno->fecha_ingreso)->format('d/m/Y H:i') }}</div></div></div>
                     <div class="col-md-4"><div class="p-3 rounded-3" style="background: #f8f9fc;"><div class="text-muted small mb-1">Estado</div>
-                        @php $estados = ['disponible' => ['bg' => '#e6f4ea', 'color' => '#1e7e34', 'label' => 'Disponible'], 'asignado' => ['bg' => '#e8f0fe', 'color' => '#1565c0', 'label' => 'Asignado'], 'inactivo' => ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => 'Inactivo']]; $e = $estados[$interno->estado] ?? $estados['inactivo']; @endphp
-                        <span class="badge rounded-pill px-3 py-2" style="background: {{ $e['bg'] }}; color: {{ $e['color'] }}; font-weight: 500;">{{ $e['label'] }}</span>
+                        <span class="badge rounded-pill px-3 py-2" style="background: {{ $interno->estado_badge['bg'] }}; color: {{ $interno->estado_badge['color'] }}; font-weight: 500;">{{ $interno->estado_badge['label'] }}</span>
                     </div></div>
                     <div class="col-12"><div class="p-3 rounded-3" style="background: #f8f9fc;"><div class="text-muted small mb-1">Observaciones</div><div class="text-secondary">{{ $interno->observaciones ?: 'Sin observaciones.' }}</div></div></div>
                 </div>

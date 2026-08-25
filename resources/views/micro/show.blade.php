@@ -11,11 +11,15 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold" style="color: var(--primary);">Detalle del Micro</h5>
                     <div class="d-flex gap-2">
-                        <a href="{{ route('micro.edit', $micro->id) }}" class="btn btn-outline-warning btn-sm px-3" style="border-radius: 8px;">Editar</a>
+                        <a href="{{ route('micro.edit', $micro->id) }}" class="btn btn-outline-warning btn-sm px-3" style="border-radius: 8px;">
+                            <i class="bi bi-pencil-square me-1"></i>Editar
+                        </a>
                         @if($micro->estado === 'activo')
                             <form action="{{ route('micro.destroy', $micro->id) }}" method="POST" class="d-inline">
                                 @csrf @method('DELETE')
-                                <button type="submit" onclick="return confirm('¿Desactivar este micro?')" class="btn btn-outline-secondary btn-sm px-3" style="border-radius: 8px;">Desactivar</button>
+                                <button type="submit" onclick="return confirm('¿Eliminar este micro?')" class="btn btn-outline-danger btn-sm px-3" style="border-radius: 8px;">
+                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                </button>
                             </form>
                         @endif
                     </div>

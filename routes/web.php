@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ConductorController;
-use App\Http\Controllers\DueñoController;
+use App\Http\Controllers\PropietarioController;
 use App\Http\Controllers\InternoController;
 use App\Http\Controllers\MicroController;
 use App\Http\Controllers\ParadaController;
@@ -27,7 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('conductor', ConductorController::class);
-    Route::resource('propietario', DueñoController::class);
+    Route::resource('propietario', PropietarioController::class);
     Route::resource('micro', MicroController::class);
     Route::resource('interno', InternoController::class);
     Route::resource('ruta', RutaController::class);

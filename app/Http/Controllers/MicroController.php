@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Micro;
-use App\Models\Dueño;
+use App\Models\Propietario;
 use App\Models\Interno;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -40,7 +40,7 @@ class MicroController extends Controller
     public function create(): View
     {
         $micro = new Micro();
-        $propietarios = Dueño::where('estado', 'activo')->orderBy('nombre')->get();
+        $propietarios = Propietario::where('estado', 'activo')->orderBy('nombre')->get();
         $internos = Interno::whereIn('estado', ['disponible', 'activo'])->orderBy('numero_interno')->get();
 
         return view('micro.create', compact('micro', 'propietarios', 'internos'));
@@ -78,7 +78,7 @@ class MicroController extends Controller
     public function edit($id): View
     {
         $micro = Micro::findOrFail($id);
-        $propietarios = Dueño::orderBy('nombre')->get();
+        $propietarios = Propietario::orderBy('nombre')->get();
         $internos = Interno::orderBy('numero_interno')->get();
 
         return view('micro.edit', compact('micro', 'propietarios', 'internos'));

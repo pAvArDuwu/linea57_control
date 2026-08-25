@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TieneEstadoLogico;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Ruta;
 
-class parada extends Model
+class Parada extends Model
 {
+    use TieneEstadoLogico;
+
     protected $table = 'paradas';
+
     protected $fillable = [
         'nombre',
         'referencia',

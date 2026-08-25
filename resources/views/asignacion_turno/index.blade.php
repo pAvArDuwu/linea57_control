@@ -68,12 +68,9 @@
                                 <td class="ps-4 text-muted">{{ $loop->iteration + ($asignaciones->currentPage() - 1) * $asignaciones->perPage() }}</td>
                                 <td class="fw-semibold">{{ \Carbon\Carbon::parse($a->fecha)->format('d/m/Y') }}</td>
                                 <td>
-                                    @php
-                                        $iconos = ['mañana' => '☀️', 'tarde' => '🌤️', 'noche' => '🌙'];
-                                    @endphp
                                     <span class="badge rounded-pill px-3 py-2"
                                           style="background: #e3f2fd; color: #0B3C78; font-weight: 500;">
-                                        {{ $iconos[$a->turno?->nombre ?? ''] ?? '' }}
+                                        {{ $a->turno_emoji }}
                                         {{ $a->turno?->nombre_label ?? '—' }}
                                     </span>
                                 </td>
@@ -104,33 +101,29 @@
                                 </td>
                                 <td class="text-muted small">{{ $a->ruta?->nombre ?? '—' }}</td>
                                 <td>
-                                    @php
-                                        $estadoBadge = [
-                                            'pendiente'  => ['bg' => '#fff9c4', 'color' => '#795548'],
-                                            'en_curso'   => ['bg' => '#e3f2fd', 'color' => '#1565c0'],
-                                            'completado' => ['bg' => '#e6f4ea', 'color' => '#1e7e34'],
-                                            'retrasado'  => ['bg' => '#fff3e0', 'color' => '#e65100'],
-                                            'cancelado'  => ['bg' => '#f0f0f0', 'color' => '#6c757d'],
-                                        ];
-                                        $badge = $estadoBadge[$a->estado] ?? ['bg' => '#f0f0f0', 'color' => '#6c757d'];
-                                    @endphp
                                     <span class="badge rounded-pill px-3 py-2"
-                                          style="background: {{ $badge['bg'] }}; color: {{ $badge['color'] }}; font-weight: 500;">
-                                        {{ ucfirst(str_replace('_', ' ', $a->estado)) }}
+                                          style="background: {{ $a->estado_badge['bg'] }}; color: {{ $a->estado_badge['color'] }}; font-weight: 500;">
+                                        {{ $a->estado_badge['label'] }}
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
                                         <a href="{{ route('asignacion-turno.show', $a->id) }}"
-                                           class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.8rem;">Ver</a>
+                                           class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-eye me-1"></i>Ver
+                                        </a>
                                         <a href="{{ route('asignacion-turno.edit', $a->id) }}"
-                                           class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.8rem;">Editar</a>
+                                           class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-pencil-square me-1"></i>Editar
+                                        </a>
                                         @if($a->estado !== 'cancelado')
                                             <form action="{{ route('asignacion-turno.destroy', $a->id) }}" method="POST" class="d-inline">
                                                 @csrf @method('DELETE')
                                                 <button type="submit"
-                                                        onclick="return confirm('¿Cancelar esta asignación?')"
-                                                        class="btn btn-sm btn-outline-secondary" style="border-radius: 8px; font-size: 0.8rem;">Cancelar</button>
+                                                        onclick="return confirm('¿Eliminar esta asignación de turno?')"
+                                                        class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;">
+                                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                                </button>
                                             </form>
                                         @endif
                                     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\TieneEstadoLogico;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -21,7 +22,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Ruta extends Model
 {
-    
+    use TieneEstadoLogico;
+
     protected $perPage = 20;
 
     protected $table = 'ruta';
@@ -33,7 +35,6 @@ class Ruta extends Model
      */
     protected $fillable = ['nombre', 'descripcion', 'sentido', 'estado'];
 
-
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -44,7 +45,7 @@ class Ruta extends Model
 
     public function paradas()
     {
-        return $this->belongsToMany(\App\Models\parada::class, 'parada_ruta', 'ruta_id', 'parada_id')
+        return $this->belongsToMany(\App\Models\Parada::class, 'parada_ruta', 'ruta_id', 'parada_id')
                     ->withPivot(['orden', 'estado'])
                     ->orderByPivot('orden')
                     ->withTimestamps();

@@ -30,13 +30,19 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'apellido' => 'required|string|max:50',
             'email' => 'required|email|unique:users,email',
+            'telefono' => 'nullable|string|max:20',
+            'ci' => 'required|string|max:20|unique:users,ci',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
             'name' => $request->name,
+            'apellido' => $request->apellido,
             'email' => $request->email,
+            'telefono' => $request->telefono,
+            'ci' => $request->ci,
             'password' => Hash::make($request->password),
         ]);
 
@@ -57,12 +63,18 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'apellido' => 'required|string|max:50',
             'email' => 'required|email|unique:users,email,'.$user->id,
+            'telefono' => 'nullable|string|max:20',
+            'ci' => 'required|string|max:20|unique:users,ci,'.$user->id,
         ]);
 
         $data = [
             'name' => $request->name,
+            'apellido' => $request->apellido,
             'email' => $request->email,
+            'telefono' => $request->telefono,
+            'ci' => $request->ci,
         ];
 
         if ($request->filled('password')) {

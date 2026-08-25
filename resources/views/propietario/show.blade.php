@@ -6,7 +6,7 @@
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{{ route('propietario.index') }}" class="text-decoration-none">Propietarios</a></li>
-                    <li class="breadcrumb-item active">{{ $dueño->nombre }} {{ $dueño->apellido }}</li>
+                    <li class="breadcrumb-item active">{{ $propietario->nombre }} {{ $propietario->apellido }}</li>
                 </ol>
             </nav>
             <div class="card border-0 shadow-sm" style="border-radius: 16px;">
@@ -23,12 +23,16 @@
                             </div>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="{{ route('propietario.edit', $dueño->id) }}" class="btn btn-outline-warning btn-sm px-3" style="border-radius: 8px;">Editar</a>
-                            @if($dueño->estado === 'activo')
-                                <form action="{{ route('propietario.destroy', $dueño->id) }}" method="POST" class="d-inline">
+                            <a href="{{ route('propietario.edit', $propietario->id) }}" class="btn btn-outline-warning btn-sm px-3" style="border-radius: 8px;">
+                                <i class="bi bi-pencil-square me-1"></i>Editar
+                            </a>
+                            @if(($propietario->estado ?? 'activo') === 'activo')
+                                <form action="{{ route('propietario.destroy', $propietario->id) }}" method="POST" class="d-inline">
                                     @csrf @method('DELETE')
-                                    <button type="submit" onclick="return confirm('¿Desactivar este propietario?')"
-                                            class="btn btn-outline-secondary btn-sm px-3" style="border-radius: 8px;">Desactivar</button>
+                                    <button type="submit" onclick="return confirm('¿Eliminar este propietario?')"
+                                            class="btn btn-outline-danger btn-sm px-3" style="border-radius: 8px;">
+                                        <i class="bi bi-trash me-1"></i>Eliminar
+                                    </button>
                                 </form>
                             @endif
                         </div>
@@ -39,19 +43,19 @@
                         <div class="col-md-6">
                             <div class="p-3 rounded-3" style="background: #f8f9fc;">
                                 <div class="text-muted small mb-1">Nombre Completo</div>
-                                <div class="fw-semibold">{{ $dueño->nombre }} {{ $dueño->apellido }}</div>
+                                <div class="fw-semibold">{{ $propietario->nombre }} {{ $propietario->apellido }}</div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="p-3 rounded-3" style="background: #f8f9fc;">
                                 <div class="text-muted small mb-1">CI</div>
-                                <div class="fw-semibold font-monospace">{{ $dueño->ci }}</div>
+                                <div class="fw-semibold font-monospace">{{ $propietario->ci }}</div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="p-3 rounded-3" style="background: #f8f9fc;">
                                 <div class="text-muted small mb-1">Estado</div>
-                                @if($dueño->estado === 'activo')
+                                @if(($propietario->estado ?? 'activo') === 'activo')
                                     <span class="badge rounded-pill px-3 py-2" style="background: #e6f4ea; color: #1e7e34;">Activo</span>
                                 @else
                                     <span class="badge rounded-pill px-3 py-2" style="background: #f0f0f0; color: #6c757d;">Inactivo</span>
@@ -61,19 +65,19 @@
                         <div class="col-md-6">
                             <div class="p-3 rounded-3" style="background: #f8f9fc;">
                                 <div class="text-muted small mb-1">Correo Electrónico</div>
-                                <div class="fw-semibold">{{ $dueño->correo }}</div>
+                                <div class="fw-semibold">{{ $propietario->correo }}</div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="p-3 rounded-3" style="background: #f8f9fc;">
                                 <div class="text-muted small mb-1">Teléfono</div>
-                                <div class="fw-semibold">{{ $dueño->telefono ?? '—' }}</div>
+                                <div class="fw-semibold">{{ $propietario->telefono ?? '—' }}</div>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="p-3 rounded-3" style="background: #f8f9fc;">
                                 <div class="text-muted small mb-1">Micros Asignados</div>
-                                <div class="fw-semibold">{{ $dueño->micros->count() }}</div>
+                                <div class="fw-semibold">{{ $propietario->micros ? $propietario->micros->count() : 0 }}</div>
                             </div>
                         </div>
                     </div>

@@ -19,6 +19,11 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6"><label class="form-label fw-bold">Apellido</label><input name="apellido" class="form-control" value="{{ old('apellido') }}" required></div>
+                            <div class="col-md-6"><label class="form-label fw-bold">CI</label><input name="ci" class="form-control" value="{{ old('ci') }}" required></div>
+                        </div>
+                        <div class="mb-3"><label class="form-label fw-bold">Teléfono</label><input name="telefono" class="form-control" value="{{ old('telefono') }}"></div>
 
                         <div class="mb-3">
                             <label for="email" class="form-label fw-bold">Correo Electrónico</label>

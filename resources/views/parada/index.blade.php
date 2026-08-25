@@ -101,27 +101,29 @@
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
                                         @if($parada->latitud && $parada->longitud)
-                                            <button type="button" class="btn btn-sm btn-outline-info btn-action"
+                                            <button type="button" class="btn btn-sm btn-outline-info" style="border-radius: 8px; font-size: 0.75rem;"
                                                     data-bs-toggle="modal" data-bs-target="#mapModal"
                                                     data-lat="{{ $parada->latitud }}" data-lng="{{ $parada->longitud }}"
                                                     data-nombre="{{ $parada->nombre }}" title="Ver en mapa">
-                                                <i class="bi bi-map"></i>
+                                                <i class="bi bi-map me-1"></i>Mapa
                                             </button>
                                         @endif
-                                        <a href="{{ route('parada.show', $parada->id) }}" class="btn btn-sm btn-outline-primary btn-action" title="Ver detalle">
-                                            <i class="bi bi-eye"></i>
+                                        <a href="{{ route('parada.show', $parada->id) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-eye me-1"></i>Ver
                                         </a>
-                                        <a href="{{ route('parada.edit', $parada->id) }}" class="btn btn-sm btn-outline-warning btn-action" title="Editar">
-                                            <i class="bi bi-pencil"></i>
+                                        <a href="{{ route('parada.edit', $parada->id) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-pencil-square me-1"></i>Editar
                                         </a>
-                                        <form action="{{ route('parada.destroy', $parada->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" onclick="return confirm('¿Está seguro de eliminar esta parada?')"
-                                                    class="btn btn-sm btn-outline-danger btn-action" title="Eliminar">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
+                                        @if($parada->estado === 'activo')
+                                            <form action="{{ route('parada.destroy', $parada->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" onclick="return confirm('¿Eliminar esta parada?')"
+                                                        class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;">
+                                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

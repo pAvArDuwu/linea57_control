@@ -51,18 +51,25 @@
                                 <td class="text-muted">{{ \Carbon\Carbon::parse($interno->fecha_ingreso)->format('d/m/Y') }}</td>
                                 <td class="text-muted" style="max-width: 250px;">{{ Str::limit($interno->observaciones ?? '—', 50) }}</td>
                                 <td>
-                                    @php $estados = ['disponible' => ['bg' => '#e6f4ea', 'color' => '#1e7e34', 'label' => 'Disponible'], 'asignado' => ['bg' => '#e8f0fe', 'color' => '#1565c0', 'label' => 'Asignado'], 'inactivo' => ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => 'Inactivo']]; $e = $estados[$interno->estado] ?? $estados['inactivo']; @endphp
-                                    <span class="badge rounded-pill px-3 py-2" style="background: {{ $e['bg'] }}; color: {{ $e['color'] }}; font-weight: 500;">{{ $e['label'] }}</span>
+                                    <span class="badge rounded-pill px-3 py-2" style="background: {{ $interno->estado_badge['bg'] }}; color: {{ $interno->estado_badge['color'] }}; font-weight: 500;">
+                                        {{ $interno->estado_badge['label'] }}
+                                    </span>
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="d-flex justify-content-end gap-1">
-                                        <a href="{{ route('interno.show', $interno->id) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.8rem;">Ver</a>
-                                        <a href="{{ route('interno.edit', $interno->id) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.8rem;">Editar</a>
+                                        <a href="{{ route('interno.show', $interno->id) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-eye me-1"></i>Ver
+                                        </a>
+                                        <a href="{{ route('interno.edit', $interno->id) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 8px; font-size: 0.75rem;">
+                                            <i class="bi bi-pencil-square me-1"></i>Editar
+                                        </a>
                                         @if($interno->estado !== 'inactivo')
                                             <form action="{{ route('interno.destroy', $interno->id) }}" method="POST" class="d-inline">
                                                 @csrf @method('DELETE')
-                                                <button type="submit" onclick="return confirm('¿Desactivar este interno?')"
-                                                        class="btn btn-sm btn-outline-secondary" style="border-radius: 8px; font-size: 0.8rem;">Desactivar</button>
+                                                <button type="submit" onclick="return confirm('¿Eliminar este interno?')"
+                                                        class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.75rem;">
+                                                    <i class="bi bi-trash me-1"></i>Eliminar
+                                                </button>
                                             </form>
                                         @endif
                                     </div>

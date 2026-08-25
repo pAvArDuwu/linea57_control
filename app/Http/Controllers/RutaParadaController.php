@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ruta;
-use App\Models\parada;
+use App\Models\Parada;
 use App\Models\RutaParada;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class RutaParadaController extends Controller
 {
@@ -35,8 +36,8 @@ class RutaParadaController extends Controller
      */
     public function create()
     {
-        $rutas = Ruta::all();
-        $paradas = parada::all();
+        $rutas = Ruta::where('estado', 'activo')->get();
+        $paradas = Parada::where('estado', 'activo')->get();
         $rutaParada = new RutaParada();
 
         return view('rutas_paradas.create', compact('rutas', 'paradas', 'rutaParada'));
@@ -48,11 +49,20 @@ class RutaParadaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'ruta_id' => 'required|exists:ruta,id',
+            'ruta_id' => [
+                'required',
+                'exists:ruta,id',
+                Rule::unique('parada_ruta', 'ruta_id')->where(fn ($q) => 
+                    $q->where('parada_id', $request->input('parada_id'))
+                      ->where('sentido', $request->input('sentido'))
+                ),
+            ],
             'parada_id' => 'required|exists:paradas,id',
             'orden' => 'required|integer|min:1',
             'sentido' => 'required|in:ida,vuelta',
             'estado' => 'required|in:activo,inactivo',
+        ], [
+            'ruta_id.unique' => 'Esta parada ya está asociada a la ruta en el mismo sentido.',
         ]);
 
         RutaParada::create($validated);
@@ -78,7 +88,7 @@ class RutaParadaController extends Controller
     {
         $rutaParada = RutaParada::findOrFail($id);
         $rutas = Ruta::all();
-        $paradas = parada::all();
+        $paradas = Parada::all();
 
         return view('rutas_paradas.edit', compact('rutaParada', 'rutas', 'paradas'));
     }
@@ -91,11 +101,22 @@ class RutaParadaController extends Controller
         $rutaParada = RutaParada::findOrFail($id);
 
         $validated = $request->validate([
-            'ruta_id' => 'required|exists:ruta,id',
+            'ruta_id' => [
+                'required',
+                'exists:ruta,id',
+                Rule::unique('parada_ruta', 'ruta_id')
+                    ->where(fn ($q) => 
+                        $q->where('parada_id', $request->input('parada_id'))
+                          ->where('sentido', $request->input('sentido'))
+                    )
+                    ->ignore($rutaParada->id),
+            ],
             'parada_id' => 'required|exists:paradas,id',
             'orden' => 'required|integer|min:1',
             'sentido' => 'required|in:ida,vuelta',
             'estado' => 'required|in:activo,inactivo',
+        ], [
+            'ruta_id.unique' => 'Esta parada ya está asociada a la ruta en el mismo sentido.',
         ]);
 
         $rutaParada->update($validated);
@@ -105,14 +126,14 @@ class RutaParadaController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage (Logical delete).
      */
     public function destroy($id)
     {
         $rutaParada = RutaParada::findOrFail($id);
-        $rutaParada->delete();
+        $rutaParada->desactivar();
 
         return redirect()->route('rutas-paradas.index')
-            ->with('success', 'Relación Ruta-Parada eliminada con éxito.');
+            ->with('success', 'Relación Ruta-Parada desactivada con éxito.');
     }
 }

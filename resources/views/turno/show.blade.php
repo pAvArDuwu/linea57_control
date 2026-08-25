@@ -78,15 +78,15 @@
                 <div class="card-footer bg-white border-top pt-3 px-4 pb-4 d-flex gap-2 justify-content-end" style="border-radius: 0 0 16px 16px;">
                     <a href="{{ route('turno.edit', $turno->id) }}"
                        class="btn btn-outline-warning px-4" style="border-radius: 10px;">
-                        <i class="bi bi-pencil me-1"></i>Editar
+                        <i class="bi bi-pencil-square me-1"></i>Editar
                     </a>
                     @if($turno->estado === 'activo')
                         <form action="{{ route('turno.destroy', $turno->id) }}" method="POST" class="d-inline">
                             @csrf @method('DELETE')
                             <button type="submit"
-                                    onclick="return confirm('¿Desactivar el turno {{ $turno->nombre_label }}?')"
-                                    class="btn btn-outline-secondary px-4" style="border-radius: 10px;">
-                                <i class="bi bi-pause-circle me-1"></i>Desactivar
+                                    onclick="return confirm('¿Eliminar el turno {{ $turno->nombre_label }}?')"
+                                    class="btn btn-outline-danger px-4" style="border-radius: 10px;">
+                                <i class="bi bi-trash me-1"></i>Eliminar
                             </button>
                         </form>
                     @endif

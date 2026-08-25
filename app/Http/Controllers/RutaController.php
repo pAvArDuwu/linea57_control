@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ruta;
-use App\Models\parada;
+use App\Models\Parada;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class RutaController extends Controller
@@ -34,7 +35,7 @@ class RutaController extends Controller
     public function create(): View
     {
         $ruta = new Ruta();
-        $paradas = parada::where('estado', 'activo')->orderBy('nombre')->get();
+        $paradas = Parada::where('estado', 'activo')->orderBy('nombre')->get();
         $paradasSeleccionadas = collect();
 
         return view('ruta.create', compact('ruta', 'paradas', 'paradasSeleccionadas'));
@@ -46,12 +47,21 @@ class RutaController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'nombre' => 'required|string|max:50',
+            'nombre' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('ruta', 'nombre')->where(fn ($query) => 
+                    $query->where('sentido', $request->input('sentido'))
+                ),
+            ],
             'descripcion' => 'nullable|string',
             'sentido' => 'required|in:Ida,Vuelta',
             'estado' => 'required|in:activo,inactivo',
             'paradas' => 'nullable|array',
             'paradas.*' => 'exists:paradas,id',
+        ], [
+            'nombre.unique' => 'Ya existe una ruta registrada con este mismo nombre y sentido.',
         ]);
 
         $ruta = Ruta::create($request->only(['nombre', 'descripcion', 'sentido', 'estado']));
@@ -90,7 +100,7 @@ class RutaController extends Controller
     public function edit($id): View
     {
         $ruta = Ruta::findOrFail($id);
-        $paradas = parada::where('estado', 'activo')->orderBy('nombre')->get();
+        $paradas = Parada::where('estado', 'activo')->orderBy('nombre')->get();
         $paradasSeleccionadas = $ruta->paradas()->orderByPivot('orden')->get();
 
         return view('ruta.edit', compact('ruta', 'paradas', 'paradasSeleccionadas'));
@@ -104,12 +114,21 @@ class RutaController extends Controller
         $ruta = Ruta::findOrFail($id);
 
         $request->validate([
-            'nombre' => 'required|string|max:50',
+            'nombre' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('ruta', 'nombre')
+                    ->where(fn ($query) => $query->where('sentido', $request->input('sentido')))
+                    ->ignore($ruta->id),
+            ],
             'descripcion' => 'nullable|string',
             'sentido' => 'required|in:Ida,Vuelta',
             'estado' => 'required|in:activo,inactivo',
             'paradas' => 'nullable|array',
             'paradas.*' => 'exists:paradas,id',
+        ], [
+            'nombre.unique' => 'Ya existe otra ruta registrada con este mismo nombre y sentido.',
         ]);
 
         $ruta->update($request->only(['nombre', 'descripcion', 'sentido', 'estado']));
@@ -132,9 +151,10 @@ class RutaController extends Controller
 
     public function destroy($id): RedirectResponse
     {
-        Ruta::findOrFail($id)->delete();
+        $ruta = Ruta::findOrFail($id);
+        $ruta->desactivar();
 
         return Redirect::route('ruta.index')
-            ->with('success', 'Ruta eliminada exitosamente.');
+            ->with('success', 'Ruta desactivada exitosamente.');
     }
 }
