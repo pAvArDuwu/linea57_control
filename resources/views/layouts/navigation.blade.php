@@ -89,7 +89,7 @@
 
     <!-- Transacciones Module (Collapsible) -->
     @php
-        $transaccionesActive = request()->routeIs('asignacion-turno.*');
+        $transaccionesActive = request()->routeIs('asignacion-turno.*') || request()->routeIs('seguimiento-rutas.*') || request()->routeIs('monitoreo.*') || request()->routeIs('control-paradas.*');
     @endphp
     <a class="nav-link {{ $transaccionesActive ? 'active' : '' }}" 
        data-bs-toggle="collapse" 
@@ -105,11 +105,11 @@
         <a class="nav-link {{ request()->routeIs('asignacion-turno.*') ? 'active' : '' }}" href="{{ route('asignacion-turno.index') }}">
             <i class="bi bi-calendar2-check me-2"></i><span>Asignación de Turnos</span>
         </a>
-        <a class="nav-link" href="#">
-            <i class="bi bi-play-circle me-2"></i><span>Inicio recorrido</span>
+        <a class="nav-link {{ request()->routeIs('seguimiento-rutas.*') || request()->routeIs('monitoreo.*') ? 'active' : '' }}" href="{{ route('seguimiento-rutas.index') }}">
+            <i class="bi bi-map me-2"></i><span>Seguimiento de Rutas</span>
         </a>
-        <a class="nav-link" href="#">
-            <i class="bi bi-stop-circle me-2"></i><span>Finalizar</span>
+        <a class="nav-link {{ request()->routeIs('control-paradas.*') ? 'active' : '' }}" href="{{ route('control-paradas.index') }}">
+            <i class="bi bi-pin-map me-2"></i><span>Control de Paradas</span>
         </a>
     </div>
 

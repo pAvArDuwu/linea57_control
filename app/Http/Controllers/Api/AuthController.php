@@ -24,18 +24,19 @@ class AuthController extends Controller
             return response()->json(['error' => 'Credenciales inválidas'], 401);
         }
 
-        $user = User::where('email', $credentials['email'])->firstOrFail();
+        $user = User::with(['conductor', 'roles'])->where('email', $credentials['email'])->firstOrFail();
         $token = $user->createToken($credentials['device_name'] ?? 'api-token');
 
         return response()->json([
             'access_token' => $token->plainTextToken,
             'token_type' => 'Bearer',
+            'user' => $user,
         ]);
     }
 
     public function me(Request $request)
     {
-        return response()->json($request->user());
+        return response()->json($request->user()->load(['conductor', 'roles']));
     }
 
     public function logout(Request $request)

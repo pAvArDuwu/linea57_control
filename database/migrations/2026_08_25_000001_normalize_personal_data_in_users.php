@@ -28,8 +28,10 @@ return new class extends Migration {
             $table->string('ci', 20)->nullable()->change();
         });
 
-        foreach (['conductor', 'propietarios'] as $tabla) {
-            DB::statement("UPDATE users u JOIN {$tabla} p ON p.user_id = u.id SET u.apellido = COALESCE(u.apellido, p.apellido), u.telefono = COALESCE(u.telefono, p.telefono), u.ci = COALESCE(u.ci, p.ci) WHERE p.user_id IS NOT NULL");
+        if (DB::getDriverName() === 'mysql') {
+            foreach (['conductor', 'propietarios'] as $tabla) {
+                DB::statement("UPDATE users u JOIN {$tabla} p ON p.user_id = u.id SET u.apellido = COALESCE(u.apellido, p.apellido), u.telefono = COALESCE(u.telefono, p.telefono), u.ci = COALESCE(u.ci, p.ci) WHERE p.user_id IS NOT NULL");
+            }
         }
     }
 

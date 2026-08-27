@@ -78,7 +78,7 @@ return new class extends Migration
         }
 
         // Asegurar que `nombre` sea ENUM correcto (mañana/tarde/noche)
-        if (Schema::hasColumn('turno', 'nombre')) {
+        if (Schema::hasColumn('turno', 'nombre') && DB::getDriverName() === 'mysql') {
             DB::statement("ALTER TABLE `turno` MODIFY `nombre` ENUM('mañana','tarde','noche') NOT NULL");
         }
 

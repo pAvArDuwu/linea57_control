@@ -108,4 +108,16 @@ class AsignacionTurno extends Model
     {
         return $this->belongsTo(\App\Models\Conductor::class, 'conductor_id');
     }
+
+    /** @return \Illuminate\Database\Eloquent\Relations\HasMany */
+    public function seguimientosGps()
+    {
+        return $this->hasMany(\App\Models\SeguimientoGps::class, 'asignacion_turno_id');
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Relations\HasMany */
+    public function controlesRecorrido()
+    {
+        return $this->hasMany(\App\Models\ControlRecorrido::class, 'asignacion_turno_id');
+    }
 }

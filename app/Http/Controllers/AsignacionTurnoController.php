@@ -19,23 +19,71 @@ class AsignacionTurnoController extends Controller
     ) {}
 
     /**
-     * Lista de asignaciones de turno.
+     * Tablero interactivo y lista de asignaciones de turno (SDD Sección 30).
      */
     public function index(Request $request): View
     {
         $buscar = $request->input('buscar');
+        $fecha = $request->input('fecha', now()->toDateString());
 
+        // Estadísticas y asignaciones operativas del día
+        $asignacionesDia = AsignacionTurno::where('fecha', $fecha)
+            ->where('estado', '!=', 'cancelado')
+            ->with(['turno', 'conductor.user', 'micro.interno', 'ruta'])
+            ->get();
+
+        $totalConductoresActivos = Conductor::where('estado', 'activo')->count();
+        $conductoresOcupados = $asignacionesDia->pluck('conductor_id')->unique()->count();
+
+        $stats = [
+            'turnos_cubiertos' => $asignacionesDia->count(),
+            'conductores_libres' => max(0, $totalConductoresActivos - $conductoresOcupados),
+            'unidades_en_ruta' => $asignacionesDia->where('estado', 'en_curso')->count(),
+            'incidencias_abiertas' => $asignacionesDia->where('estado', 'retrasado')->count(),
+        ];
+
+        // Unidades con sus turnos del día para el Tablero visual (Gantt/Timeline)
+        $turnosCatalogo = Turno::where('estado', 'activo')->orderBy('hora_inicio')->get();
+        $micros = Micro::where('estado', 'activo')->with('interno')->orderBy('placa')->get();
+
+        $unidadesTimeline = $micros->map(function ($micro) use ($asignacionesDia, $turnosCatalogo) {
+            $asignacionesMicro = $asignacionesDia->where('micro_id', $micro->id);
+
+            $turnosAsignados = $turnosCatalogo->mapWithKeys(function ($t) use ($asignacionesMicro) {
+                $asig = $asignacionesMicro->firstWhere('turno_id', $t->id);
+                return [$t->nombre => $asig];
+            });
+
+            return [
+                'micro' => $micro,
+                'turnos' => $turnosAsignados,
+                'total_turnos' => $asignacionesMicro->count(),
+            ];
+        });
+
+        $incidencias = $asignacionesDia->where('estado', 'retrasado');
+
+        // Paginado de asignaciones con filtro
         $asignaciones = AsignacionTurno::with([
                 'turno',
-                'conductor',
+                'conductor.user',
                 'micro.interno',
                 'ruta'
             ])
             ->when($buscar, fn ($q) => $q->buscarPorConductor($buscar))
             ->orderByDesc('fecha')
+            ->orderByDesc('id')
             ->paginate(10);
 
-        return view('asignacion_turno.index', compact('asignaciones', 'buscar'));
+        return view('asignacion_turno.index', compact(
+            'asignaciones',
+            'buscar',
+            'fecha',
+            'stats',
+            'unidadesTimeline',
+            'turnosCatalogo',
+            'incidencias'
+        ));
     }
 
     /**

@@ -33,6 +33,56 @@ class AsignacionTurnoService
     }
 
     /**
+     * Inicia una asignación de turno (pendiente -> en_curso).
+     */
+    public function iniciar(AsignacionTurno $asignacion, ?int $conductorId = null): AsignacionTurno
+    {
+        if ($conductorId !== null && (int)$asignacion->conductor_id !== (int)$conductorId) {
+            throw ValidationException::withMessages([
+                'conductor' => 'No tienes autorización para iniciar esta asignación de turno.',
+            ]);
+        }
+
+        if ($asignacion->estado !== 'pendiente') {
+            throw ValidationException::withMessages([
+                'estado' => "La asignación no puede iniciarse porque su estado actual es '{$asignacion->estado}'.",
+            ]);
+        }
+
+        $asignacion->update([
+            'estado' => 'en_curso',
+            'hora_salida' => now()->format('H:i:s'),
+        ]);
+
+        return $asignacion->fresh(['turno', 'conductor', 'micro.interno', 'ruta.paradas']);
+    }
+
+    /**
+     * Finaliza una asignación de turno (en_curso/retrasado -> completado).
+     */
+    public function finalizar(AsignacionTurno $asignacion, ?int $conductorId = null): AsignacionTurno
+    {
+        if ($conductorId !== null && (int)$asignacion->conductor_id !== (int)$conductorId) {
+            throw ValidationException::withMessages([
+                'conductor' => 'No tienes autorización para finalizar esta asignación de turno.',
+            ]);
+        }
+
+        if (!in_array($asignacion->estado, ['en_curso', 'retrasado'])) {
+            throw ValidationException::withMessages([
+                'estado' => "La asignación no puede finalizarse porque su estado actual es '{$asignacion->estado}'.",
+            ]);
+        }
+
+        $asignacion->update([
+            'estado' => 'completado',
+            'hora_llegada' => now()->format('H:i:s'),
+        ]);
+
+        return $asignacion->fresh(['turno', 'conductor', 'micro.interno', 'ruta.paradas']);
+    }
+
+    /**
      * Cancela lógicamente una asignación de turno.
      */
     public function cancelar(AsignacionTurno $asignacion): AsignacionTurno

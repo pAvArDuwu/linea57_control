@@ -41,7 +41,7 @@ class ConductorCrudTest extends TestCase
         $this->deleteJson("/api/conductores/{$id}")
             ->assertOk();
 
-        $this->assertDatabaseMissing('conductor', ['id' => $id]);
+        $this->assertDatabaseHas('conductor', ['id' => $id, 'estado' => 'inactivo']);
     }
 
     public function test_crud_endpoints_require_a_sanctum_token(): void

@@ -117,9 +117,9 @@
     </div>
 
     {{-- Hora de salida --}}
-    <div class="col-md-3">
+    <div class="col-md-6">
         <label for="hora_salida" class="form-label fw-semibold">
-            <i class="bi bi-play-circle me-1 text-success"></i>Hora de salida
+            <i class="bi bi-play-circle me-1 text-success"></i>Hora de salida programada / inicial
         </label>
         <input type="time" name="hora_salida" id="hora_salida"
                class="form-control @error('hora_salida') is-invalid @enderror"
@@ -128,20 +128,7 @@
         @error('hora_salida')
             <div class="invalid-feedback"><strong>{{ $message }}</strong></div>
         @enderror
-    </div>
-
-    {{-- Hora de llegada --}}
-    <div class="col-md-3">
-        <label for="hora_llegada" class="form-label fw-semibold">
-            <i class="bi bi-stop-circle me-1" style="color: var(--accent);"></i>Hora de llegada
-        </label>
-        <input type="time" name="hora_llegada" id="hora_llegada"
-               class="form-control @error('hora_llegada') is-invalid @enderror"
-               value="{{ old('hora_llegada', isset($asignacion->hora_llegada) ? \Carbon\Carbon::parse($asignacion->hora_llegada)->format('H:i') : '') }}"
-               style="border-radius: 10px;">
-        @error('hora_llegada')
-            <div class="invalid-feedback"><strong>{{ $message }}</strong></div>
-        @enderror
+        <div class="form-text text-success"><i class="bi bi-geo-alt-fill me-1"></i>La <strong>hora de llegada</strong> se registrará de forma 100% automática al cumplir la última parada por GPS.</div>
     </div>
 
     {{-- Estado --}}

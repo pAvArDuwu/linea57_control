@@ -16,6 +16,11 @@ class Conductor extends Model
     protected $fillable = [
         'user_id',
         'licencia',
+        'nombre',
+        'apellido',
+        'telefono',
+        'correo',
+        'ci',
         'estado',
     ];
 

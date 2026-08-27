@@ -41,6 +41,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('roles/asignar/{id}', [RolesController::class, 'destroyUserRoles'])->name('roles.assign.destroy');
     Route::resource('roles', RolesController::class);
     Route::resource('users', App\Http\Controllers\UserController::class);
+
+    // Módulo Transaccional (SDD Secciones 8, 9, 10, 16, 30)
+    Route::get('seguimiento-rutas', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('seguimiento-rutas.index');
+    Route::get('control-paradas', [\App\Http\Controllers\ControlParadasController::class, 'index'])->name('control-paradas.index');
+    Route::get('monitoreo', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('monitoreo.index');
+    Route::get('monitoreo/posiciones', [\App\Http\Controllers\MonitoreoController::class, 'posicionesEnVivo'])->name('monitoreo.posiciones');
 });
 
 require __DIR__.'/auth.php';

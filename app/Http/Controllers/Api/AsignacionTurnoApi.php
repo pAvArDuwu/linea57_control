@@ -94,4 +94,122 @@ class AsignacionTurnoApi extends Controller
 
         return response()->json(['message' => 'Asignación cancelada correctamente']);
     }
+
+    /**
+     * Lista de asignaciones asignadas al conductor autenticado.
+     */
+    public function misAsignaciones(Request $request)
+    {
+        $conductor = $request->user()->conductor;
+
+        if (!$conductor) {
+            return response()->json([
+                'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.',
+                'data' => []
+            ], 403);
+        }
+
+        $asignaciones = AsignacionTurno::where('conductor_id', $conductor->id)
+            ->with(['turno', 'micro.interno', 'ruta.paradas'])
+            ->orderByDesc('fecha')
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json([
+            'conductor' => [
+                'id' => $conductor->id,
+                'licencia' => $conductor->licencia,
+                'nombre_completo' => "{$request->user()->name} {$request->user()->apellido}",
+            ],
+            'total' => $asignaciones->count(),
+            'asignaciones' => $asignaciones
+        ]);
+    }
+
+    /**
+     * Obtiene la asignación actual/activa del conductor autenticado para el día.
+     */
+    public function miAsignacionActual(Request $request)
+    {
+        $conductor = $request->user()->conductor;
+
+        if (!$conductor) {
+            return response()->json([
+                'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.'
+            ], 403);
+        }
+
+        $hoy = now()->toDateString();
+
+        // 1. Priorizar si ya tiene una asignación 'en_curso'
+        $asignacion = AsignacionTurno::where('conductor_id', $conductor->id)
+            ->where('estado', 'en_curso')
+            ->with(['turno', 'micro.interno', 'ruta.paradas'])
+            ->first();
+
+        // 2. Si no, buscar la asignación 'pendiente' o 'retrasado' de la fecha de hoy
+        if (!$asignacion) {
+            $asignacion = AsignacionTurno::where('conductor_id', $conductor->id)
+                ->where('fecha', $hoy)
+                ->whereIn('estado', ['pendiente', 'retrasado'])
+                ->with(['turno', 'micro.interno', 'ruta.paradas'])
+                ->first();
+        }
+
+        if (!$asignacion) {
+            return response()->json([
+                'message' => 'No tienes ninguna asignación activa ni pendiente para hoy.',
+                'asignacion' => null
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Asignación encontrada.',
+            'asignacion' => $asignacion
+        ]);
+    }
+
+    /**
+     * Inicia la ejecución de una asignación por parte del conductor.
+     */
+    public function iniciar(Request $request, int $id)
+    {
+        $asignacion = AsignacionTurno::findOrFail($id);
+        $conductor = $request->user()->conductor;
+
+        if (!$conductor) {
+            return response()->json([
+                'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.'
+            ], 403);
+        }
+
+        $iniciada = $this->asignacionTurnoService->iniciar($asignacion, $conductor->id);
+
+        return response()->json([
+            'message' => 'Turno iniciado correctamente.',
+            'asignacion' => $iniciada
+        ]);
+    }
+
+    /**
+     * Finaliza la ejecución de una asignación por parte del conductor.
+     */
+    public function finalizar(Request $request, int $id)
+    {
+        $asignacion = AsignacionTurno::findOrFail($id);
+        $conductor = $request->user()->conductor;
+
+        if (!$conductor) {
+            return response()->json([
+                'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.'
+            ], 403);
+        }
+
+        $finalizada = $this->asignacionTurnoService->finalizar($asignacion, $conductor->id);
+
+        return response()->json([
+            'message' => 'Turno finalizado correctamente.',
+            'asignacion' => $finalizada
+        ]);
+    }
 }
