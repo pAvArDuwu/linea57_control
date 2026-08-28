@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout title="Inicio de Sesión">
     <!-- Session Status -->
     @if (session('status'))
         <div class="alert alert-success mb-3" role="alert">

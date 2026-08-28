@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout title="Recuperar Contraseña">
     <div class="mb-4 small text-muted">
         ¿Olvidaste tu contraseña? No hay problema. Simplemente déjanos saber tu dirección de correo electrónico y te enviaremos un enlace de restablecimiento de contraseña que te permitirá elegir una nueva.
     </div>

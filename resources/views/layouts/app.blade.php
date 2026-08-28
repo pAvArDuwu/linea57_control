@@ -206,11 +206,7 @@
                             <div class="text-muted small">Línea 61 · Santa Cruz - Bolivia</div>
                         </div>
                         <div class="d-flex align-items-center gap-3">
-                            <button id="sidebarToggle" class="sidebar-toggle me-2" type="button"><i class="bi bi-list"></i></button>
-                            <div class="position-relative">
-                                <i class="bi bi-bell fs-5 text-secondary"></i>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background: var(--accent);">3</span>
-                            </div>
+                        
                             <div class="d-flex align-items-center gap-2">
                                 <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);">{{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}</div>
                                 <div>
@@ -218,7 +214,12 @@
                                     <div class="text-muted small">{{ Auth::user()->roles->first()?->name ?? 'Administrador' }}</div>
                                 </div>
                             </div>
-                        </div>
+                            <div>
+                              <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                                @csrf
+                                <button type="submit" class="nav-link border-0 w-100 text-start"><i class="bi bi-box-arrow-right me-2"></i><span>Cerrar sesión</span></button>
+                            </form>
+                         </div>
                     </div>
                 </header>
 

@@ -33,7 +33,7 @@ class Propietario extends Model
 
     protected $table = 'propietarios';
 
-    protected $fillable = ['user_id', 'estado', 'fecha_registro'];
+    protected $fillable = ['user_id', 'nombre', 'apellido', 'telefono', 'correo', 'ci', 'estado', 'fecha_registro'];
 
     public function user(): BelongsTo
     {

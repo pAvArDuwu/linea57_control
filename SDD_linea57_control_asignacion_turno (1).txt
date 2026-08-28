@@ -1,0 +1,434 @@
+SDD - SISTEMA WEB PARA EL CONTROL DE TURNOS Y SEGUIMIENTO DE RUTAS
+Repositorio: pAvArDuwu/linea57_control
+Fecha: 25/08/2026
+Arquitectura: MVC Laravel + API REST para aplicación móvil
+
+1. OBJETIVO
+Este documento define el diseño de AsignacionTurno y su integración con la
+aplicación móvil, respetando MVC y el modelo actual del repositorio.
+
+2. ESTADO ACTUAL DEL REPOSITORIO
+El proyecto ya tiene:
+- app/Models
+- app/Http/Controllers y Controllers/Api
+- app/Http/Requests
+- app/Services/AsignacionTurnoService.php
+- routes/api.php
+- migraciones de users, roles/permisos, propietario, conductor, interno,
+  micro, ruta, parada, ruta_parada, fiscalizador, turno y asignacion_turnos.
+
+AsignacionTurno actualmente tiene:
+turno_id, ruta_id, micro_id, conductor_id, fecha, hora_salida nullable,
+hora_llegada nullable, estado y observaciones.
+
+La migración posterior eliminó interno_id de asignacion_turnos.
+
+3. HALLAZGO CRITICO
+El Service actual valida turno activo y disponibilidad de conductor/micro,
+pero actualmente hace AsignacionTurno::create() sin envolver toda la
+operación en DB::transaction().
+
+La transacción debe vivir en el Service, no en la vista ni en el Controller.
+
+4. USUARIOS, CONDUCTORES Y PROPIETARIOS
+Mantener:
+USERS 1 ---- 0..1 CONDUCTOR
+USERS 1 ---- 0..1 PROPIETARIO
+
+Spatie permite que un mismo usuario tenga ambos roles.
+Los datos comunes deben vivir en users; conductor y propietario contienen
+solo datos específicos de cada función.
+
+5. CONDUCTOR_ID EN ASIGNACION_TURNO
+Por ahora NO eliminar conductor_id.
+El repositorio actual lo usa en migración, modelo, Service, Controller web
+y API.
+
+La decisión de eliminarlo solo debe hacerse después de confirmar con el
+cliente si el conductor queda asociado al micro o si puede variar por turno.
+
+6. DEFINICION DE ASIGNACION_TURNO COMO OPERACION
+No describirla simplemente como "seleccionar un turno".
+
+Debe definirse como:
+"Registrar una operación diaria de servicio, validando que los recursos
+necesarios estén disponibles y que la combinación conductor-micro-ruta-turno
+sea válida, dejando registrada la ejecución en estado pendiente."
+
+La tabla es la CABECERA de la operación:
+
+ASIGNACION_TURNO
+id
+fecha
+turno_id
+ruta_id
+micro_id
+conductor_id
+hora_salida
+hora_llegada
+estado
+observaciones
+timestamps
+
+7. REGLAS DE NEGOCIO
+Antes de confirmar:
+- turno existente y activo (validado en Service);
+- ruta existente y activa (validado en Service);
+- micro existente y activo (validado en Service);
+- conductor existente y activo (validado en Service);
+- conductor no ocupado en fecha + turno (excluyendo cancelados);
+- micro no ocupado en fecha + turno (excluyendo cancelados);
+- hora_salida NULL mientras no se inicia;
+- hora_llegada NULL mientras no termina;
+- estado SIEMPRE forzado a 'pendiente' al crear (no elegido por usuario);
+- no duplicar una asignación activa equivalente.
+
+Observaciones:
+- La validación de existencia y estado activo de cada recurso se hace
+  ANTES de verificar disponibilidad.
+- El estado solo cambia vía API del conductor: iniciar (pendiente → en_curso)
+  o finalizar (en_curso → completado). Ni admin ni fiscalizador lo modifican.
+
+8. TRANSACCION LARAVEL
+En AsignacionTurnoService:
+
+DB::transaction(function () use ($datos) {
+    // 1. Forzar estado = 'pendiente'
+    $datos['estado'] = 'pendiente';
+
+    // 2. Validar existencia + activo de cada recurso
+    validarTurnoActivo($datos['turno_id']);
+    validarRutaActiva($datos['ruta_id']);
+    validarMicroActivo($datos['micro_id']);
+    validarConductorActivo($datos['conductor_id']);
+
+    // 3. Validar disponibilidad (excluyendo cancelados)
+    validarDisponibilidad($datos);
+
+    // 4. Crear con protección contra race conditions
+    try {
+        return AsignacionTurno::create($datos);
+    } catch (QueryException $e) {
+        // Constraint único disparado → convertir en ValidationException
+        throw ValidationException::withMessages([...]);
+    }
+});
+
+Si todo es correcto -> COMMIT.
+Si falla una validación o QueryException -> ROLLBACK automático.
+
+El Controller usa FormRequest para recibir y validar la petición,
+llama al Service y devuelve vista o JSON.
+
+La validación de reglas de negocio (existencia, activo, disponibilidad)
+vive EXCLUSIVAMENTE en el Service, no en el Controller ni en el Request.
+El FormRequest solo valida formato de datos (required, exists, date, etc.).
+
+9. TABLAS MODIFICADAS AL CREAR ASIGNACION_TURNO
+La tabla realmente modificada es:
+- asignacion_turnos: INSERT.
+
+Las siguientes participan como CONSULTA:
+- turno
+- ruta
+- micro
+- conductor
+- asignacion_turnos para comprobar disponibilidad.
+
+No afirmar que una tabla fue modificada solo porque fue consultada.
+
+10. INICIO DE TURNO
+No crear inicialmente una tabla InicioTurno.
+Es una operación sobre AsignacionTurno:
+
+pendiente -> en_curso
+hora_salida = hora actual del servidor.
+
+Endpoint propuesto:
+POST /api/mis/asignaciones/{id}/iniciar
+
+Validar:
+- usuario autenticado;
+- usuario corresponde al conductor;
+- asignación pertenece al conductor;
+- estado pendiente.
+
+Modificar:
+- asignacion_turnos: UPDATE estado + hora_salida.
+
+11. SEGUIMIENTO GPS
+Crear una nueva tabla:
+
+SEGUIMIENTO_GPS
+id
+asignacion_turno_id
+fecha_hora_gps
+latitud
+longitud
+velocidad
+fecha_hora_sincronizacion
+created_at
+updated_at
+
+Cada ubicación real es un hecho ocurrido durante el turno.
+
+Endpoint propuesto:
+POST /api/mis/asignaciones/{id}/ubicaciones
+
+Modificar:
+- seguimiento_gps: INSERT.
+- asignacion_turnos: UPDATE solo si una regla de estado lo requiere.
+
+Consultar:
+- asignacion_turno
+- ruta
+- ruta_parada
+- parada.
+
+12. CONTROL DE RECORRIDO
+Crear:
+
+CONTROL_RECORRIDO
+id
+asignacion_turno_id
+seguimiento_gps_id
+ruta_parada_id
+fecha_hora
+estado
+observacion
+created_at
+updated_at
+
+Estados posibles:
+- cumplido
+- omitido
+- fuera_ruta
+- pendiente
+
+La lógica compara la ubicación real con la parametrización de ruta/paradas.
+
+Modificar:
+- control_recorrido: INSERT cuando corresponde registrar el resultado.
+- seguimiento_gps: INSERT previamente.
+- asignacion_turnos: UPDATE de estado solo cuando corresponda.
+
+Ruta, parada y ruta_parada son parametrización y normalmente se consultan,
+no se modifican durante el seguimiento.
+
+13. FINALIZACION
+Endpoint:
+POST /api/mis/asignaciones/{id}/finalizar
+
+Validar que la asignación esté en_curso y pertenezca al conductor.
+Modificar:
+- asignacion_turnos: UPDATE estado=completado + hora_llegada.
+
+No usar rollback para "fuera de ruta", "retrasado" u "omitido".
+Son estados/eventos de negocio, no errores de BD.
+
+14. API MOVIL
+La app móvil no debe acceder directamente a la BD.
+
+Usará:
+POST /api/login
+GET /api/me
+GET /api/mis/asignacion-actual
+POST /api/mis/asignaciones/{id}/iniciar
+POST /api/mis/asignaciones/{id}/ubicaciones
+POST /api/mis/asignaciones/{id}/finalizar
+POST /api/mis/ubicaciones/sincronizar
+
+Usar Sanctum para autenticación.
+
+15. OFFLINE
+El GPS puede seguir obteniendo posiciones sin Internet.
+La aplicación móvil debe almacenarlas localmente, preferentemente en
+SQLite, con estado pendiente.
+
+Cuando vuelva Internet:
+1. obtener pendientes;
+2. enviarlos a API;
+3. Laravel valida y guarda;
+4. marcar localmente como sincronizados.
+
+Conservar fecha_hora_gps, porque representa cuándo ocurrió la posición.
+fecha_hora_sincronizacion representa cuándo llegó al servidor.
+
+16. MVC
+
+MODELOS:
+- AsignacionTurno
+- Conductor
+- Micro
+- Ruta
+- Parada
+- RutaParada
+- Turno
+- SeguimientoGps [nuevo]
+- ControlRecorrido [nuevo]
+
+CONTROLLERS WEB:
+- AsignacionTurnoController
+
+CONTROLLERS API:
+- AsignacionTurnoApi
+- AuthController
+- SeguimientoGpsApi [nuevo]
+- ControlRecorridoApi [opcional]
+
+REQUESTS:
+- StoreAsignacionTurnoRequest
+  → Valida: fecha, turno_id, ruta_id, micro_id, conductor_id,
+    hora_salida, hora_llegada, observaciones.
+  → NO incluye 'estado' (forzado a 'pendiente' en el Service).
+- UpdateAsignacionTurnoRequest
+  → Valida los mismos campos editables.
+  → NO incluye 'estado' (solo cambia vía API del conductor).
+- IniciarTurnoRequest
+- UbicacionGpsRequest
+
+SERVICES:
+- AsignacionTurnoService
+- SeguimientoGpsService [nuevo]
+- ControlRecorridoService [nuevo]
+
+VIEWS:
+resources/views/asignacion_turno/
+
+La vista no debe contener consultas ni reglas de negocio.
+
+17. FLUJO COMPLETO
+
+ADMINISTRADOR
+ -> crea ASIGNACION_TURNO
+ -> validaciones
+ -> INSERT asignacion_turnos
+ -> COMMIT
+ -> estado pendiente
+
+CONDUCTOR
+ -> login
+ -> API obtiene su asignación
+ -> pulsa INICIAR
+ -> UPDATE asignacion_turnos: en_curso + hora_salida
+ -> GPS activo
+ -> envía posiciones
+ -> INSERT seguimiento_gps
+ -> compara contra ruta_parada
+ -> INSERT control_recorrido
+ -> detecta cumplido/omitido/fuera_ruta
+ -> finaliza
+ -> UPDATE asignacion_turnos: completado + hora_llegada
+
+18. RELACIONES PROPUESTAS
+
+User
+  1 ---- 0..1 Conductor
+User
+  1 ---- 0..1 Propietario
+
+Turno
+  1 ---- N AsignacionTurno
+Ruta
+  1 ---- N AsignacionTurno
+Micro
+  1 ---- N AsignacionTurno
+Conductor
+  1 ---- N AsignacionTurno
+
+AsignacionTurno
+  1 ---- N SeguimientoGps
+
+AsignacionTurno
+  1 ---- N ControlRecorrido
+
+RutaParada
+  1 ---- N ControlRecorrido
+
+19. PARAMETRIZACION VS TRANSACCION
+PARAMETRIZACION:
+- turno
+- ruta
+- parada
+- ruta_parada
+- micro
+- interno
+- fiscalizador, si solo funciona como catálogo
+
+OPERACIONES:
+- asignacion_turno
+- seguimiento_gps
+- control_recorrido
+
+RutaParada define la ruta esperada; no debe modificarse cada vez que un
+micro realiza un recorrido.
+
+20. TABLAS AFECTADAS POR CADA OPERACION
+
+CREAR ASIGNACION:
+MODIFICA:
+- asignacion_turnos INSERT
+
+CONSULTA:
+- turno, ruta, micro, conductor, asignacion_turnos.
+
+INICIAR:
+MODIFICA:
+- asignacion_turnos UPDATE.
+
+REGISTRAR GPS:
+MODIFICA:
+- seguimiento_gps INSERT.
+- control_recorrido INSERT cuando corresponda.
+- asignacion_turnos UPDATE solo si cambia estado.
+
+FINALIZAR:
+MODIFICA:
+- asignacion_turnos UPDATE.
+
+21. PRUEBAS MINIMAS
+1. Crear asignación válida -> INSERT confirmado.
+2. Conductor ocupado -> error, sin nueva asignación.
+3. Micro ocupado -> error, sin nueva asignación.
+4. Turno inactivo -> error, sin INSERT.
+5. Error durante el bloque transaccional -> ROLLBACK.
+6. Conductor solo recibe sus asignaciones.
+7. No puede iniciar asignación de otro conductor.
+8. Sin Internet -> posiciones quedan pendientes localmente.
+9. Internet vuelve -> posiciones se sincronizan.
+10. Crear asignación con turno inactivo -> error, ROLLBACK.
+11. Crear asignación con ruta inactiva -> error, ROLLBACK.
+12. Crear asignación con micro inactivo -> error, ROLLBACK.
+13. Crear asignación con conductor inactivo -> error, ROLLBACK.
+14. Race condition: dos requests simultáneas para mismo conductor+turno+fecha
+    -> solo una pasa, la otra recibe error de validación.
+15. Estado siempre es 'pendiente' al crear, sin importar lo que envíe el request.
+
+22. CAMBIOS PRIORITARIOS
+FASE 1: terminar Users <-> Conductor/Propietario.
+FASE 2: confirmar con cliente regla conductor-micro.
+FASE 3: crear FormRequests (StoreAsignacionTurnoRequest, UpdateAsignacionTurnoRequest).
+FASE 4: agregar DB::transaction + validaciones completas al AsignacionTurnoService.
+FASE 5: crear migración de constraints únicos (conductor+fecha+turno, micro+fecha+turno).
+FASE 6: probar commit/rollback y race conditions.
+FASE 7: crear endpoint "mis asignaciones".
+FASE 8: crear iniciar/finalizar turno.
+FASE 9: crear SeguimientoGps.
+FASE 10: implementar almacenamiento offline móvil.
+FASE 11: sincronización.
+FASE 12: ControlRecorrido y comparación contra RutaParada.
+FASE 13: reporte/boleta digital.
+
+23. CONCLUSION
+AsignacionTurno funciona como cabecera de la operación diaria.
+InicioTurno no necesita ser una tabla independiente.
+SeguimientoGps almacena los hechos de ubicación.
+ControlRecorrido almacena el resultado del control.
+Las operaciones de BD deben ser cortas y transaccionales; no mantener una
+transacción abierta durante todo el recorrido.
+
+La arquitectura mantiene MVC:
+Route -> Controller -> Request -> Service -> Model/DB -> Response.
+
+El valor agregado del proyecto es registrar la ejecución real mediante GPS
+y determinar automáticamente cumplimiento o desviación respecto de la ruta.

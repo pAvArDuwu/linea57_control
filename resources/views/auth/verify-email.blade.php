@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout title="Verificar Correo Electrónico">
     <div class="mb-4 small text-muted">
         ¡Gracias por registrarte! Antes de comenzar, ¿podrías verificar tu dirección de correo electrónico haciendo clic en el enlace que te acabamos de enviar? Si no recibiste el correo, con gusto te enviaremos otro.
     </div>

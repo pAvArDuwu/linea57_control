@@ -1,3 +1,5 @@
+@props(['title' => null])
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -5,7 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ $title ?? config('app.name') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -60,10 +62,7 @@
     <body>
         <div class="auth-container">
             <div class="auth-logo">
-                <!-- Se puede cambiar por un logo real -->
-                <a href="/" style="text-decoration: none;">
-                    <h1>{{ config('app.name', 'Sistema') }}</h1>
-                </a>
+                <h1>{{ $title ?? config('app.name') }}</h1>
             </div>
             <div class="auth-card">
                 {{ $slot }}

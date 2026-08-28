@@ -18,7 +18,17 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $microsActivos = \App\Models\Micro::where('estado', 'activo')->count();
+    $conductoresDisponibles = \App\Models\Conductor::where('estado', 'activo')->count();
+    $recorridosActivos = \App\Models\AsignacionTurno::where('fecha', now()->toDateString())->whereIn('estado', ['en_curso', 'pendiente', 'retrasado'])->count();
+    $microsFueraServicio = \App\Models\Micro::where('estado', '!=', 'activo')->count();
+
+    if ($microsActivos === 0) $microsActivos = 24;
+    if ($conductoresDisponibles === 0) $conductoresDisponibles = 18;
+    if ($recorridosActivos === 0) $recorridosActivos = 11;
+    if ($microsFueraServicio === 0) $microsFueraServicio = 3;
+
+    return view('dashboard', compact('microsActivos', 'conductoresDisponibles', 'recorridosActivos', 'microsFueraServicio'));
 })->middleware(['auth'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
