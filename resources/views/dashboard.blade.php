@@ -3,67 +3,143 @@
 @section('content')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-    /* Aplicar background-color: #1A2D4F a todas las cards del dashboard */
-    .card, .card-soft {
-        background-color: #1A2D4F !important;
+    /* Paleta Coherente Dashboard: Deep Navy Card (#182C4D), Blanco (#FFFFFF), Guindo/Rojo Vino (#7B1E2B / #941B2D) */
+    .dashboard-card {
+        background-color: #182C4D !important;
         color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.09) !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .card-header {
-        background-color: #1A2D4F !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    
+    .card-header-custom {
+        background-color: #142540 !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
         color: #ffffff !important;
+        border-radius: 16px 16px 0 0 !important;
     }
-    #mapaMonitoreo {
-        height: 540px;
-        border-radius: 16px;
-        z-index: 1;
-    }
-    .stat-card {
+
+    /* Stat Cards estilizadas */
+    .stat-card-custom {
         height: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        justify-content: space-between;
+        padding: 1.4rem 1.4rem 1.2rem 1.4rem;
+        position: relative;
+        overflow: hidden;
     }
-    .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3) !important;
+    .stat-card-custom:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35) !important;
     }
-    .stat-icon {
-        width: 54px;
-        height: 54px;
+    
+    /* Variaciones temáticas coherentes */
+    .stat-card-blue {
+        border-top: 4px solid #3B82F6 !important;
+    }
+    .stat-card-wine {
+        border-top: 4px solid #8B1E2F !important;
+    }
+    .stat-card-cyan {
+        border-top: 4px solid #0284C7 !important;
+    }
+    .stat-card-guindo {
+        border-top: 4px solid #A61C2E !important;
+    }
+
+    .stat-icon-wrapper {
+        width: 52px;
+        height: 52px;
         border-radius: 14px;
         display: grid;
         place-items: center;
-        font-size: 1.35rem;
-        background: rgba(255, 255, 255, 0.12) !important;
-        color: #ffffff !important;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    .stat-card.accent .stat-icon {
-        background: rgba(248, 113, 113, 0.2) !important;
-        color: #f87171 !important;
+    .stat-icon-blue {
+        background: rgba(59, 130, 246, 0.18);
+        color: #60A5FA;
+        border: 1px solid rgba(96, 165, 250, 0.3);
     }
+    .stat-icon-wine {
+        background: linear-gradient(135deg, #7B1E2B 0%, #A61C2E 100%);
+        color: #FFFFFF;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .stat-icon-cyan {
+        background: rgba(2, 132, 199, 0.22);
+        color: #38BDF8;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .stat-icon-guindo {
+        background: linear-gradient(135deg, #8B1E2F 0%, #C53047 100%);
+        color: #FFFFFF;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    /* Badges y acentos */
+    .badge-guindo {
+        background-color: #7B1E2B !important;
+        color: #FFFFFF !important;
+    }
+    .badge-guindo-subtle {
+        background-color: rgba(123, 30, 43, 0.25) !important;
+        color: #F87171 !important;
+        border: 1px solid rgba(123, 30, 43, 0.4);
+    }
+    .badge-blue-subtle {
+        background-color: rgba(59, 130, 246, 0.2) !important;
+        color: #93C5FD !important;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .badge-success-subtle {
+        background-color: rgba(16, 185, 129, 0.2) !important;
+        color: #6EE7B7 !important;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Botón Guindo */
+    .btn-guindo {
+        background: linear-gradient(135deg, #7B1E2B 0%, #941B2D 100%);
+        color: #FFFFFF;
+        border: 1px solid rgba(255,255,255,0.15);
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .btn-guindo:hover {
+        background: linear-gradient(135deg, #941B2D 0%, #B91C1C 100%);
+        color: #FFFFFF;
+        box-shadow: 0 4px 14px rgba(123, 30, 43, 0.4);
+    }
+
+    #mapaMonitoreo {
+        height: 520px;
+        border-radius: 14px;
+        z-index: 1;
+    }
+    
     .custom-bus-marker {
-        background-color: #1A2D4F;
+        background-color: #7B1E2B;
         color: white;
         border: 2px solid white;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 0 0 6px rgba(26, 45, 79, 0.4), 0 4px 10px rgba(0,0,0,0.4);
+        box-shadow: 0 0 0 5px rgba(123, 30, 43, 0.45), 0 4px 10px rgba(0,0,0,0.4);
         font-size: 15px;
         animation: pulseMarker 2s infinite;
     }
     @keyframes pulseMarker {
-        0% { box-shadow: 0 0 0 0 rgba(26, 45, 79, 0.6); }
-        70% { box-shadow: 0 0 0 12px rgba(26, 45, 79, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(26, 45, 79, 0); }
+        0% { box-shadow: 0 0 0 0 rgba(123, 30, 43, 0.6); }
+        70% { box-shadow: 0 0 0 12px rgba(123, 30, 43, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(123, 30, 43, 0); }
     }
     .custom-stop-marker {
-        background: #334155;
+        background: #1e293b;
         color: #cbd5e1;
         border: 2px solid #64748b;
         border-radius: 50%;
@@ -74,100 +150,234 @@
         font-weight: bold;
     }
     .custom-stop-marker.cumplida {
-        background: #22c55e;
+        background: #10B981;
         color: white;
-        border-color: #15803d;
+        border-color: #059669;
     }
-    .table-soft thead th {
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        color: #94a3b8 !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    /* Estilos de Tabla y Listas dentro de Cards Azules (Fondo Blanco, Datos en Negro, Acciones en Guindo) */
+    .inner-white-container {
+        background-color: #FFFFFF !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+        overflow: hidden;
     }
-    .table-soft tbody td {
-        color: #e2e8f0 !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    .table-white-custom {
+        --bs-table-bg: #FFFFFF !important;
+        --bs-table-accent-bg: transparent !important;
+        --bs-table-striped-bg: #F8FAFC !important;
+        --bs-table-hover-bg: #F1F5F9 !important;
+        --bs-table-color: #0F172A !important;
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+        border-color: #E2E8F0 !important;
+        margin-bottom: 0 !important;
+    }
+    .table-white-custom > :not(caption) > * > * {
+        background-color: transparent !important;
+        color: #0F172A !important;
+        box-shadow: none !important;
+    }
+    .table-white-custom thead th {
+        background-color: #F8FAFC !important;
+        color: #334155 !important;
+        border-bottom: 2px solid #E2E8F0 !important;
+        border-top: none !important;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.95rem 1rem !important;
+    }
+    .table-white-custom tbody tr {
+        border-bottom: 1px solid #F1F5F9 !important;
+        transition: background-color 0.15s ease;
+    }
+    .table-white-custom tbody tr:hover td {
+        background-color: #F1F5F9 !important;
+    }
+    .table-white-custom tbody td {
+        color: #0F172A !important;
+        border-bottom: 1px solid #F1F5F9 !important;
+        font-size: 0.92rem;
+        padding: 0.95rem 1rem !important;
+        vertical-align: middle;
+    }
+    .btn-action-guindo {
+        color: #7B1E2B !important;
+        font-weight: 700 !important;
+        font-size: 0.88rem !important;
+        transition: all 0.2s ease;
+    }
+    .btn-action-guindo:hover {
+        color: #9E2235 !important;
+        text-decoration: underline !important;
+    }
+
+    /* Lista de Unidades: Fondo blanco dentro de card azul */
+    .unit-item-white {
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 10px !important;
+        padding: 0.85rem !important;
+        margin-bottom: 0.6rem !important;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+    }
+    .unit-item-white:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(0,0,0,0.12);
+        border-color: #CBD5E1 !important;
+    }
+    .unit-item-white.selected {
+        border: 2px solid #7B1E2B !important;
+        background-color: #FFF8F8 !important;
+        box-shadow: 0 4px 14px rgba(123, 30, 43, 0.25) !important;
+    }
+
+    /* Lista de Paradas: Fondo blanco dentro de card azul */
+    .stop-item-white {
+        background-color: #FFFFFF !important;
+        color: #0F172A !important;
+        border: 1px solid #E2E8F0 !important;
+        border-radius: 10px !important;
+        padding: 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .stop-item-white.cumplida {
+        border-left: 4px solid #10B981 !important;
+    }
+    .stop-item-white.pendiente {
+        border-left: 4px solid #7B1E2B !important;
     }
 </style>
 
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid px-1 px-md-3">
+    <!-- Header Principal -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
         <div>
-            <h2 class="h4 fw-semibold mb-1" style="color: var(--primary);">Panel general</h2>
-            <p class="text-muted mb-0">Monitoreo operativo y control en tiempo real · Línea 61 Santa Cruz</p>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-            <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm" style="background-color: #1A2D4F; border: 1px solid rgba(255,255,255,0.1);">
-                <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
-                <span class="small fw-semibold text-white">GPS en vivo (5s)</span>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge badge-guindo px-2 py-1 rounded-2" style="font-size: 0.75rem;">Panel Operativo</span>
+                <h2 class="h4 fw-bold mb-0 text-dark">Monitoreo General</h2>
             </div>
-            <a href="{{ route('monitoreo.index') }}" class="btn btn-outline-primary px-3 py-2" style="border-radius: 10px;">
-                <i class="bi bi-fullscreen me-1"></i>Ver Monitoreo Completo
+            <p class="text-muted small mb-0 mt-1">Control de flota y auditoría de recorridos en tiempo real · Línea 61</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-3 shadow-sm" style="background-color: #182C4D; border: 1px solid rgba(255,255,255,0.12);">
+                <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
+                <span class="small fw-semibold text-white">GPS Activo (5s)</span>
+            </div>
+            <a href="{{ route('monitoreo.index') }}" class="btn btn-guindo px-3 py-2 rounded-3 d-flex align-items-center gap-2 shadow-sm">
+                <i class="bi bi-fullscreen"></i>
+                <span>Monitoreo Completo</span>
             </a>
         </div>
     </div>
 
-    <!-- Cards de Estadísticas con background-color: #1A2D4F -->
-    <div class="row g-4 mb-4">
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card-soft stat-card h-100 p-4">
-                <div class="d-flex justify-content-between align-items-center h-100">
+    <!-- 4 Cards de Estadísticas con Paleta Coherente (Navy, Blanco y Guindo) -->
+    <div class="row g-3 g-xl-4 mb-4">
+        <!-- Card 1: Micros Activos -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="dashboard-card stat-card-custom stat-card-blue">
+                <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <div class="text-white-50 small fw-medium">Micros activos</div>
-                        <div class="display-6 fw-semibold mt-1 text-white">{{ $microsActivos ?? 24 }}</div>
+                        <div class="text-white-50 small fw-bold text-uppercase" style="letter-spacing: 0.05em; font-size: 0.76rem;">Micros en Servicio</div>
+                        <div class="display-6 fw-bold mt-1 text-white">{{ $microsActivos ?? 24 }}</div>
                     </div>
-                    <div class="stat-icon text-white"><i class="bi bi-bus-front"></i></div>
+                    <div class="stat-icon-wrapper stat-icon-blue">
+                        <i class="bi bi-bus-front"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-white border-opacity-10">
+                    <span class="badge badge-success-subtle px-2 py-1 rounded-pill small d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-circle-fill text-success" style="font-size: 0.45rem;"></i> En ruta
+                    </span>
+                    <span class="small text-white-50">Flota operativa</span>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card-soft stat-card accent h-100 p-4">
-                <div class="d-flex justify-content-between align-items-center h-100">
+
+        <!-- Card 2: Conductores Disponibles (Acento Guindo) -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="dashboard-card stat-card-custom stat-card-wine">
+                <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <div class="text-white-50 small fw-medium">Conductores disponibles</div>
-                        <div class="display-6 fw-semibold mt-1 text-white">{{ $conductoresDisponibles ?? 18 }}</div>
+                        <div class="text-white-50 small fw-bold text-uppercase" style="letter-spacing: 0.05em; font-size: 0.76rem;">Conductores Activos</div>
+                        <div class="display-6 fw-bold mt-1 text-white">{{ $conductoresDisponibles ?? 18 }}</div>
                     </div>
-                    <div class="stat-icon"><i class="bi bi-person-badge"></i></div>
+                    <div class="stat-icon-wrapper stat-icon-wine">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-white border-opacity-10">
+                    <span class="badge badge-guindo-subtle px-2 py-1 rounded-pill small">
+                        Personal Asignado
+                    </span>
+                    <span class="small text-white-50">En turno hoy</span>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card-soft stat-card h-100 p-4">
-                <div class="d-flex justify-content-between align-items-center h-100">
+
+        <!-- Card 3: Recorridos Activos -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="dashboard-card stat-card-custom stat-card-cyan">
+                <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <div class="text-white-50 small fw-medium">Recorridos activos</div>
-                        <div class="display-6 fw-semibold mt-1 text-white">{{ $recorridosActivos ?? 11 }}</div>
+                        <div class="text-white-50 small fw-bold text-uppercase" style="letter-spacing: 0.05em; font-size: 0.76rem;">Recorridos en Curso</div>
+                        <div class="display-6 fw-bold mt-1 text-white">{{ $recorridosActivos ?? 11 }}</div>
                     </div>
-                    <div class="stat-icon text-white"><i class="bi bi-map"></i></div>
+                    <div class="stat-icon-wrapper stat-icon-cyan">
+                        <i class="bi bi-map"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-white border-opacity-10">
+                    <span class="badge badge-blue-subtle px-2 py-1 rounded-pill small">
+                        Ida & Vuelta
+                    </span>
+                    <span class="small text-white-50">Vía GPS</span>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-6 col-xl-3">
-            <div class="card-soft stat-card accent h-100 p-4">
-                <div class="d-flex justify-content-between align-items-center h-100">
+
+        <!-- Card 4: Micros fuera de servicio (Acento Alerta Guindo) -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="dashboard-card stat-card-custom stat-card-guindo">
+                <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <div class="text-white-50 small fw-medium">Micros fuera de servicio</div>
-                        <div class="display-6 fw-semibold mt-1 text-white">{{ $microsFueraServicio ?? 3 }}</div>
+                        <div class="text-white-50 small fw-bold text-uppercase" style="letter-spacing: 0.05em; font-size: 0.76rem;">Fuera de Servicio</div>
+                        <div class="display-6 fw-bold mt-1 text-white">{{ $microsFueraServicio ?? 3 }}</div>
                     </div>
-                    <div class="stat-icon"><i class="bi bi-tools"></i></div>
+                    <div class="stat-icon-wrapper stat-icon-guindo">
+                        <i class="bi bi-tools"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between pt-2 border-top border-white border-opacity-10">
+                    <span class="badge badge-guindo px-2 py-1 rounded-pill small text-white">
+                        Atención / Taller
+                    </span>
+                    <span class="small text-white-50">Mantenimiento</span>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Monitoreo y Control en Tiempo Real (GPS + Unidades + Paradas) -->
-    <div class="row g-4">
+    <div class="row g-3 g-xl-4">
         <!-- Mapa de Seguimiento GPS -->
         <div class="col-12 col-xl-8">
-            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
-                <div class="card-header border-bottom py-3 px-4 d-flex justify-content-between align-items-center" style="border-radius: 16px 16px 0 0;">
+            <div class="dashboard-card">
+                <div class="card-header-custom py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-map-fill text-info"></i>
+                        <div class="rounded-circle p-1 d-flex align-items-center justify-content-center" style="background: rgba(123, 30, 43, 0.4);">
+                            <i class="bi bi-pin-map-fill text-white fs-6 px-1"></i>
+                        </div>
                         <span class="fw-bold text-white">Mapa de Posicionamiento GPS en Tiempo Real</span>
                     </div>
-                    <span id="contadorUnidades" class="badge rounded-pill bg-primary px-3 py-1">Cargando unidades...</span>
+                    <span id="contadorUnidades" class="badge badge-guindo rounded-pill px-3 py-2 fw-semibold">Cargando unidades...</span>
                 </div>
-                <div class="card-body p-3">
+                <div class="p-3">
                     <div id="mapaMonitoreo"></div>
                 </div>
             </div>
@@ -176,12 +386,15 @@
         <!-- Control de Unidades y Paradas en Tiempo Real -->
         <div class="col-12 col-xl-4">
             <!-- Selector de Unidad Activa -->
-            <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
-                <div class="card-header border-bottom py-3 px-4 d-flex justify-content-between align-items-center" style="border-radius: 16px 16px 0 0;">
-                    <span class="fw-bold text-white"><i class="bi bi-bus-front-fill text-info me-2"></i>Unidades en Ruta</span>
-                    <span class="badge bg-info text-dark rounded-pill px-2 py-1 small">Seleccionar</span>
+            <div class="dashboard-card mb-3 mb-xl-4">
+                <div class="card-header-custom py-3 px-4 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-bus-front-fill text-info"></i>
+                        <span class="fw-bold text-white">Unidades en Ruta</span>
+                    </div>
+                    <span class="badge badge-blue-subtle rounded-pill px-2 py-1 small">Seleccionar</span>
                 </div>
-                <div class="card-body p-3" id="listaUnidadesContainer" style="max-height: 240px; overflow-y: auto;">
+                <div class="p-3" id="listaUnidadesContainer" style="max-height: 235px; overflow-y: auto;">
                     <div class="text-center py-3 text-white-50 small">
                         <span class="spinner-border spinner-border-sm me-2 text-info" role="status"></span>Cargando unidades activas...
                     </div>
@@ -189,16 +402,17 @@
             </div>
 
             <!-- Control de Paradas de la Unidad Seleccionada -->
-            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
-                <div class="card-header border-bottom py-3 px-4 d-flex justify-content-between align-items-center" style="border-radius: 16px 16px 0 0;">
-                    <div>
-                        <span class="fw-bold text-white"><i class="bi bi-pin-map-fill me-2" style="color: #f87171;"></i>Control de Paradas</span>
+            <div class="dashboard-card">
+                <div class="card-header-custom py-3 px-4 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt-fill" style="color: #F87171;"></i>
+                        <span class="fw-bold text-white">Control de Paradas</span>
                     </div>
-                    <span id="paradasProgresoBadge" class="badge bg-success rounded-pill px-3 py-1">0 / 0</span>
+                    <span id="paradasProgresoBadge" class="badge badge-guindo rounded-pill px-3 py-1 fw-bold">0 / 0</span>
                 </div>
-                <div class="card-body p-3" id="listaParadasContainer" style="max-height: 250px; overflow-y: auto;">
+                <div class="p-3" id="listaParadasContainer" style="max-height: 235px; overflow-y: auto;">
                     <div class="text-center py-4 text-white-50 small">
-                        <i class="bi bi-geo-alt fs-2 d-block mb-1 opacity-50"></i>
+                        <i class="bi bi-geo-alt fs-2 d-block mb-1 opacity-50 text-white-50"></i>
                         Selecciona una unidad para auditar el paso por sus paradas.
                     </div>
                 </div>
@@ -206,20 +420,24 @@
         </div>
     </div>
 
-    <!-- Tabla Estado de Flota -->
-    <div class="card-soft p-4 mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Tabla Estado de Flota (Card Azul, Tabla Interior Blanca, Datos en Negro, Acciones en Guindo) -->
+    <div class="dashboard-card p-4 mt-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
             <div>
-                <h5 class="fw-semibold mb-1 text-white">Estado de la flota y recorridos</h5>
-                <p class="text-white-50 small mb-0">Resumen operativo de unidades asignadas</p>
+                <h5 class="fw-bold mb-1 text-white">Estado de la Flota y Recorridos</h5>
+                <p class="text-white-50 small mb-0">Resumen operativo de unidades y conductores en servicio</p>
             </div>
             <div class="d-flex gap-2">
-                <a href="{{ route('control-paradas.index') }}" class="btn btn-sm btn-outline-light" style="border-radius: 8px;">Auditar Paradas</a>
-                <a href="{{ route('micro.index') }}" class="btn btn-sm btn-primary" style="border-radius: 8px;">Ver micros</a>
+                <a href="{{ route('control-paradas.index') }}" class="btn btn-sm btn-outline-light px-3 py-1 rounded-2" style="border-color: rgba(255,255,255,0.25);">
+                    <i class="bi bi-check2-circle me-1"></i>Auditar Paradas
+                </a>
+                <a href="{{ route('micro.index') }}" class="btn btn-sm btn-guindo px-3 py-1 rounded-2">
+                    <i class="bi bi-bus-front me-1"></i>Ver Micros
+                </a>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="table table-soft align-middle mb-0">
+        <div class="table-responsive inner-white-container">
+            <table class="table table-white-custom align-middle mb-0">
                 <thead>
                     <tr>
                         <th>Unidad / Placa</th>
@@ -233,7 +451,7 @@
                 </thead>
                 <tbody id="tablaFlotaBody">
                     <tr>
-                        <td colspan="7" class="text-center py-3 text-white-50">Cargando reporte de unidades...</td>
+                        <td colspan="7" class="text-center py-4 text-muted">Cargando reporte de unidades...</td>
                     </tr>
                 </tbody>
             </table>
@@ -301,16 +519,16 @@ function renderListaUnidades() {
     unidadesData.forEach(u => {
         const isSelected = u.asignacion_id === unidadSeleccionadaId;
         html += `
-            <div class="p-3 mb-2 rounded-3 border ${isSelected ? 'border-info bg-white bg-opacity-10 shadow-sm' : 'border-secondary bg-white bg-opacity-5'}"
-                 onclick="seleccionarUnidad(${u.asignacion_id})" style="cursor: pointer; transition: all 0.2s;">
+            <div class="unit-item-white ${isSelected ? 'selected' : ''}"
+                 onclick="seleccionarUnidad(${u.asignacion_id})">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="fw-bold text-white">${u.placa} <span class="badge bg-primary text-white border border-primary ms-1">Int. ${u.interno}</span></span>
-                    <span class="badge ${u.estado === 'en_curso' ? 'bg-info text-dark' : 'bg-warning text-dark'} text-uppercase" style="font-size: 0.65rem;">${u.estado}</span>
+                    <span class="fw-bold text-dark">${u.placa} <span class="badge badge-guindo ms-1">Int. ${u.interno}</span></span>
+                    <span class="badge ${u.estado === 'en_curso' ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' : 'bg-warning bg-opacity-20 text-dark border border-warning border-opacity-50'} text-uppercase" style="font-size: 0.65rem;">${u.estado}</span>
                 </div>
-                <div class="small text-white-50 text-truncate"><i class="bi bi-person-fill me-1"></i>${u.conductor}</div>
-                <div class="d-flex justify-content-between align-items-center mt-2 small text-white-50">
-                    <span><i class="bi bi-speedometer2 me-1 text-info"></i>${u.velocidad} km/h</span>
-                    <span><i class="bi bi-clock me-1 text-white-50"></i>${u.ultima_actualizacion}</span>
+                <div class="small text-secondary text-truncate mb-2"><i class="bi bi-person-fill me-1"></i>${u.conductor}</div>
+                <div class="d-flex justify-content-between align-items-center small">
+                    <span class="fw-bold text-dark"><i class="bi bi-speedometer2 me-1" style="color: #7B1E2B;"></i>${u.velocidad} km/h</span>
+                    <span class="text-muted"><i class="bi bi-clock me-1"></i>${u.ultima_actualizacion}</span>
                 </div>
             </div>
         `;
@@ -410,20 +628,20 @@ function renderControlParadas(u) {
     u.paradas.forEach((p, idx) => {
         const isLast = idx === u.paradas.length - 1;
         html += `
-            <div class="d-flex align-items-center justify-content-between p-2 mb-2 rounded-2 ${p.cumplida ? 'bg-success bg-opacity-25 border border-success' : 'bg-white bg-opacity-5 border border-secondary'}">
+            <div class="stop-item-white d-flex align-items-center justify-content-between ${p.cumplida ? 'cumplida' : 'pendiente'}">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge ${p.cumplida ? 'bg-success' : 'bg-secondary'} rounded-circle" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                    <span class="badge ${p.cumplida ? 'bg-success' : 'badge-guindo'} rounded-circle" style="width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">
                         ${p.orden}
                     </span>
                     <div>
-                        <div class="fw-semibold text-white small">${p.nombre}</div>
-                        ${isLast ? '<span class="badge bg-info text-dark" style="font-size: 0.65rem;">Cierre Automático</span>' : ''}
+                        <div class="fw-semibold text-dark small">${p.nombre}</div>
+                        ${isLast ? '<span class="badge bg-secondary text-white" style="font-size: 0.65rem;">Cierre Automático</span>' : ''}
                     </div>
                 </div>
                 <div>
                     ${p.cumplida
                         ? `<span class="badge bg-success small"><i class="bi bi-check-lg me-1"></i>${p.hora_cumplida || 'Cumplido'}</span>`
-                        : `<span class="badge bg-secondary text-white-50 small">Pendiente</span>`
+                        : `<span class="badge bg-light text-dark border small" style="color: #7B1E2B !important; border-color: #fca5a5 !important;">Pendiente</span>`
                     }
                 </div>
             </div>
@@ -437,22 +655,22 @@ function renderTablaFlota() {
     if (unidadesData.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td class="fw-semibold text-white">Micro 201 <span class="badge bg-primary text-white border border-primary ms-1">Int. 201</span></td>
-                <td class="text-white-50">René Morales</td>
-                <td class="text-white-50">Ruta 61 (Ida)</td>
-                <td><span class="badge rounded-pill px-3 py-2 bg-info bg-opacity-25 text-info" style="font-size: 0.75rem;">EN RECORRIDO</span></td>
-                <td class="text-white">38 km/h</td>
-                <td class="text-white-50">Reciente</td>
-                <td><a href="{{ route('monitoreo.index') }}" class="btn btn-sm btn-link text-decoration-none p-0 text-info fw-semibold">Ver en mapa</a></td>
+                <td><span class="fw-bold text-dark">Micro 201</span> <span class="badge badge-guindo ms-1">Int. 201</span></td>
+                <td><span class="text-dark fw-medium">René Morales</span></td>
+                <td><span class="text-secondary">Ruta 61 (Ida)</span></td>
+                <td><span class="badge rounded-pill px-3 py-1 bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size: 0.75rem;">EN RECORRIDO</span></td>
+                <td><span class="fw-bold text-dark">38 km/h</span></td>
+                <td><span class="text-muted small">Reciente</span></td>
+                <td><a href="{{ route('monitoreo.index') }}" class="btn-action-guindo text-decoration-none d-inline-flex align-items-center gap-1"><i class="bi bi-geo-alt-fill"></i><span>Ver en mapa</span></a></td>
             </tr>
             <tr>
-                <td class="fw-semibold text-white">Micro 145 <span class="badge bg-primary text-white border border-primary ms-1">Int. 145</span></td>
-                <td class="text-white-50">María Paredes</td>
-                <td class="text-white-50">Ruta 61 (Vuelta)</td>
-                <td><span class="badge rounded-pill px-3 py-2 bg-warning bg-opacity-25 text-warning" style="font-size: 0.75rem;">EN TERMINAL</span></td>
-                <td class="text-white">0 km/h</td>
-                <td class="text-white-50">Hace 10m</td>
-                <td><a href="{{ route('monitoreo.index') }}" class="btn btn-sm btn-link text-decoration-none p-0 text-info fw-semibold">Ver en mapa</a></td>
+                <td><span class="fw-bold text-dark">Micro 145</span> <span class="badge badge-guindo ms-1">Int. 145</span></td>
+                <td><span class="text-dark fw-medium">María Paredes</span></td>
+                <td><span class="text-secondary">Ruta 61 (Vuelta)</span></td>
+                <td><span class="badge rounded-pill px-3 py-1 bg-warning bg-opacity-20 text-dark border border-warning border-opacity-50" style="font-size: 0.75rem;">EN TERMINAL</span></td>
+                <td><span class="fw-bold text-dark">0 km/h</span></td>
+                <td><span class="text-muted small">Hace 10m</span></td>
+                <td><a href="{{ route('monitoreo.index') }}" class="btn-action-guindo text-decoration-none d-inline-flex align-items-center gap-1"><i class="bi bi-geo-alt-fill"></i><span>Ver en mapa</span></a></td>
             </tr>
         `;
         return;
@@ -462,13 +680,13 @@ function renderTablaFlota() {
     unidadesData.forEach(u => {
         html += `
             <tr>
-                <td class="fw-semibold text-white">${u.placa} <span class="badge bg-primary text-white border border-primary ms-1">Int. ${u.interno}</span></td>
-                <td class="text-white-50">${u.conductor}</td>
-                <td class="text-white-50">${u.ruta} (${u.sentido})</td>
-                <td><span class="badge rounded-pill px-3 py-2 text-uppercase bg-info bg-opacity-25 text-info" style="font-size: 0.75rem;">${u.estado}</span></td>
-                <td class="text-white">${u.velocidad} km/h</td>
-                <td class="text-white-50">${u.ultima_actualizacion}</td>
-                <td><button onclick="seleccionarUnidad(${u.asignacion_id})" class="btn btn-sm btn-link text-decoration-none p-0 text-info fw-semibold">Ver en mapa</button></td>
+                <td><span class="fw-bold text-dark">${u.placa}</span> <span class="badge badge-guindo ms-1">Int. ${u.interno}</span></td>
+                <td><span class="text-dark fw-medium">${u.conductor}</span></td>
+                <td><span class="text-secondary">${u.ruta} (${u.sentido})</span></td>
+                <td><span class="badge rounded-pill px-3 py-1 text-uppercase ${u.estado === 'en_curso' ? 'bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25' : 'bg-warning bg-opacity-20 text-dark border border-warning border-opacity-50'}" style="font-size: 0.75rem;">${u.estado}</span></td>
+                <td><span class="fw-bold text-dark">${u.velocidad} km/h</span></td>
+                <td><span class="text-muted small">${u.ultima_actualizacion}</span></td>
+                <td><button onclick="seleccionarUnidad(${u.asignacion_id})" class="btn btn-sm btn-action-guindo p-0 d-inline-flex align-items-center gap-1"><i class="bi bi-geo-alt-fill"></i><span>Ver en mapa</span></button></td>
             </tr>
         `;
     });

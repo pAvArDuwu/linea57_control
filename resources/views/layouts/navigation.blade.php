@@ -1,22 +1,23 @@
 <aside class="sidebar" id="sidebar">
     <!-- Header Brand -->
-    <div class="d-flex align-items-center justify-content-between mb-4 px-2">
-        <a href="{{ route('dashboard') }}" class="text-decoration-none text-white d-flex align-items-center gap-2">
-            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; background: rgba(255,255,255,0.16);">
-                <i class="bi bi-bus-front fs-5"></i>
+    <div class="brand-container d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-white border-opacity-10 px-2">
+        <a href="{{ route('dashboard') }}" class="text-decoration-none text-white d-flex align-items-center gap-3">
+            <div class="brand-logo rounded-3 d-flex align-items-center justify-content-center shadow-sm">
+                <i class="bi bi-bus-front fs-3"></i>
             </div>
-            <div>
-                <div class="fw-bold text-white mb-0" style="line-height: 1.1;">Línea 61</div>
-                <div class="small text-white-50" style="font-size: 0.7rem;">Control & Monitoreo</div>
+            <div class="brand-text">
+                <div class="brand-title fw-bold text-white mb-0">Línea 61</div>
             </div>
         </a>
-        <button id="sidebarToggle" class="sidebar-toggle me-2" type="button"><i class="bi bi-list"></i></button>
+        <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Toggle navigation">
+            <i class="bi bi-list fs-4 text-white"></i>
+        </button>
     </div>
 
     <!-- SECCIÓN 1: CONTROL OPERATIVO EN VIVO -->
     <div class="menu-title">Control Operativo</div>
     <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
-        <i class="bi bi-grid-1x2 me-2"></i><span>Panel General</span>
+        <i class="bi bi-grid-1x2 me-2"></i><span>Panel de Control</span>
     </a>
     <a class="nav-link {{ request()->routeIs('seguimiento-rutas.*') || request()->routeIs('monitoreo.*') ? 'active' : '' }}" href="{{ route('seguimiento-rutas.index') }}">
         <i class="bi bi-map me-2"></i><span>Seguimiento GPS en Vivo</span>

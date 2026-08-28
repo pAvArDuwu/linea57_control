@@ -1,39 +1,66 @@
 <x-guest-layout title="Recuperar Contraseña">
-    <div class="mb-4 small text-muted">
-        ¿Olvidaste tu contraseña? No hay problema. Simplemente déjanos saber tu dirección de correo electrónico y te enviaremos un enlace de restablecimiento de contraseña que te permitirá elegir una nueva.
-    </div>
-
-    <!-- Session Status -->
-    @if (session('status'))
-        <div class="alert alert-success mb-3" role="alert">
-            {{ session('status') }}
-        </div>
-    @endif
-
-    <form method="POST" action="{{ route('password.email') }}">
-        @csrf
-
-        <!-- Email Address -->
-        <div class="mb-3">
-            <label for="email" class="form-label">Correo Electrónico</label>
-            <input id="email" class="form-control @error('email') is-invalid @enderror" type="email" name="email" value="{{ old('email') }}" required autofocus>
-            @error('email')
-                <div class="invalid-feedback">
-                    {{ $message }}
+    <div class="auth-single-screen">
+        <div class="auth-single-box">
+            <!-- Brand Header -->
+            <div class="text-center mb-4">
+                <div class="rounded-3 d-inline-flex align-items-center justify-content-center text-white shadow-sm mb-3" 
+                     style="width: 52px; height: 52px; background: linear-gradient(135deg, #0B3C78 0%, #7B1E2B 100%);">
+                    <i class="bi bi-key fs-4"></i>
                 </div>
-            @enderror
-        </div>
+                <div class="d-block badge px-2 py-1 rounded-2 mb-2 mx-auto" style="background: rgba(11, 60, 120, 0.1); color: #0B3C78; font-weight: 700; font-size: 0.75rem; width: fit-content;">
+                    RECUPERACIÓN
+                </div>
+                <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.3px;">Recuperar Contraseña</h3>
+                <p class="text-muted small mb-0">Ingresa tu correo y te enviaremos el enlace para restablecerla.</p>
+            </div>
 
-        <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary">
-                Enviar enlace al correo
-            </button>
+            <!-- Session Status -->
+            @if (session('status'))
+                <div class="alert alert-success py-2 px-3 small rounded-3 mb-3" role="alert">
+                    <i class="bi bi-check-circle me-1"></i>{{ session('status') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('password.email') }}">
+                @csrf
+
+                <!-- Email Address -->
+                <div class="mb-4">
+                    <label for="email" class="form-label-custom">Correo Electrónico</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted px-3" style="border-color: #E2E8F0;">
+                            <i class="bi bi-envelope"></i>
+                        </span>
+                        <input id="email" class="form-control form-control-custom border-start-0 ps-2 @error('email') is-invalid @enderror" 
+                               type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="tu@correo.com">
+                    </div>
+                    @error('email')
+                        <div class="text-danger small mt-1" style="font-size: 0.8rem;">
+                            <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn-blue-auth">
+                        <span>Enviar enlace</span>
+                        <i class="bi bi-send"></i>
+                    </button>
+                </div>
+
+                <!-- Separador -->
+                <div class="auth-divider">
+                    <span>o</span>
+                </div>
+
+                <!-- Enlace directo simplificado a Login -->
+                <div class="d-grid">
+                    <a href="{{ route('login') }}" class="btn-blue-outline">
+                        <i class="bi bi-arrow-left"></i>
+                        <span>Iniciar sesión</span>
+                    </a>
+                </div>
+            </form>
         </div>
-        
-        <div class="text-center mt-3">
-            <a class="text-decoration-none small text-muted" href="{{ route('login') }}">
-                Volver al inicio de sesión
-            </a>
-        </div>
-    </form>
+    </div>
 </x-guest-layout>
