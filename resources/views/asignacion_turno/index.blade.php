@@ -78,20 +78,6 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-0 shadow-sm p-3" style="border-radius: 14px; border-left: 4px solid var(--accent);">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-muted small fw-semibold text-uppercase">Incidencias / Retrasos</div>
-                        <div class="fs-3 fw-bold mt-1 text-dark">{{ $stats['incidencias_abiertas'] }}</div>
-                        <span class="badge bg-light text-danger small mt-1">Requieren atención</span>
-                    </div>
-                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: #fde8ec; color: var(--accent);">
-                        <i class="bi bi-exclamation-triangle fs-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- 2. Tablero Visual por Unidad (Timeline/Gantt) y Panel Lateral -->
@@ -201,14 +187,13 @@
             </div>
         </div>
 
-        <!-- Panel Lateral de Detalle Interactivo e Incidencias (SDD 30.1) -->
+        <!-- Panel Lateral de Detalle Interactivo -->
         <div class="col-12 col-lg-4">
-            <!-- Panel Detalle de Turno -->
-            <div class="card border-0 shadow-sm mb-4" id="panelDetalleTurno" style="border-radius: 16px;">
-                <div class="card-header bg-white border-bottom py-3 px-4" style="border-radius: 16px 16px 0 0;">
+            <div class="card border-0 shadow-sm mb-4" id="panelDetalleTurno" style="border-radius: 16px; border: 1px solid #dfeafc; background: #ffffff;">
+                <div class="card-header border-bottom py-3 px-4" style="border-radius: 16px 16px 0 0; background: linear-gradient(135deg, #eaf3ff 0%, #ffffff 100%); border-color: #dfeafc;">
                     <div class="d-flex align-items-center justify-content-between">
-                        <span class="fw-bold text-dark"><i class="bi bi-info-circle-fill text-primary me-2"></i>Detalle de Asignación</span>
-                        <span id="detalleBadge" class="badge rounded-pill px-3 py-1 bg-light text-muted">Seleccione un turno</span>
+                        <span class="fw-bold text-primary"><i class="bi bi-info-circle-fill me-2"></i>Detalle de Asignación</span>
+                        <span id="detalleBadge" class="badge rounded-pill px-3 py-1 bg-light text-primary border">Seleccione un turno</span>
                     </div>
                 </div>
                 <div class="card-body p-4" id="detalleContenido">
@@ -216,33 +201,6 @@
                         <i class="bi bi-hand-index-thumb fs-1 d-block mb-2 text-primary opacity-50"></i>
                         <p class="small mb-0">Haz clic en cualquier turno del tablero para ver todos sus detalles operativos en vivo.</p>
                     </div>
-                </div>
-            </div>
-
-            <!-- Lista de Incidencias y Retrasos -->
-            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
-                <div class="card-header bg-white border-bottom py-3 px-4" style="border-radius: 16px 16px 0 0;">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-bell-fill text-danger"></i>
-                        <span class="fw-bold text-dark">Incidencias y Alertas</span>
-                    </div>
-                </div>
-                <div class="card-body p-3">
-                    @forelse($incidencias as $inc)
-                        <div class="p-3 mb-2 rounded-3 border-start border-danger border-4 bg-light">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-danger small"><i class="bi bi-clock-history me-1"></i>Unidad Retrasada</span>
-                                <span class="badge bg-danger text-white small">{{ $inc->micro->placa ?? '' }}</span>
-                            </div>
-                            <div class="small text-muted mt-1">Conductor: {{ $inc->conductor->nombre ?? '' }} {{ $inc->conductor->apellido ?? '' }}</div>
-                            <div class="small text-muted">Ruta: {{ $inc->ruta->nombre ?? '' }} · Turno {{ $inc->turno->nombre ?? '' }}</div>
-                        </div>
-                    @empty
-                        <div class="text-center py-3 text-muted small">
-                            <i class="bi bi-check2-circle text-success fs-4 d-block mb-1"></i>
-                            No hay incidencias reportadas hoy.
-                        </div>
-                    @endforelse
                 </div>
             </div>
         </div>
@@ -362,10 +320,6 @@ function mostrarDetalleTurno(data) {
             <span class="text-muted small d-block">Ruta:</span>
             <span class="fw-semibold text-dark"><i class="bi bi-signpost-2-fill me-1 text-primary"></i>${data.ruta}</span>
         </div>
-        <div class="mb-2">
-            <span class="text-muted small d-block">Horario Programado:</span>
-            <span class="fw-semibold text-dark"><i class="bi bi-clock-fill me-1 text-primary"></i>${data.horario}</span>
-        </div>
         <div class="row g-2 my-2">
             <div class="col-6">
                 <div class="p-2 rounded-2 bg-light">
@@ -385,8 +339,7 @@ function mostrarDetalleTurno(data) {
             <span class="small text-dark">${data.observaciones}</span>
         </div>
         <div class="d-flex gap-2 mt-3">
-            <a href="${data.show_url}" class="btn btn-sm btn-outline-primary flex-fill" style="border-radius: 8px;">Ver Detalle</a>
-            <a href="${data.edit_url}" class="btn btn-sm btn-outline-warning flex-fill" style="border-radius: 8px;">Editar</a>
+            <a href="${data.show_url}" class="btn btn-sm btn-primary flex-fill" style="border-radius: 8px;">Ver Detalle</a>
         </div>
     `;
 }

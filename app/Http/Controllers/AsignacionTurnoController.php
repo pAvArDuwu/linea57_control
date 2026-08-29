@@ -39,7 +39,6 @@ class AsignacionTurnoController extends Controller
             'turnos_cubiertos' => $asignacionesDia->count(),
             'conductores_libres' => max(0, $totalConductoresActivos - $conductoresOcupados),
             'unidades_en_ruta' => $asignacionesDia->where('estado', 'en_curso')->count(),
-            'incidencias_abiertas' => $asignacionesDia->where('estado', 'retrasado')->count(),
         ];
 
         // Unidades con sus turnos del día para el Tablero visual (Gantt/Timeline)
@@ -61,8 +60,6 @@ class AsignacionTurnoController extends Controller
             ];
         });
 
-        $incidencias = $asignacionesDia->where('estado', 'retrasado');
-
         // Paginado de asignaciones con filtro
         $asignaciones = AsignacionTurno::with([
                 'turno',
@@ -81,8 +78,7 @@ class AsignacionTurnoController extends Controller
             'fecha',
             'stats',
             'unidadesTimeline',
-            'turnosCatalogo',
-            'incidencias'
+            'turnosCatalogo'
         ));
     }
 

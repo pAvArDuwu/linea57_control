@@ -55,9 +55,7 @@
                                 </div>
                                 @if($asignacion->turno)
                                     <div class="text-muted small mt-1">
-                                        {{ \Carbon\Carbon::parse($asignacion->turno->hora_inicio)->format('H:i') }}
-                                        —
-                                        {{ \Carbon\Carbon::parse($asignacion->turno->hora_fin)->format('H:i') }}
+                                        Turno asignado sin horario programado visible
                                     </div>
                                 @endif
                             </div>
@@ -144,9 +142,8 @@
                 </div>
 
                 <div class="card-footer bg-white border-top py-3 px-4 d-flex gap-2 justify-content-end" style="border-radius: 0 0 16px 16px;">
-                    <a href="{{ route('asignacion-turno.edit', $asignacion->id) }}"
-                       class="btn btn-outline-warning px-4" style="border-radius: 10px;">
-                        <i class="bi bi-pencil me-1"></i>Editar
+                    <a href="{{ route('asignacion-turno.index') }}" class="btn btn-primary px-4" style="border-radius: 10px;">
+                        <i class="bi bi-arrow-left me-1"></i>Volver
                     </a>
                     @if($asignacion->estado !== 'cancelado')
                         <form action="{{ route('asignacion-turno.destroy', $asignacion->id) }}" method="POST" class="d-inline">

@@ -23,11 +23,51 @@
                 --card-navy: #182C4D;
                 --surface: #F4F6F9;
                 --text: #1f2937;
+                --card-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.18), 0 8px 18px -6px rgba(15, 23, 42, 0.12);
             }
             body {
                 font-family: 'Inter', sans-serif;
                 background: var(--surface);
                 color: var(--text);
+            }
+            .card {
+                background: #ffffff !important;
+                border: 0 !important;
+                border-radius: 16px !important;
+                box-shadow: var(--card-shadow) !important;
+                overflow: hidden;
+                height: 100%;
+            }
+            .card-header {
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%) !important;
+                color: #ffffff !important;
+                border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+                border-radius: 16px 16px 0 0 !important;
+            }
+            .card-header .text-muted,
+            .card-header .small,
+            .card-header .fw-bold,
+            .card-header h5,
+            .card-header h4,
+            .card-header span,
+            .card-header i {
+                color: #ffffff !important;
+            }
+            .card-body {
+                background: #ffffff;
+                border-radius: 0 0 16px 16px;
+            }
+            .card-footer {
+                background: #ffffff !important;
+                border-top: 1px solid #eef2f7 !important;
+            }
+            .dashboard-card {
+                background-color: #182C4D !important;
+                color: #ffffff !important;
+                border: 1px solid rgba(255, 255, 255, 0.09) !important;
+                border-radius: 16px !important;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
             .app-shell {
                 min-height: 100vh;
