@@ -10,7 +10,7 @@ class ParadaController extends Controller
 {
     public function index()
     {
-        return response()->json(Parada::all());
+        return response()->json(Parada::where('estado', '!=', 'inactivo')->get());
     }
 
     public function store(Request $request)
@@ -35,8 +35,9 @@ class ParadaController extends Controller
 
     public function destroy(string $id)
     {
-        Parada::destroy($id);
+        $parada = Parada::findOrFail($id);
+        $parada->update(['estado' => 'inactivo']);
 
-        return response()->json(['message' => 'Parada eliminada']);
+        return response()->json(['message' => 'Parada desactivada correctamente']);
     }
 }

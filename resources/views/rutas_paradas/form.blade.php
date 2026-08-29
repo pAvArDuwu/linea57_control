@@ -34,8 +34,8 @@
     <div class="col-md-4">
         <label for="sentido" class="form-label fw-bold">Sentido</label>
         <select name="sentido" id="sentido" class="form-select @error('sentido') is-invalid @enderror" required>
-            <option value="ida" {{ old('sentido', $rutaParada->sentido) === 'ida' ? 'selected' : '' }}>Ida</option>
-            <option value="vuelta" {{ old('sentido', $rutaParada->sentido) === 'vuelta' ? 'selected' : '' }}>Vuelta</option>
+            <option value="Ida" {{ old('sentido', $rutaParada->sentido) === 'Ida' ? 'selected' : '' }}>Ida</option>
+            <option value="Vuelta" {{ old('sentido', $rutaParada->sentido) === 'Vuelta' ? 'selected' : '' }}>Vuelta</option>
         </select>
         @error('sentido')<div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>

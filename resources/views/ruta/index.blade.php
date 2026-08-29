@@ -57,9 +57,8 @@
                             <th class="ps-4 py-3 text-muted fw-semibold" style="font-size: 0.85rem;">No</th>
                             <th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Nombre</th>
                             <th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Descripción</th>
-                            <th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Sentido</th>
                             <th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Estado</th>
-                            <th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Paradas</th>
+                            <th class="py-3 text-muted fw-semibold" style="font-size: 0.85rem;">Paradas (Ida + Vuelta)</th>
                             <th class="py-3 text-muted fw-semibold text-end pe-4" style="font-size: 0.85rem;">Acciones</th>
                         </tr>
                     </thead>
@@ -82,17 +81,6 @@
                                     {{ Str::limit($ruta->descripcion ?? '—', 60) }}
                                 </td>
                                 <td>
-                                    @if($ruta->sentido === 'Ida')
-                                        <span class="badge rounded-pill px-3 py-2" style="background: #e8f0fe; color: #1565c0; font-weight: 500;">
-                                            <i class="bi bi-arrow-right me-1"></i>Ida
-                                        </span>
-                                    @else
-                                        <span class="badge rounded-pill px-3 py-2" style="background: #f3e5f5; color: #7b1fa2; font-weight: 500;">
-                                            <i class="bi bi-arrow-left me-1"></i>Vuelta
-                                        </span>
-                                    @endif
-                                </td>
-                                <td>
                                     @if($ruta->estado === 'activo')
                                         <span class="badge rounded-pill px-3 py-2" style="background: #e6f4ea; color: #1e7e34; font-weight: 500;">
                                             <i class="bi bi-check-circle-fill me-1"></i>Activo
@@ -105,7 +93,7 @@
                                 </td>
                                 <td>
                                     <span class="badge rounded-pill px-3 py-2" style="background: #fff3e0; color: #e65100; font-weight: 500;">
-                                        <i class="bi bi-geo-alt me-1"></i>{{ $ruta->paradas_count }}
+                                        <i class="bi bi-geo-alt me-1"></i>{{ $ruta->paradas_count }} paradas
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
@@ -131,7 +119,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5">
+                                <td colspan="6" class="text-center py-5">
                                     <div class="d-flex flex-column align-items-center">
                                         <div class="rounded-circle d-flex align-items-center justify-content-center mb-3"
                                              style="width: 64px; height: 64px; background: #f0f4f8;">

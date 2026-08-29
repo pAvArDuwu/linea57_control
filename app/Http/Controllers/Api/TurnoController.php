@@ -10,7 +10,7 @@ class TurnoController extends Controller
 {
     public function index()
     {
-        return response()->json(Turno::all());
+        return response()->json(Turno::where('estado', '!=', 'inactivo')->get());
     }
 
     public function store(Request $request)
@@ -35,8 +35,9 @@ class TurnoController extends Controller
 
     public function destroy(string $id)
     {
-        Turno::destroy($id);
+        $turno = Turno::findOrFail($id);
+        $turno->update(['estado' => 'inactivo']);
 
-        return response()->json(['message' => 'Turno eliminado']);
+        return response()->json(['message' => 'Turno desactivado correctamente']);
     }
 }

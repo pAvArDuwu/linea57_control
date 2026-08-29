@@ -17,9 +17,12 @@ class TurnoController extends Controller
     {
         $buscar = $request->input('buscar');
 
-        $turnos = Turno::when($buscar, function ($q) use ($buscar) {
-                        $q->where('nombre', 'LIKE', '%' . $buscar . '%')
-                          ->orWhere('descripcion', 'LIKE', '%' . $buscar . '%');
+        $turnos = Turno::where('estado', '!=', 'inactivo')
+                    ->when($buscar, function ($q) use ($buscar) {
+                        $q->where(function ($subQuery) use ($buscar) {
+                            $subQuery->where('nombre', 'LIKE', '%' . $buscar . '%')
+                                     ->orWhere('descripcion', 'LIKE', '%' . $buscar . '%');
+                        });
                     })
                     ->orderBy('id')
                     ->paginate(10);

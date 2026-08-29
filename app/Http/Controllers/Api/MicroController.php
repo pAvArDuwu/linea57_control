@@ -10,7 +10,7 @@ class MicroController extends Controller
 {
     public function index()
     {
-        return response()->json(Micro::all());
+        return response()->json(Micro::where('estado', '!=', 'inactivo')->get());
     }
 
     public function store(Request $request)
@@ -35,8 +35,9 @@ class MicroController extends Controller
 
     public function destroy(string $id)
     {
-        Micro::destroy($id);
+        $micro = Micro::findOrFail($id);
+        $micro->update(['estado' => 'inactivo']);
 
-        return response()->json(['message' => 'Micro eliminado']);
+        return response()->json(['message' => 'Micro desactivado correctamente']);
     }
 }

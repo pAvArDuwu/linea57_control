@@ -14,13 +14,15 @@ class RolesController extends Controller
      */
 public function index(Request $request)
 {
-    // Usamos 'buscar' porque así lo nombraste en el input de la vista
     $buscar = $request->input('buscar');
 
-        $roles = Role::where('name', 'LIKE', '%' . $buscar . '%')->paginate(10);
+    $roles = Role::where('estado', '!=', 'inactivo')
+        ->when($buscar, function ($query, $buscar) {
+            return $query->where('name', 'LIKE', '%' . $buscar . '%');
+        })
+        ->paginate(10);
 
-        // Pasamos 'roles' y 'buscar' a la vista
-        return view('roles.index', compact('roles', 'buscar'));
+    return view('roles.index', compact('roles', 'buscar'));
 }
 
 

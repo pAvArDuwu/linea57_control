@@ -4,6 +4,10 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
     /* Paleta Coherente Dashboard: Deep Navy Card (#182C4D), Blanco (#FFFFFF), Guindo/Rojo Vino (#7B1E2B / #941B2D) */
+    .row > [class*='col-'] {
+        display: flex;
+    }
+
     .dashboard-card {
         background-color: #182C4D !important;
         color: #ffffff !important;
@@ -11,6 +15,8 @@
         border-radius: 16px !important;
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        height: 100%;
+        width: 100%;
     }
     
     .card-header-custom {

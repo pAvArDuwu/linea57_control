@@ -16,10 +16,13 @@ class ParadaController extends Controller
     {
         $buscar = $request->input('buscar');
 
-        $paradas = Parada::when($buscar, function ($query, $buscar) {
-            return $query->where('nombre', 'LIKE', "%{$buscar}%")
-                         ->orWhere('referencia', 'LIKE', "%{$buscar}%");
-        })->paginate(12);
+        $paradas = Parada::where('estado', '!=', 'inactivo')
+            ->when($buscar, function ($query, $buscar) {
+                return $query->where(function ($subQuery) use ($buscar) {
+                    $subQuery->where('nombre', 'LIKE', "%{$buscar}%")
+                             ->orWhere('referencia', 'LIKE', "%{$buscar}%");
+                });
+            })->paginate(12);
 
         return view('parada.index', compact('paradas', 'buscar'));
     }

@@ -22,7 +22,7 @@
                             </div>
                             <div>
                                 <h5 class="mb-0 fw-bold" style="color: var(--primary);">Detalles de la Ruta</h5>
-                                <small class="text-muted">Información general y recorrido de paradas</small>
+                                <small class="text-muted">Información general y recorrido completo (Ida y Vuelta)</small>
                             </div>
                         </div>
                         <div class="d-flex gap-2">
@@ -43,29 +43,26 @@
                 <div class="card-body p-4">
                     {{-- General Info --}}
                     <div class="row g-4 mb-4">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="p-3 rounded-3" style="background: #f8f9fc;">
                                 <div class="text-muted small mb-1"><i class="bi bi-signpost-2 me-1"></i>Nombre de la Ruta</div>
                                 <div class="fw-semibold fs-5">{{ $ruta->nombre }}</div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="p-3 rounded-3" style="background: #f8f9fc;">
-                                <div class="text-muted small mb-1"><i class="bi bi-arrow-left-right me-1"></i>Sentido</div>
-                                <div>
-                                    @if($ruta->sentido === 'Ida')
-                                        <span class="badge rounded-pill px-3 py-2" style="background: #e8f0fe; color: #1565c0; font-weight: 500;">
-                                            <i class="bi bi-arrow-right me-1"></i>Ida
-                                        </span>
-                                    @else
-                                        <span class="badge rounded-pill px-3 py-2" style="background: #f3e5f5; color: #7b1fa2; font-weight: 500;">
-                                            <i class="bi bi-arrow-left me-1"></i>Vuelta
-                                        </span>
-                                    @endif
+                                <div class="text-muted small mb-1"><i class="bi bi-geo-alt me-1"></i>Total Paradas</div>
+                                <div class="d-flex gap-2">
+                                    <span class="badge rounded-pill px-2 py-1" style="background: #e8f0fe; color: #1565c0;">
+                                        Ida: {{ $ruta->paradasIda->count() }}
+                                    </span>
+                                    <span class="badge rounded-pill px-2 py-1" style="background: #f3e5f5; color: #7b1fa2;">
+                                        Vuelta: {{ $ruta->paradasVuelta->count() }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="p-3 rounded-3" style="background: #f8f9fc;">
                                 <div class="text-muted small mb-1"><i class="bi bi-toggle-on me-1"></i>Estado</div>
                                 <div>
@@ -89,44 +86,91 @@
                         </div>
                     </div>
 
-                    {{-- Paradas de la Ruta --}}
-                    <div class="mt-4">
-                        <h6 class="fw-bold mb-3" style="color: var(--primary);">
-                            <i class="bi bi-geo-alt-fill me-2"></i>Paradas del Recorrido ({{ $ruta->paradas->count() }})
-                        </h6>
-
-                        @if($ruta->paradas->count() > 0)
-                            <div class="list-group shadow-sm" style="border-radius: 12px; overflow: hidden;">
-                                @foreach($ruta->paradas as $parada)
-                                    <div class="list-group-item d-flex align-items-center justify-content-between p-3">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <span class="badge rounded-circle d-flex align-items-center justify-content-center"
-                                                  style="width: 32px; height: 32px; background: var(--primary); color: white; font-size: 0.9rem;">
-                                                {{ $parada->pivot->orden }}
-                                            </span>
-                                            <div>
-                                                <div class="fw-semibold">{{ $parada->nombre }}</div>
-                                                @if($parada->referencia)
-                                                    <small class="text-muted"><i class="bi bi-signpost-2 me-1"></i>{{ $parada->referencia }}</small>
+                    {{-- Paradas por Sentido --}}
+                    <div class="row g-4 mt-2">
+                        {{-- Paradas IDA --}}
+                        <div class="col-md-6">
+                            <div class="border rounded-3 p-3 h-100" style="border-color: #bbdefb !important; background: #f8fbff;">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 class="fw-bold mb-0" style="color: #1565c0;">
+                                        <i class="bi bi-arrow-right-circle-fill me-2"></i>Paradas de IDA ({{ $ruta->paradasIda->count() }})
+                                    </h6>
+                                    <span class="badge bg-primary rounded-pill">{{ $ruta->paradasIda->count() }}</span>
+                                </div>
+                                @if($ruta->paradasIda->count() > 0)
+                                    <div class="list-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
+                                        @foreach($ruta->paradasIda as $parada)
+                                            <div class="list-group-item d-flex align-items-center justify-content-between p-2 bg-white">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="badge rounded-circle d-flex align-items-center justify-content-center text-white"
+                                                          style="width: 28px; height: 28px; background: #1565c0; font-size: 0.8rem;">
+                                                        {{ $parada->pivot->orden }}
+                                                    </span>
+                                                    <div>
+                                                        <div class="fw-semibold small">{{ $parada->nombre }}</div>
+                                                        @if($parada->referencia)
+                                                            <small class="text-muted" style="font-size: 0.72rem;">{{ $parada->referencia }}</small>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                @if($parada->latitud && $parada->longitud)
+                                                    <small class="text-muted font-monospace" style="font-size: 0.7rem;">
+                                                        {{ number_format($parada->latitud, 4) }}, {{ number_format($parada->longitud, 4) }}
+                                                    </small>
                                                 @endif
                                             </div>
-                                        </div>
-                                        <div>
-                                            @if($parada->latitud && $parada->longitud)
-                                                <small class="text-muted font-monospace">
-                                                    <i class="bi bi-crosshair me-1"></i>{{ number_format($parada->latitud, 5) }}, {{ number_format($parada->longitud, 5) }}
-                                                </small>
-                                            @endif
-                                        </div>
+                                        @endforeach
                                     </div>
-                                @endforeach
+                                @else
+                                    <div class="alert alert-light text-center py-4 border rounded-3 text-muted small">
+                                        <i class="bi bi-geo-alt d-block mb-1 opacity-50"></i>
+                                        Sin paradas de Ida configuradas
+                                    </div>
+                                @endif
                             </div>
-                        @else
-                            <div class="alert alert-light text-center py-4 border rounded-3 text-muted">
-                                <i class="bi bi-geo-alt fs-3 d-block mb-2 text-secondary"></i>
-                                No hay paradas asignadas a esta ruta.
+                        </div>
+
+                        {{-- Paradas VUELTA --}}
+                        <div class="col-md-6">
+                            <div class="border rounded-3 p-3 h-100" style="border-color: #e1bee7 !important; background: #fdf8ff;">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h6 class="fw-bold mb-0" style="color: #7b1fa2;">
+                                        <i class="bi bi-arrow-left-circle-fill me-2"></i>Paradas de VUELTA ({{ $ruta->paradasVuelta->count() }})
+                                    </h6>
+                                    <span class="badge rounded-pill" style="background: #7b1fa2;">{{ $ruta->paradasVuelta->count() }}</span>
+                                </div>
+                                @if($ruta->paradasVuelta->count() > 0)
+                                    <div class="list-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
+                                        @foreach($ruta->paradasVuelta as $parada)
+                                            <div class="list-group-item d-flex align-items-center justify-content-between p-2 bg-white">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="badge rounded-circle d-flex align-items-center justify-content-center text-white"
+                                                          style="width: 28px; height: 28px; background: #7b1fa2; font-size: 0.8rem;">
+                                                        {{ $parada->pivot->orden }}
+                                                    </span>
+                                                    <div>
+                                                        <div class="fw-semibold small">{{ $parada->nombre }}</div>
+                                                        @if($parada->referencia)
+                                                            <small class="text-muted" style="font-size: 0.72rem;">{{ $parada->referencia }}</small>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                @if($parada->latitud && $parada->longitud)
+                                                    <small class="text-muted font-monospace" style="font-size: 0.7rem;">
+                                                        {{ number_format($parada->latitud, 4) }}, {{ number_format($parada->longitud, 4) }}
+                                                    </small>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="alert alert-light text-center py-4 border rounded-3 text-muted small">
+                                        <i class="bi bi-geo-alt d-block mb-1 opacity-50"></i>
+                                        Sin paradas de Vuelta configuradas
+                                    </div>
+                                @endif
                             </div>
-                        @endif
+                        </div>
                     </div>
                 </div>
                 <div class="card-footer bg-white border-top py-3 px-4" style="border-radius: 0 0 16px 16px;">

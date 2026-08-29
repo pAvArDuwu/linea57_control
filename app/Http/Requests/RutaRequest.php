@@ -22,10 +22,9 @@ class RutaRequest extends FormRequest
     public function rules(): array
     {
         return [
-			'nombre' => 'required|string|max:50',
-			'descripcion' => 'nullable|string',
-			'sentido' => 'required|in:Ida,Vuelta',
-			'estado' => 'required|in:activo,inactivo',
+            'nombre'      => 'required|string|max:50',
+            'descripcion' => 'nullable|string',
+            'estado'      => 'required|in:activo,inactivo',
         ];
     }
 }

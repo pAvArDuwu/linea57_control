@@ -4,15 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Ruta;
 use App\Models\Parada;
+use App\Services\RutaParametrizacionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class RutaController extends Controller
 {
+    public function __construct(
+        protected RutaParametrizacionService $parametrizacionService
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -20,9 +24,12 @@ class RutaController extends Controller
     {
         $buscar = $request->input('buscar');
         $rutas = Ruta::withCount('paradas')
+                     ->where('estado', '!=', 'inactivo')
                      ->when($buscar, function ($query, $buscar) {
-                         return $query->where('nombre', 'LIKE', "%{$buscar}%")
+                         return $query->where(function ($subQuery) use ($buscar) {
+                             $subQuery->where('nombre', 'LIKE', "%{$buscar}%")
                                       ->orWhere('descripcion', 'LIKE', "%{$buscar}%");
+                         });
                      })
                      ->paginate(10);
 
@@ -36,9 +43,10 @@ class RutaController extends Controller
     {
         $ruta = new Ruta();
         $paradas = Parada::where('estado', 'activo')->orderBy('nombre')->get();
-        $paradasSeleccionadas = collect();
+        $paradasIda    = collect();
+        $paradasVuelta = collect();
 
-        return view('ruta.create', compact('ruta', 'paradas', 'paradasSeleccionadas'));
+        return view('ruta.create', compact('ruta', 'paradas', 'paradasIda', 'paradasVuelta'));
     }
 
     /**
@@ -51,32 +59,25 @@ class RutaController extends Controller
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('ruta', 'nombre')->where(fn ($query) => 
-                    $query->where('sentido', $request->input('sentido'))
-                ),
+                Rule::unique('ruta', 'nombre'),
             ],
-            'descripcion' => 'nullable|string',
-            'sentido' => 'required|in:Ida,Vuelta',
-            'estado' => 'required|in:activo,inactivo',
-            'paradas' => 'nullable|array',
-            'paradas.*' => 'exists:paradas,id',
+            'descripcion'    => 'nullable|string',
+            'estado'         => 'required|in:activo,inactivo',
+            'paradas_ida'    => 'nullable|array',
+            'paradas_ida.*'  => 'exists:paradas,id',
+            'paradas_vuelta' => 'nullable|array',
+            'paradas_vuelta.*' => 'exists:paradas,id',
         ], [
-            'nombre.unique' => 'Ya existe una ruta registrada con este mismo nombre y sentido.',
+            'nombre.unique' => 'Ya existe una ruta registrada con este nombre.',
         ]);
 
-        $ruta = Ruta::create($request->only(['nombre', 'descripcion', 'sentido', 'estado']));
+        $ruta = Ruta::create($request->only(['nombre', 'descripcion', 'estado']));
 
-        // Sync paradas with automatic order
-        if ($request->has('paradas') && is_array($request->paradas)) {
-            $syncData = [];
-            foreach ($request->paradas as $index => $paradaId) {
-                $syncData[$paradaId] = [
-                    'orden' => $index + 1,
-                    'estado' => 'activo',
-                ];
-            }
-            $ruta->paradas()->sync($syncData);
-        }
+        $this->parametrizacionService->guardarParametrizacion(
+            $ruta,
+            $request->input('paradas_ida', []),
+            $request->input('paradas_vuelta', [])
+        );
 
         return Redirect::route('ruta.index')
             ->with('success', 'Ruta creada exitosamente.');
@@ -87,9 +88,7 @@ class RutaController extends Controller
      */
     public function show($id): View
     {
-        $ruta = Ruta::with(['paradas' => function ($query) {
-            $query->orderByPivot('orden');
-        }])->findOrFail($id);
+        $ruta = Ruta::with(['paradasIda', 'paradasVuelta'])->findOrFail($id);
 
         return view('ruta.show', compact('ruta'));
     }
@@ -100,10 +99,11 @@ class RutaController extends Controller
     public function edit($id): View
     {
         $ruta = Ruta::findOrFail($id);
-        $paradas = Parada::where('estado', 'activo')->orderBy('nombre')->get();
-        $paradasSeleccionadas = $ruta->paradas()->orderByPivot('orden')->get();
+        $paradas       = Parada::where('estado', 'activo')->orderBy('nombre')->get();
+        $paradasIda    = $ruta->paradasIda()->get();
+        $paradasVuelta = $ruta->paradasVuelta()->get();
 
-        return view('ruta.edit', compact('ruta', 'paradas', 'paradasSeleccionadas'));
+        return view('ruta.edit', compact('ruta', 'paradas', 'paradasIda', 'paradasVuelta'));
     }
 
     /**
@@ -118,32 +118,25 @@ class RutaController extends Controller
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('ruta', 'nombre')
-                    ->where(fn ($query) => $query->where('sentido', $request->input('sentido')))
-                    ->ignore($ruta->id),
+                Rule::unique('ruta', 'nombre')->ignore($ruta->id),
             ],
-            'descripcion' => 'nullable|string',
-            'sentido' => 'required|in:Ida,Vuelta',
-            'estado' => 'required|in:activo,inactivo',
-            'paradas' => 'nullable|array',
-            'paradas.*' => 'exists:paradas,id',
+            'descripcion'    => 'nullable|string',
+            'estado'         => 'required|in:activo,inactivo',
+            'paradas_ida'    => 'nullable|array',
+            'paradas_ida.*'  => 'exists:paradas,id',
+            'paradas_vuelta' => 'nullable|array',
+            'paradas_vuelta.*' => 'exists:paradas,id',
         ], [
-            'nombre.unique' => 'Ya existe otra ruta registrada con este mismo nombre y sentido.',
+            'nombre.unique' => 'Ya existe otra ruta registrada con este nombre.',
         ]);
 
-        $ruta->update($request->only(['nombre', 'descripcion', 'sentido', 'estado']));
+        $ruta->update($request->only(['nombre', 'descripcion', 'estado']));
 
-        // Sync paradas with automatic order
-        $syncData = [];
-        if ($request->has('paradas') && is_array($request->paradas)) {
-            foreach ($request->paradas as $index => $paradaId) {
-                $syncData[$paradaId] = [
-                    'orden' => $index + 1,
-                    'estado' => 'activo',
-                ];
-            }
-        }
-        $ruta->paradas()->sync($syncData);
+        $this->parametrizacionService->guardarParametrizacion(
+            $ruta,
+            $request->input('paradas_ida', []),
+            $request->input('paradas_vuelta', [])
+        );
 
         return Redirect::route('ruta.index')
             ->with('success', 'Ruta actualizada exitosamente.');

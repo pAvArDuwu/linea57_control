@@ -30,7 +30,7 @@
                         <option value="">— Todas las rutas —</option>
                         @foreach($rutas as $r)
                             <option value="{{ $r->id }}" {{ (string)$rutaId === (string)$r->id ? 'selected' : '' }}>
-                                {{ $r->nombre }} ({{ $r->sentido }})
+                                {{ $r->nombre }}
                             </option>
                         @endforeach
                     </select>
@@ -75,7 +75,7 @@
                                     </h6>
                                     <div class="small text-muted">
                                         <i class="bi bi-person-fill me-1"></i>{{ $a->conductor ? ($a->conductor->nombre . ' ' . $a->conductor->apellido) : 'Sin conductor' }}
-                                        · <i class="bi bi-signpost-2 me-1"></i>{{ $a->ruta->nombre ?? 'Sin ruta' }} ({{ $a->ruta->sentido ?? 'Ida' }})
+                                        · <i class="bi bi-signpost-2 me-1"></i>{{ $a->ruta->nombre ?? 'Sin ruta' }}
                                         · Turno: {{ ucfirst($a->turno->nombre ?? '') }}
                                     </div>
                                 </div>

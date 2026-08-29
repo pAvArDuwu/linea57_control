@@ -53,7 +53,6 @@ class SeguimientoGpsApiTest extends TestCase
 
         $this->ruta = Ruta::create([
             'nombre' => 'Ruta GPS Test',
-            'sentido' => 'Ida',
             'estado' => 'activo',
         ]);
 
@@ -76,6 +75,7 @@ class SeguimientoGpsApiTest extends TestCase
             'ruta_id' => $this->ruta->id,
             'parada_id' => $this->parada1->id,
             'orden' => 1,
+            'sentido' => 'Ida',
             'estado' => 'activo',
         ]);
 
@@ -83,6 +83,7 @@ class SeguimientoGpsApiTest extends TestCase
             'ruta_id' => $this->ruta->id,
             'parada_id' => $this->parada2->id,
             'orden' => 2,
+            'sentido' => 'Ida',
             'estado' => 'activo',
         ]);
 

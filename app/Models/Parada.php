@@ -23,7 +23,7 @@ class Parada extends Model
     public function rutas()
     {
         return $this->belongsToMany(Ruta::class, 'parada_ruta', 'parada_id', 'ruta_id')
-                    ->withPivot(['orden', 'estado'])
+                    ->withPivot(['orden', 'sentido', 'estado'])
                     ->withTimestamps();
     }
 }

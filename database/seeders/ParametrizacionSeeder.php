@@ -86,19 +86,28 @@ class ParametrizacionSeeder extends Seeder
         }
 
         $rutas = [
-            ['nombre' => 'Línea 61 - Centro', 'descripcion' => 'Recorrido por el centro de la ciudad.', 'sentido' => 'Ida'],
-            ['nombre' => 'Línea 61 - Norte', 'descripcion' => 'Recorrido hacia la zona norte.', 'sentido' => 'Ida'],
-            ['nombre' => 'Línea 61 - Sur', 'descripcion' => 'Recorrido hacia la zona sur.', 'sentido' => 'Ida'],
-            ['nombre' => 'Línea 61 - Oeste', 'descripcion' => 'Recorrido hacia la zona oeste.', 'sentido' => 'Vuelta'],
-            ['nombre' => 'Línea 61 - Este', 'descripcion' => 'Recorrido hacia la zona este.', 'sentido' => 'Vuelta'],
+            ['nombre' => 'Línea 61 - Troncal Centro', 'descripcion' => 'Recorrido por el centro de la ciudad.'],
+            ['nombre' => 'Línea 61 - Ramal Norte', 'descripcion' => 'Recorrido hacia la zona norte.'],
+            ['nombre' => 'Línea 61 - Ramal Sur', 'descripcion' => 'Recorrido hacia la zona sur.'],
+            ['nombre' => 'Línea 61 - Anillo Oeste', 'descripcion' => 'Recorrido hacia la zona oeste.'],
+            ['nombre' => 'Línea 61 - Radial Este', 'descripcion' => 'Recorrido hacia la zona este.'],
         ];
 
         $paradaIds = parada::whereIn('nombre', array_column($paradas, 'nombre'))->pluck('id', 'nombre')->all();
         foreach ($rutas as $index => $rutaData) {
             $ruta = Ruta::updateOrCreate(['nombre' => $rutaData['nombre']], [...$rutaData, 'estado' => 'activo']);
+            
+            $p1 = $paradaIds[$paradas[$index]['nombre']];
+            $p2 = $paradaIds[$paradas[($index + 1) % count($paradas)]['nombre']];
+            $p3 = $paradaIds[$paradas[($index + 2) % count($paradas)]['nombre']];
+
             $ruta->paradas()->sync([
-                $paradaIds[$paradas[$index]['nombre']] => ['orden' => 1, 'estado' => 'activo'],
-                $paradaIds[$paradas[($index + 1) % count($paradas)]['nombre']] => ['orden' => 2, 'estado' => 'activo'],
+                $p1 => ['orden' => 1, 'sentido' => 'Ida', 'estado' => 'activo'],
+                $p2 => ['orden' => 2, 'sentido' => 'Ida', 'estado' => 'activo'],
+                $p3 => ['orden' => 3, 'sentido' => 'Ida', 'estado' => 'activo'],
+                $p3 => ['orden' => 1, 'sentido' => 'Vuelta', 'estado' => 'activo'],
+                $p2 => ['orden' => 2, 'sentido' => 'Vuelta', 'estado' => 'activo'],
+                $p1 => ['orden' => 3, 'sentido' => 'Vuelta', 'estado' => 'activo'],
             ]);
         }
     }
