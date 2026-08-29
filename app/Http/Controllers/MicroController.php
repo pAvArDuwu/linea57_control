@@ -20,14 +20,17 @@ class MicroController extends Controller
     {
         $buscar = $request->input('buscar');
         $micros = Micro::with(['propietario', 'interno'])
+                       ->where('estado', '!=', 'inactivo')
                        ->when($buscar, function ($query, $buscar) {
-                           return $query->where('placa', 'LIKE', '%' . $buscar . '%')
+                           return $query->where(function ($subQuery) use ($buscar) {
+                               $subQuery->where('placa', 'LIKE', '%' . $buscar . '%')
                                         ->orWhere('modelo', 'LIKE', '%' . $buscar . '%')
                                         ->orWhere('marca', 'LIKE', '%' . $buscar . '%')
                                         ->orWhereHas('propietario', function ($q) use ($buscar) {
                                             $q->where('nombre', 'LIKE', "%{$buscar}%")
                                               ->orWhere('apellido', 'LIKE', "%{$buscar}%");
                                         });
+                           });
                        })
                        ->paginate(10);
 

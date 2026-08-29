@@ -18,10 +18,15 @@ class PropietarioController extends Controller
     public function index(Request $request): View
     {
         $buscar = $request->input('buscar');
-        $propietarios = Propietario::where('nombre', 'LIKE', '%' . $buscar . '%')
-                       ->orWhere('apellido', 'LIKE', '%' . $buscar . '%')
-                       ->orWhere('correo', 'LIKE', '%' . $buscar . '%')
-                       ->orWhere('ci', 'LIKE', '%' . $buscar . '%')
+        $propietarios = Propietario::where('estado', '!=', 'inactivo')
+                       ->when($buscar, function ($query, $buscar) {
+                           return $query->where(function ($subQuery) use ($buscar) {
+                               $subQuery->where('nombre', 'LIKE', '%' . $buscar . '%')
+                                        ->orWhere('apellido', 'LIKE', '%' . $buscar . '%')
+                                        ->orWhere('correo', 'LIKE', '%' . $buscar . '%')
+                                        ->orWhere('ci', 'LIKE', '%' . $buscar . '%');
+                           });
+                       })
                        ->paginate(10);
 
         return view('propietario.index', compact('propietarios', 'buscar'));

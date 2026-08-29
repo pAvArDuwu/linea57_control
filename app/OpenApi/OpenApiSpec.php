@@ -191,7 +191,6 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'id', type: 'integer', example: 1),
         new OA\Property(property: 'nombre', type: 'string', example: 'Linea 61'),
         new OA\Property(property: 'descripcion', type: 'string', nullable: true, example: 'Ruta principal'),
-        new OA\Property(property: 'sentido', type: 'string', enum: ['Ida', 'Vuelta'], example: 'Ida'),
         new OA\Property(property: 'estado', type: 'string', enum: ['activo', 'inactivo'], example: 'activo'),
         new OA\Property(property: 'created_at', type: 'string', format: 'date-time', nullable: true),
         new OA\Property(property: 'updated_at', type: 'string', format: 'date-time', nullable: true),
@@ -204,7 +203,6 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'nombre', type: 'string', example: 'Linea 61'),
         new OA\Property(property: 'descripcion', type: 'string', nullable: true, example: 'Ruta principal'),
-        new OA\Property(property: 'sentido', type: 'string', enum: ['Ida', 'Vuelta'], example: 'Ida'),
         new OA\Property(property: 'estado', type: 'string', enum: ['activo', 'inactivo'], example: 'activo'),
     ],
     type: 'object'

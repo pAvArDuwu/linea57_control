@@ -28,7 +28,17 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = $request->user();
+
+        if ($user && $user->hasVerifiedEmail() && $user->roles()->count() === 0) {
+            return redirect()->route('pending.role');
+        }
+
+        return redirect()->intended(
+            $user && $user->hasVerifiedEmail()
+                ? route('dashboard', absolute: false)
+                : route('verification.notice', absolute: false)
+        );
     }
 
     /**

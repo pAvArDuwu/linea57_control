@@ -22,13 +22,13 @@ class MonitoreoController extends Controller
                 'turno',
                 'conductor.user',
                 'micro.interno',
-                'ruta.paradas' => fn ($q) => $q->orderBy('orden'),
+                'ruta.paradas' => fn ($q) => $q->orderByPivot('sentido')->orderByPivot('orden'),
                 'controlesRecorrido.rutaParada.parada',
                 'seguimientosGps' => fn ($q) => $q->latest('fecha_hora_gps')->take(1),
             ])
             ->get();
 
-        $rutas = Ruta::where('estado', 'activo')->with(['paradas' => fn ($q) => $q->orderBy('orden')])->get();
+        $rutas = Ruta::where('estado', 'activo')->with(['paradas' => fn ($q) => $q->orderByPivot('sentido')->orderByPivot('orden')])->get();
 
         return view('monitoreo.index', compact('asignacionesActivas', 'rutas'));
     }
@@ -44,7 +44,7 @@ class MonitoreoController extends Controller
                 'turno',
                 'conductor.user',
                 'micro.interno',
-                'ruta.paradas' => fn ($q) => $q->orderBy('orden'),
+                'ruta.paradas' => fn ($q) => $q->orderByPivot('sentido')->orderByPivot('orden'),
                 'controlesRecorrido.rutaParada.parada',
                 'seguimientosGps' => fn ($q) => $q->latest('fecha_hora_gps')->take(1),
             ])
@@ -60,8 +60,8 @@ class MonitoreoController extends Controller
                 'placa' => $a->micro->placa ?? 'S/P',
                 'interno' => $a->micro->interno->numero_interno ?? 'S/I',
                 'conductor' => $a->conductor ? ($a->conductor->nombre . ' ' . $a->conductor->apellido) : 'Sin conductor',
-                'ruta' => $a->ruta->nombre ?? 'Sin ruta',
-                'sentido' => $a->ruta->sentido ?? 'Ida',
+                'ruta'     => $a->ruta->nombre ?? 'Sin ruta',
+                'sentido'  => $this->determinarSentidoActivo($a),
                 'turno' => ucfirst($a->turno->nombre ?? ''),
                 'estado' => $a->estado,
                 'hora_salida' => $a->hora_salida,
@@ -76,6 +76,7 @@ class MonitoreoController extends Controller
                     return [
                         'id' => $p->id,
                         'nombre' => $p->nombre,
+                        'sentido' => $p->pivot->sentido ?? 'Ida',
                         'latitud' => (float)$p->latitud,
                         'longitud' => (float)$p->longitud,
                         'orden' => $p->pivot->orden ?? 1,
@@ -91,5 +92,29 @@ class MonitoreoController extends Controller
             'total_activas' => $unidades->count(),
             'unidades' => $unidades,
         ]);
+    }
+
+    /**
+     * Determina si la asignación está actualmente en trayecto de Ida o de Vuelta.
+     */
+    protected function determinarSentidoActivo(AsignacionTurno $asignacion): string
+    {
+        if (!$asignacion->ruta) {
+            return 'Ida';
+        }
+
+        $paradasIda = $asignacion->ruta->paradas->filter(fn ($p) => ($p->pivot->sentido ?? 'Ida') === 'Ida');
+        if ($paradasIda->isEmpty()) {
+            return 'Vuelta';
+        }
+
+        $cumplidasIds = $asignacion->controlesRecorrido
+            ->where('estado', 'cumplido')
+            ->pluck('ruta_parada_id')
+            ->toArray();
+
+        $todasIdaCumplidas = $paradasIda->every(fn ($p) => in_array($p->pivot->id ?? $p->id, $cumplidasIds));
+
+        return $todasIdaCumplidas ? 'Vuelta' : 'Ida';
     }
 }

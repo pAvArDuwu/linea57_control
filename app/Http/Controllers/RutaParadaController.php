@@ -59,7 +59,7 @@ class RutaParadaController extends Controller
             ],
             'parada_id' => 'required|exists:paradas,id',
             'orden' => 'required|integer|min:1',
-            'sentido' => 'required|in:ida,vuelta',
+            'sentido' => 'required|in:Ida,Vuelta',
             'estado' => 'required|in:activo,inactivo',
         ], [
             'ruta_id.unique' => 'Esta parada ya está asociada a la ruta en el mismo sentido.',
@@ -113,7 +113,7 @@ class RutaParadaController extends Controller
             ],
             'parada_id' => 'required|exists:paradas,id',
             'orden' => 'required|integer|min:1',
-            'sentido' => 'required|in:ida,vuelta',
+            'sentido' => 'required|in:Ida,Vuelta',
             'estado' => 'required|in:activo,inactivo',
         ], [
             'ruta_id.unique' => 'Esta parada ya está asociada a la ruta en el mismo sentido.',

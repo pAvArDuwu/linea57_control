@@ -10,7 +10,7 @@ class RutaController extends Controller
 {
     public function index()
     {
-        return response()->json(Ruta::all());
+        return response()->json(Ruta::where('estado', '!=', 'inactivo')->get());
     }
 
     public function store(Request $request)
@@ -35,8 +35,9 @@ class RutaController extends Controller
 
     public function destroy(string $id)
     {
-        Ruta::destroy($id);
+        $ruta = Ruta::findOrFail($id);
+        $ruta->update(['estado' => 'inactivo']);
 
-        return response()->json(['message' => 'Ruta eliminada']);
+        return response()->json(['message' => 'Ruta desactivada correctamente']);
     }
 }

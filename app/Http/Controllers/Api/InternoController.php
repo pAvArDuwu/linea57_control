@@ -10,7 +10,7 @@ class InternoController extends Controller
 {
     public function index()
     {
-        return response()->json(Interno::all());
+        return response()->json(Interno::where('estado', '!=', 'inactivo')->get());
     }
 
     public function store(Request $request)
@@ -35,8 +35,9 @@ class InternoController extends Controller
 
     public function destroy(string $id)
     {
-        Interno::destroy($id);
+        $interno = Interno::findOrFail($id);
+        $interno->update(['estado' => 'inactivo']);
 
-        return response()->json(['message' => 'Interno eliminado']);
+        return response()->json(['message' => 'Interno desactivado correctamente']);
     }
 }

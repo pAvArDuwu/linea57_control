@@ -53,7 +53,6 @@ class AsignacionTurnoDriverApiTest extends TestCase
         $this->ruta = Ruta::create([
             'nombre' => 'Ruta Troncal 61',
             'descripcion' => 'Recorrido Norte - Sur',
-            'sentido' => 'Ida',
             'estado' => 'activo',
         ]);
 

@@ -12,7 +12,7 @@ class ConductorController extends Controller
 {
     public function index()
     {
-        return response()->json(Conductor::all());
+        return response()->json(Conductor::where('estado', '!=', 'inactivo')->get());
     }
 
     public function store(StoreConductorRequest $request)

@@ -17,9 +17,12 @@ class InternoController extends Controller
     public function index(Request $request): View
     {
         $buscar = $request->input('buscar');
-        $internos = Interno::when($buscar, function ($query, $buscar) {
-                                return $query->where('numero_interno', 'LIKE', '%' . $buscar . '%')
+        $internos = Interno::where('estado', '!=', 'inactivo')
+                            ->when($buscar, function ($query, $buscar) {
+                                return $query->where(function ($subQuery) use ($buscar) {
+                                    $subQuery->where('numero_interno', 'LIKE', '%' . $buscar . '%')
                                              ->orWhere('estado', 'LIKE', '%' . $buscar . '%');
+                                });
                             })
                             ->paginate(10);
 

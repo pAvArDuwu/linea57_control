@@ -18,6 +18,12 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
+    $user = auth()->user();
+
+    if ($user && $user->roles()->count() === 0) {
+        return redirect()->route('pending.role');
+    }
+
     $microsActivos = \App\Models\Micro::where('estado', 'activo')->count();
     $conductoresDisponibles = \App\Models\Conductor::where('estado', 'activo')->count();
     $recorridosActivos = \App\Models\AsignacionTurno::where('fecha', now()->toDateString())->whereIn('estado', ['en_curso', 'pendiente', 'retrasado'])->count();
@@ -29,34 +35,51 @@ Route::get('/dashboard', function () {
     if ($microsFueraServicio === 0) $microsFueraServicio = 3;
 
     return view('dashboard', compact('microsActivos', 'conductoresDisponibles', 'recorridosActivos', 'microsFueraServicio'));
-})->middleware(['auth'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/pending-role', function () {
+        return view('auth.pending-role');
+    })->name('pending.role');
 
-    Route::resource('conductor', ConductorController::class);
-    Route::resource('propietario', PropietarioController::class);
-    Route::resource('micro', MicroController::class);
-    Route::resource('interno', InternoController::class);
-    Route::resource('ruta', RutaController::class);
-    Route::resource('parada', ParadaController::class);
-    Route::resource('turno', TurnoController::class);
-    Route::resource('asignacion-turno', AsignacionTurnoController::class);
-    Route::resource('rutas-paradas', RutaParadaController::class);
+    Route::middleware('ensure.role.assigned')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('roles/asignar', [RolesController::class, 'assignUsers'])->name('roles.assign');
-    Route::post('roles/asignar', [RolesController::class, 'storeUserRoles'])->name('roles.assign.store');
-    Route::delete('roles/asignar/{id}', [RolesController::class, 'destroyUserRoles'])->name('roles.assign.destroy');
-    Route::resource('roles', RolesController::class);
-    Route::resource('users', App\Http\Controllers\UserController::class);
+        Route::middleware('role:admin|fiscalizador')->group(function () {
+            Route::get('seguimiento-rutas', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('seguimiento-rutas.index');
+            Route::get('monitoreo', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('monitoreo.index');
+            Route::get('monitoreo/posiciones', [\App\Http\Controllers\MonitoreoController::class, 'posicionesEnVivo'])->name('monitoreo.posiciones');
+            Route::get('control-paradas', [\App\Http\Controllers\ControlParadasController::class, 'index'])->name('control-paradas.index');
+            Route::resource('asignacion-turno', AsignacionTurnoController::class);
+        });
 
-    // Módulo Transaccional (SDD Secciones 8, 9, 10, 16, 30)
-    Route::get('seguimiento-rutas', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('seguimiento-rutas.index');
-    Route::get('control-paradas', [\App\Http\Controllers\ControlParadasController::class, 'index'])->name('control-paradas.index');
-    Route::get('monitoreo', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('monitoreo.index');
-    Route::get('monitoreo/posiciones', [\App\Http\Controllers\MonitoreoController::class, 'posicionesEnVivo'])->name('monitoreo.posiciones');
+        Route::middleware('role:conductor')->group(function () {
+            Route::get('seguimiento-rutas', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('seguimiento-rutas.index');
+            Route::get('monitoreo', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('monitoreo.index');
+            Route::get('monitoreo/posiciones', [\App\Http\Controllers\MonitoreoController::class, 'posicionesEnVivo'])->name('monitoreo.posiciones');
+        });
+
+        Route::middleware('role:admin|propietario|fiscalizador')->group(function () {
+            Route::resource('conductor', ConductorController::class);
+            Route::resource('propietario', PropietarioController::class);
+            Route::resource('micro', MicroController::class);
+            Route::resource('interno', InternoController::class);
+            Route::resource('ruta', RutaController::class);
+            Route::resource('parada', ParadaController::class);
+            Route::resource('turno', TurnoController::class);
+            Route::resource('rutas-paradas', RutaParadaController::class);
+        });
+
+        Route::middleware('role:admin|propietario')->group(function () {
+            Route::get('roles/asignar', [RolesController::class, 'assignUsers'])->name('roles.assign');
+            Route::post('roles/asignar', [RolesController::class, 'storeUserRoles'])->name('roles.assign.store');
+            Route::delete('roles/asignar/{id}', [RolesController::class, 'destroyUserRoles'])->name('roles.assign.destroy');
+            Route::resource('roles', RolesController::class);
+            Route::resource('users', App\Http\Controllers\UserController::class);
+        });
+    });
 });
 
 require __DIR__.'/auth.php';
