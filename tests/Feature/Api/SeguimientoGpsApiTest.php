@@ -4,7 +4,6 @@ namespace Tests\Feature\Api;
 
 use App\Models\AsignacionTurno;
 use App\Models\Conductor;
-use App\Models\ControlRecorrido;
 use App\Models\Interno;
 use App\Models\Micro;
 use App\Models\Parada;
@@ -22,11 +21,17 @@ class SeguimientoGpsApiTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected Conductor $conductor;
+
     protected AsignacionTurno $asignacion;
+
     protected Ruta $ruta;
+
     protected Parada $parada1;
+
     protected Parada $parada2;
+
     protected string $token;
 
     protected function setUp(): void
@@ -163,6 +168,28 @@ class SeguimientoGpsApiTest extends TestCase
         $this->assertSame(1, SeguimientoGps::where('asignacion_turno_id', $this->asignacion->id)->count());
     }
 
+    public function test_dashboard_resolves_conductor_name_from_user_profile(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Ana',
+            'apellido' => 'Gomez',
+            'email' => 'ana.gomez@linea61.com',
+        ]);
+
+        $conductor = Conductor::create([
+            'user_id' => $user->id,
+            'licencia' => 'LIC-ANA-01',
+            'nombre' => null,
+            'apellido' => null,
+            'telefono' => null,
+            'correo' => null,
+            'ci' => null,
+            'estado' => 'activo',
+        ]);
+
+        $this->assertSame('Ana Gomez', $conductor->nombreCompleto());
+    }
+
     public function test_reaching_final_stop_automatically_completes_shift(): void
     {
         // 1. Llegar a la parada 1 (inicial)
@@ -224,5 +251,28 @@ class SeguimientoGpsApiTest extends TestCase
             ->assertJsonPath('resultado.guardados', 2);
 
         $this->assertSame(2, SeguimientoGps::where('asignacion_turno_id', $this->asignacion->id)->count());
+    }
+
+    public function test_conductor_cannot_query_another_conductors_route(): void
+    {
+        $otherUser = User::factory()->create([
+            'email' => 'otro.conductor@linea61.com',
+            'password' => 'secret123',
+        ]);
+        Conductor::create([
+            'user_id' => $otherUser->id,
+            'licencia' => 'LIC-GPS-OTHER',
+            'estado' => 'activo',
+        ]);
+
+        $otherLogin = $this->postJson('/api/login', [
+            'email' => 'otro.conductor@linea61.com',
+            'password' => 'secret123',
+        ])->assertOk();
+
+        $this->withToken($otherLogin->json('access_token'))
+            ->getJson("/api/mis/asignaciones/{$this->asignacion->id}/recorrido")
+            ->assertForbidden()
+            ->assertJsonPath('message', 'No tienes autorización para consultar esta asignación.');
     }
 }

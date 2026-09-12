@@ -406,23 +406,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Control de Paradas de la Unidad Seleccionada -->
-            <div class="dashboard-card">
-                <div class="card-header-custom py-3 px-4 d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-geo-alt-fill" style="color: #F87171;"></i>
-                        <span class="fw-bold text-white">Control de Paradas</span>
-                    </div>
-                    <span id="paradasProgresoBadge" class="badge badge-guindo rounded-pill px-3 py-1 fw-bold">0 / 0</span>
-                </div>
-                <div class="p-3" id="listaParadasContainer" style="max-height: 235px; overflow-y: auto;">
-                    <div class="text-center py-4 text-white-50 small">
-                        <i class="bi bi-geo-alt fs-2 d-block mb-1 opacity-50 text-white-50"></i>
-                        Selecciona una unidad para auditar el paso por sus paradas.
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -499,7 +482,7 @@ async function actualizarPosiciones() {
         renderMapaMarkers();
         renderTablaFlota();
 
-        // Refrescar control de paradas si hay unidad seleccionada
+        // Refrescar control de paradas solo si la vista lo incluye
         if (unidadSeleccionadaId) {
             const u = unidadesData.find(x => x.asignacion_id === unidadSeleccionadaId);
             if (u) {
@@ -622,6 +605,10 @@ function seleccionarUnidad(asignacionId) {
 function renderControlParadas(u) {
     const badge = document.getElementById('paradasProgresoBadge');
     const container = document.getElementById('listaParadasContainer');
+
+    if (!badge || !container) {
+        return;
+    }
 
     badge.innerText = `${u.paradas_cumplidas} / ${u.total_paradas}`;
 

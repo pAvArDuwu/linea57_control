@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -73,8 +72,6 @@ class RoleSeeder extends Seeder
             'ruta.index', 'ruta.create', 'ruta.edit', 'ruta.destroy', 'ruta.show',
             'parada.index', 'parada.create', 'parada.edit', 'parada.destroy', 'parada.show',
             'turno.index', 'turno.create', 'turno.edit', 'turno.destroy', 'turno.show',
-            'roles.index', 'roles.create', 'roles.edit', 'roles.destroy',
-            'users.index', 'users.create', 'users.edit', 'users.destroy',
         ]);
     }
 }

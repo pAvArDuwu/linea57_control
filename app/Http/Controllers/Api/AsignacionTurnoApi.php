@@ -34,14 +34,14 @@ class AsignacionTurnoApi extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'fecha'        => ['required', 'date'],
-            'turno_id'     => ['required', 'integer', 'exists:turno,id'],
-            'ruta_id'      => ['required', 'integer', 'exists:ruta,id'],
-            'micro_id'     => ['required', 'integer', 'exists:micro,id'],
+            'fecha' => ['required', 'date'],
+            'turno_id' => ['required', 'integer', 'exists:turno,id'],
+            'ruta_id' => ['required', 'integer', 'exists:ruta,id'],
+            'micro_id' => ['required', 'integer', 'exists:micro,id'],
             'conductor_id' => ['required', 'integer', 'exists:conductor,id'],
-            'hora_salida'  => ['nullable', 'date_format:H:i'],
+            'hora_salida' => ['nullable', 'date_format:H:i'],
             'hora_llegada' => ['nullable', 'date_format:H:i'],
-            'estado'       => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
+            'estado' => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
             'observaciones' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -68,14 +68,14 @@ class AsignacionTurnoApi extends Controller
         $asignacion = AsignacionTurno::findOrFail($id);
 
         $data = $request->validate([
-            'fecha'        => ['required', 'date'],
-            'turno_id'     => ['required', 'integer', 'exists:turno,id'],
-            'ruta_id'      => ['required', 'integer', 'exists:ruta,id'],
-            'micro_id'     => ['required', 'integer', 'exists:micro,id'],
+            'fecha' => ['required', 'date'],
+            'turno_id' => ['required', 'integer', 'exists:turno,id'],
+            'ruta_id' => ['required', 'integer', 'exists:ruta,id'],
+            'micro_id' => ['required', 'integer', 'exists:micro,id'],
             'conductor_id' => ['required', 'integer', 'exists:conductor,id'],
-            'hora_salida'  => ['nullable', 'date_format:H:i'],
+            'hora_salida' => ['nullable', 'date_format:H:i'],
             'hora_llegada' => ['nullable', 'date_format:H:i'],
-            'estado'       => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
+            'estado' => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
             'observaciones' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -102,10 +102,10 @@ class AsignacionTurnoApi extends Controller
     {
         $conductor = $request->user()->conductor;
 
-        if (!$conductor) {
+        if (! $conductor) {
             return response()->json([
                 'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.',
-                'data' => []
+                'data' => [],
             ], 403);
         }
 
@@ -119,10 +119,12 @@ class AsignacionTurnoApi extends Controller
             'conductor' => [
                 'id' => $conductor->id,
                 'licencia' => $conductor->licencia,
-                'nombre_completo' => "{$request->user()->name} {$request->user()->apellido}",
+                'nombre' => $conductor->nombre,
+                'apellido' => $conductor->apellido,
+                'nombre_completo' => $conductor->nombreCompleto(),
             ],
             'total' => $asignaciones->count(),
-            'asignaciones' => $asignaciones
+            'asignaciones' => $asignaciones,
         ]);
     }
 
@@ -133,9 +135,9 @@ class AsignacionTurnoApi extends Controller
     {
         $conductor = $request->user()->conductor;
 
-        if (!$conductor) {
+        if (! $conductor) {
             return response()->json([
-                'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.'
+                'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.',
             ], 403);
         }
 
@@ -148,7 +150,7 @@ class AsignacionTurnoApi extends Controller
             ->first();
 
         // 2. Si no, buscar la asignación 'pendiente' o 'retrasado' de la fecha de hoy
-        if (!$asignacion) {
+        if (! $asignacion) {
             $asignacion = AsignacionTurno::where('conductor_id', $conductor->id)
                 ->where('fecha', $hoy)
                 ->whereIn('estado', ['pendiente', 'retrasado'])
@@ -156,16 +158,16 @@ class AsignacionTurnoApi extends Controller
                 ->first();
         }
 
-        if (!$asignacion) {
+        if (! $asignacion) {
             return response()->json([
                 'message' => 'No tienes ninguna asignación activa ni pendiente para hoy.',
-                'asignacion' => null
+                'asignacion' => null,
             ], 200);
         }
 
         return response()->json([
             'message' => 'Asignación encontrada.',
-            'asignacion' => $asignacion
+            'asignacion' => $asignacion,
         ]);
     }
 
@@ -177,9 +179,9 @@ class AsignacionTurnoApi extends Controller
         $asignacion = AsignacionTurno::findOrFail($id);
         $conductor = $request->user()->conductor;
 
-        if (!$conductor) {
+        if (! $conductor) {
             return response()->json([
-                'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.'
+                'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.',
             ], 403);
         }
 
@@ -187,7 +189,7 @@ class AsignacionTurnoApi extends Controller
 
         return response()->json([
             'message' => 'Turno iniciado correctamente.',
-            'asignacion' => $iniciada
+            'asignacion' => $iniciada,
         ]);
     }
 
@@ -199,9 +201,9 @@ class AsignacionTurnoApi extends Controller
         $asignacion = AsignacionTurno::findOrFail($id);
         $conductor = $request->user()->conductor;
 
-        if (!$conductor) {
+        if (! $conductor) {
             return response()->json([
-                'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.'
+                'message' => 'El usuario autenticado no tiene un perfil de conductor asociado.',
             ], 403);
         }
 
@@ -209,7 +211,7 @@ class AsignacionTurnoApi extends Controller
 
         return response()->json([
             'message' => 'Turno finalizado correctamente.',
-            'asignacion' => $finalizada
+            'asignacion' => $finalizada,
         ]);
     }
 }

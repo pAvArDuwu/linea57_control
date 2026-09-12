@@ -23,7 +23,7 @@ class EnsureRoleAssigned
             return redirect()->route('verification.notice');
         }
 
-        if ($user->roles()->count() === 0) {
+        if ($user->roles()->count() === 0 && ! $request->routeIs('dashboard')) {
             return redirect()->route('pending.role');
         }
 

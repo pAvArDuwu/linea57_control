@@ -139,7 +139,7 @@ return new class extends Migration
         }
 
         $this->addColumnIfMissing('parada_ruta', 'sentido', function (Blueprint $table) {
-            $table->enum('sentido', ['ida', 'vuelta'])->default('ida')->after('orden');
+            $table->enum('sentido', ['Ida', 'Vuelta'])->default('Ida')->after('orden');
         });
 
         $this->addColumnIfMissing('parada_ruta', 'estado', function (Blueprint $table) {

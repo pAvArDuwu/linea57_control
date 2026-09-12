@@ -26,7 +26,7 @@ class ControlParadasController extends Controller
                 'micro.interno',
                 'ruta.paradas' => fn ($q) => $q->orderBy('orden'),
                 'controlesRecorrido.rutaParada.parada',
-                'seguimientosGps' => fn ($q) => $q->latest('fecha_hora_gps')->take(1)
+                'seguimientosGps' => fn ($q) => $q->latest('fecha_hora_gps')->take(1),
             ])
             ->orderByDesc('id')
             ->paginate(10);
