@@ -21,6 +21,12 @@ class SeguimientoGpsService
     {
         $this->validarRangoTemporal($datos['fecha_hora_gps']);
 
+        if (in_array($asignacion->estado, ['completado', 'cancelado'], true)) {
+            throw ValidationException::withMessages([
+                'asignacion_turno_id' => 'La asignación ya no acepta nuevos puntos GPS.',
+            ]);
+        }
+
         return DB::transaction(function () use ($asignacion, $datos) {
             // Evitar duplicados (idempotencia)
             $gps = SeguimientoGps::firstOrCreate(
@@ -36,8 +42,10 @@ class SeguimientoGpsService
                 ]
             );
 
-            // Evaluar avance de parada en el recorrido
-            $control = $this->controlRecorridoService->evaluarPunto($asignacion, $gps);
+            // Un reintento debe ser idempotente: no vuelve a crear controles.
+            $control = $gps->wasRecentlyCreated
+                ? $this->controlRecorridoService->evaluarPunto($asignacion, $gps)
+                : null;
 
             return [
                 'seguimiento_gps' => $gps,
@@ -64,15 +72,16 @@ class SeguimientoGpsService
 
         foreach ($puntos as $index => $punto) {
             try {
-                if (empty($punto['fecha_hora_gps']) || !isset($punto['latitud']) || !isset($punto['longitud'])) {
+                if (empty($punto['fecha_hora_gps']) || ! isset($punto['latitud']) || ! isset($punto['longitud'])) {
                     $rechazados[] = ['index' => $index, 'motivo' => 'Campos obligatorios faltantes'];
+
                     continue;
                 }
 
                 $this->validarRangoTemporal($punto['fecha_hora_gps']);
 
                 $resultado = $this->registrarPunto($asignacion, $punto);
-                
+
                 if ($resultado['seguimiento_gps']->wasRecentlyCreated) {
                     $guardados++;
                 } else {

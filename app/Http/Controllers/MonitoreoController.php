@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\AsignacionTurno;
-use App\Models\Parada;
 use App\Models\Ruta;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -59,26 +58,28 @@ class MonitoreoController extends Controller
                 'asignacion_id' => $a->id,
                 'placa' => $a->micro->placa ?? 'S/P',
                 'interno' => $a->micro->interno->numero_interno ?? 'S/I',
-                'conductor' => $a->conductor ? ($a->conductor->nombre . ' ' . $a->conductor->apellido) : 'Sin conductor',
-                'ruta'     => $a->ruta->nombre ?? 'Sin ruta',
-                'sentido'  => $this->determinarSentidoActivo($a),
+                'conductor_id' => $a->conductor?->id,
+                'conductor' => $a->conductor?->nombreCompleto() ?? 'Sin conductor',
+                'ruta' => $a->ruta->nombre ?? 'Sin ruta',
+                'sentido' => $this->determinarSentidoActivo($a),
                 'turno' => ucfirst($a->turno->nombre ?? ''),
                 'estado' => $a->estado,
                 'hora_salida' => $a->hora_salida,
-                'latitud' => $ultimoGps ? (float)$ultimoGps->latitud : ($paradasRuta->first()?->latitud ? (float)$paradasRuta->first()->latitud : -17.7830),
-                'longitud' => $ultimoGps ? (float)$ultimoGps->longitud : ($paradasRuta->first()?->longitud ? (float)$paradasRuta->first()->longitud : -63.1820),
-                'velocidad' => $ultimoGps ? (float)$ultimoGps->velocidad : 0.0,
+                'latitud' => $ultimoGps ? (float) $ultimoGps->latitud : ($paradasRuta->first()?->latitud ? (float) $paradasRuta->first()->latitud : -17.7830),
+                'longitud' => $ultimoGps ? (float) $ultimoGps->longitud : ($paradasRuta->first()?->longitud ? (float) $paradasRuta->first()->longitud : -63.1820),
+                'velocidad' => $ultimoGps ? (float) $ultimoGps->velocidad : 0.0,
                 'ultima_actualizacion' => $ultimoGps ? $ultimoGps->fecha_hora_gps->format('H:i:s') : 'Sin reporte',
                 'total_paradas' => $paradasRuta->count(),
                 'paradas_cumplidas' => $controlesCumplidos->count(),
                 'paradas' => $paradasRuta->map(function ($p) use ($controlesCumplidos) {
                     $cumplida = $controlesCumplidos->firstWhere('ruta_parada_id', $p->pivot->id ?? $p->id);
+
                     return [
                         'id' => $p->id,
                         'nombre' => $p->nombre,
                         'sentido' => $p->pivot->sentido ?? 'Ida',
-                        'latitud' => (float)$p->latitud,
-                        'longitud' => (float)$p->longitud,
+                        'latitud' => (float) $p->latitud,
+                        'longitud' => (float) $p->longitud,
                         'orden' => $p->pivot->orden ?? 1,
                         'cumplida' => $cumplida !== null,
                         'hora_cumplida' => $cumplida ? $cumplida->fecha_hora->format('H:i:s') : null,
@@ -99,7 +100,7 @@ class MonitoreoController extends Controller
      */
     protected function determinarSentidoActivo(AsignacionTurno $asignacion): string
     {
-        if (!$asignacion->ruta) {
+        if (! $asignacion->ruta) {
             return 'Ida';
         }
 

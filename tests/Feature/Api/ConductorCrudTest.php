@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\Conductor;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ConductorCrudTest extends TestCase
@@ -14,7 +14,10 @@ class ConductorCrudTest extends TestCase
 
     public function test_authenticated_user_can_manage_conductores(): void
     {
-        Sanctum::actingAs(User::factory()->create());
+        $user = User::factory()->create();
+        Role::create(['name' => 'admin', 'guard_name' => 'web']);
+        $user->assignRole('admin');
+        Sanctum::actingAs($user);
 
         $payload = [
             'nombre' => 'Ana',

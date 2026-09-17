@@ -342,7 +342,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Paradas de la Unidad Seleccionada -->
             <div class="panel-card flex-grow-1">
                 <div class="panel-card-header d-flex justify-content-between align-items-center py-2 px-3">
@@ -432,6 +431,8 @@ async function actualizarPosiciones() {
         renderListaUnidades();
         renderMapaMarkers();
         renderTablaFlota();
+
+        // Refrescar control de paradas
 
         if (unidadSeleccionadaId) {
             const u = unidadesData.find(x => x.asignacion_id === unidadSeleccionadaId);
@@ -552,6 +553,7 @@ function renderControlParadas(u) {
     const badge = document.getElementById('paradasProgresoBadge');
     const container = document.getElementById('listaParadasContainer');
     if (!badge || !container) return;
+
 
     badge.innerText = `${u.paradas_cumplidas} / ${u.total_paradas}`;
 

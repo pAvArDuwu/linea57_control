@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\StoreUbicacionGpsRequest;
 use App\Http\Requests\Api\SincronizarUbicacionesGpsRequest;
+use App\Http\Requests\Api\StoreUbicacionGpsRequest;
 use App\Models\AsignacionTurno;
 use App\Services\SeguimientoGpsService;
 use Illuminate\Http\JsonResponse;
@@ -24,7 +24,7 @@ class SeguimientoGpsApiController extends Controller
         $asignacion = AsignacionTurno::findOrFail($asignacionId);
         $conductor = $request->user()->conductor;
 
-        if ($conductor && (int)$asignacion->conductor_id !== (int)$conductor->id) {
+        if (! $conductor || (int) $asignacion->conductor_id !== (int) $conductor->id) {
             return response()->json([
                 'message' => 'No tienes autorización para reportar GPS en esta asignación.',
             ], 403);
@@ -46,7 +46,7 @@ class SeguimientoGpsApiController extends Controller
         $asignacion = AsignacionTurno::findOrFail($request->input('asignacion_turno_id'));
         $conductor = $request->user()->conductor;
 
-        if ($conductor && (int)$asignacion->conductor_id !== (int)$conductor->id) {
+        if (! $conductor || (int) $asignacion->conductor_id !== (int) $conductor->id) {
             return response()->json([
                 'message' => 'No tienes autorización para reportar GPS en esta asignación.',
             ], 403);
@@ -70,8 +70,15 @@ class SeguimientoGpsApiController extends Controller
             'micro.interno',
             'ruta.paradas',
             'controlesRecorrido.rutaParada.parada',
-            'seguimientosGps' => fn ($q) => $q->latest('fecha_hora_gps')->take(1)
+            'seguimientosGps' => fn ($q) => $q->latest('fecha_hora_gps')->take(1),
         ])->findOrFail($asignacionId);
+        $conductor = $request->user()->conductor;
+
+        if (! $conductor || (int) $asignacion->conductor_id !== (int) $conductor->id) {
+            return response()->json([
+                'message' => 'No tienes autorización para consultar esta asignación.',
+            ], 403);
+        }
 
         return response()->json([
             'asignacion' => $asignacion,

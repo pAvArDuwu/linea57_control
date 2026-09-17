@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Parada;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class LogicalDeleteTest extends TestCase
@@ -14,6 +15,8 @@ class LogicalDeleteTest extends TestCase
     public function test_parada_destroy_uses_logical_delete_and_excludes_it_from_api_results(): void
     {
         $user = User::factory()->create();
+        Role::create(['name' => 'admin', 'guard_name' => 'web']);
+        $user->assignRole('admin');
         $this->actingAs($user, 'sanctum');
 
         $parada = Parada::create([
@@ -24,7 +27,7 @@ class LogicalDeleteTest extends TestCase
             'estado' => 'activo',
         ]);
 
-        $response = $this->delete('/api/paradas/' . $parada->id);
+        $response = $this->delete('/api/paradas/'.$parada->id);
 
         $response->assertOk();
         $this->assertDatabaseHas('paradas', [
