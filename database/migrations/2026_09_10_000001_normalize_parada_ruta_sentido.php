@@ -40,7 +40,6 @@ return new class extends Migration
 
                 Schema::create('control_recorrido', function (Blueprint $table) {
                     $table->id();
-                    $table->foreignId('asignacion_turno_id')->constrained('asignacion_turnos')->onDelete('cascade');
                     $table->foreignId('seguimiento_gps_id')->constrained('seguimiento_gps')->onDelete('cascade');
                     $table->foreignId('ruta_parada_id')->nullable()->constrained('parada_ruta')->onDelete('set null');
                     $table->dateTime('fecha_hora');
@@ -50,11 +49,11 @@ return new class extends Migration
                     $table->timestamps();
                 });
 
-                DB::statement('INSERT INTO control_recorrido (id, asignacion_turno_id, seguimiento_gps_id, ruta_parada_id, fecha_hora, estado, distancia_metros, observacion, created_at, updated_at)
-                    SELECT id, asignacion_turno_id, seguimiento_gps_id, ruta_parada_id, fecha_hora, estado, distancia_metros, observacion, created_at, updated_at
+                DB::statement('INSERT INTO control_recorrido (id, seguimiento_gps_id, ruta_parada_id, fecha_hora, estado, distancia_metros, observacion, created_at, updated_at)
+                    SELECT id, seguimiento_gps_id, ruta_parada_id, fecha_hora, estado, distancia_metros, observacion, created_at, updated_at
                     FROM control_recorrido_legacy');
                 DB::statement('DROP TABLE control_recorrido_legacy');
-                DB::statement('CREATE INDEX control_recorrido_asignacion_turno_id_estado_index ON control_recorrido (asignacion_turno_id, estado)');
+                DB::statement('CREATE INDEX control_recorrido_seguimiento_gps_id_estado_index ON control_recorrido (seguimiento_gps_id, estado)');
             }
 
             DB::statement('PRAGMA foreign_keys = ON');
