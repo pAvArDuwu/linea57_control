@@ -51,9 +51,12 @@ class RutaParametrizacionService
             ->where('sentido', $sentido)
             ->delete();
 
-        // 2. Insertar las nuevas paradas con su orden y sentido
+        // 2. Sanitizar para evitar duplicados en el mismo sentido
+        $uniqueParadaIds = array_values(array_unique(array_filter($paradaIds)));
+
+        // 3. Insertar las nuevas paradas con su orden y sentido
         $rows = [];
-        foreach ($paradaIds as $index => $paradaId) {
+        foreach ($uniqueParadaIds as $index => $paradaId) {
             $rows[] = [
                 'ruta_id'    => $rutaId,
                 'parada_id'  => (int) $paradaId,

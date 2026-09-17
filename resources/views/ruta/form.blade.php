@@ -317,6 +317,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function addParada(sentido, id, nombre, referencia) {
         var container = sentido === 'ida' ? listaIda : listaVuelta;
+
+        // Evitar duplicados dentro del mismo sentido
+        var existente = container.querySelector('.parada-item[data-id="' + id + '"]');
+        if (existente) {
+            existente.style.transition = 'all 0.3s ease';
+            existente.style.backgroundColor = '#ffecb3';
+            existente.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(function() {
+                existente.style.backgroundColor = 'white';
+            }, 1000);
+            return;
+        }
+
         var badgeColor = sentido === 'ida' ? 'background: #1565c0;' : 'background: #7b1fa2;';
         var count = container.querySelectorAll('.parada-item').length + 1;
 

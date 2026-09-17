@@ -115,9 +115,16 @@ class AsignacionTurno extends Model
         return $this->hasMany(\App\Models\SeguimientoGps::class, 'asignacion_turno_id');
     }
 
-    /** @return \Illuminate\Database\Eloquent\Relations\HasMany */
+    /** @return \Illuminate\Database\Eloquent\Relations\HasManyThrough */
     public function controlesRecorrido()
     {
-        return $this->hasMany(\App\Models\ControlRecorrido::class, 'asignacion_turno_id');
+        return $this->hasManyThrough(
+            \App\Models\ControlRecorrido::class,
+            \App\Models\SeguimientoGps::class,
+            'asignacion_turno_id', // Foreign key en seguimiento_gps hacia asignacion_turnos
+            'seguimiento_gps_id',  // Foreign key en control_recorrido hacia seguimiento_gps
+            'id',                  // Local key en asignacion_turnos
+            'id'                   // Local key en seguimiento_gps
+        );
     }
 }

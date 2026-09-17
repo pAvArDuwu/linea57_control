@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 /**
  * Modelo ControlRecorrido - Evaluación automática de una posición GPS respecto a la ruta y paradas.
  *
  * @property int $id
- * @property int $asignacion_turno_id
  * @property int $seguimiento_gps_id
  * @property int|null $ruta_parada_id
  * @property string $fecha_hora
@@ -25,7 +25,6 @@ class ControlRecorrido extends Model
     protected $table = 'control_recorrido';
 
     protected $fillable = [
-        'asignacion_turno_id',
         'seguimiento_gps_id',
         'ruta_parada_id',
         'fecha_hora',
@@ -42,9 +41,19 @@ class ControlRecorrido extends Model
         ];
     }
 
-    public function asignacionTurno(): BelongsTo
+    /**
+     * Asignación de turno derivada a través de seguimiento_gps.
+     */
+    public function asignacionTurno(): HasOneThrough
     {
-        return $this->belongsTo(AsignacionTurno::class, 'asignacion_turno_id');
+        return $this->hasOneThrough(
+            AsignacionTurno::class,
+            SeguimientoGps::class,
+            'id',                  // Foreign key on SeguimientoGps (matches seguimiento_gps_id)
+            'id',                  // Foreign key on AsignacionTurno (matches asignacion_turno_id)
+            'seguimiento_gps_id',  // Local key on ControlRecorrido
+            'asignacion_turno_id'  // Local key on SeguimientoGps
+        );
     }
 
     public function seguimientoGps(): BelongsTo
@@ -55,5 +64,13 @@ class ControlRecorrido extends Model
     public function rutaParada(): BelongsTo
     {
         return $this->belongsTo(RutaParada::class, 'ruta_parada_id');
+    }
+
+    /**
+     * Alias de rutaParada para coherencia de nomenclatura.
+     */
+    public function paradaRuta(): BelongsTo
+    {
+        return $this->rutaParada();
     }
 }

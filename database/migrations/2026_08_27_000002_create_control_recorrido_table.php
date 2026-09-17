@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('control_recorrido', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('asignacion_turno_id')->constrained('asignacion_turnos')->onDelete('cascade');
             $table->foreignId('seguimiento_gps_id')->constrained('seguimiento_gps')->onDelete('cascade');
             $table->foreignId('ruta_parada_id')->nullable()->constrained('parada_ruta')->onDelete('set null');
             $table->dateTime('fecha_hora');
@@ -22,7 +21,7 @@ return new class extends Migration
             $table->text('observacion')->nullable();
             $table->timestamps();
 
-            $table->index(['asignacion_turno_id', 'estado']);
+            $table->index(['seguimiento_gps_id', 'estado']);
         });
     }
 

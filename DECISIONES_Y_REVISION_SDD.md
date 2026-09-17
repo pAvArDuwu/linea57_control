@@ -92,3 +92,19 @@ En Android Studio con Retrofit/OkHttp:
    ```http
    POST http://<IP_LARAGON>:8000/api/mis/asignaciones/{id}/finalizar
    ```
+
+---
+
+## 6. REFACTORIZACIÓN DE CONTROL_RECORRIDO Y SEGURIDAD DE MONITOREO (17 DE SEPTIEMBRE DE 2026)
+
+1. **Eliminación del Loop en Diamante en `control_recorrido`:**
+   - Se eliminó la clave foránea `asignacion_turno_id` de la tabla `control_recorrido`.
+   - `control_recorrido` ahora depende estrictamente de `seguimiento_gps` (`seguimiento_gps_id`) y `parada_ruta` (`ruta_parada_id`).
+   - La asignación de turno asociada se obtiene limpiamente mediante la relación `hasOneThrough` en `ControlRecorrido` y `hasManyThrough` en `AsignacionTurno`.
+
+2. **Corrección de Acceso a Monitoreo:**
+   - Se corrigió la duplicación de rutas en `routes/web.php` que bloqueaba al rol `admin` con HTTP 403.
+   - Las vistas de `monitoreo`, `seguimiento-rutas`, `control-paradas` y `control-recorrido` se protegen explícitamente para los roles autorizados: `admin`, `fiscalizador` y `propietario`.
+
+3. **Reorganización Modular de la Barra de Navegación:**
+   - Se agrupó la barra lateral en 4 módulos principales: **Parametrización**, **Seguridad**, **Transacciones** y **Reportes**, con control de permisos dinámico por rol.

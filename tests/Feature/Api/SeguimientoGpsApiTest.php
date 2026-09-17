@@ -176,9 +176,9 @@ class SeguimientoGpsApiTest extends TestCase
             ->assertCreated();
 
         $this->assertDatabaseHas('control_recorrido', [
-            'asignacion_turno_id' => $this->asignacion->id,
             'estado' => 'cumplido',
         ]);
+        $this->assertSame(1, $this->asignacion->controlesRecorrido()->where('estado', 'cumplido')->count());
 
         $this->assertSame('en_curso', $this->asignacion->fresh()->estado);
 

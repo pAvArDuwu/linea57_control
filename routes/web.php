@@ -9,6 +9,7 @@ use App\Http\Controllers\ParadaController;
 use App\Http\Controllers\RutaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\AsignacionTurnoController;
+use App\Http\Controllers\ControlRecorridoController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\RutaParadaController;
 use Illuminate\Support\Facades\Route;
@@ -47,18 +48,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-        Route::middleware('role:admin|fiscalizador')->group(function () {
+        Route::middleware('role:admin|fiscalizador|propietario')->group(function () {
             Route::get('seguimiento-rutas', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('seguimiento-rutas.index');
             Route::get('monitoreo', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('monitoreo.index');
             Route::get('monitoreo/posiciones', [\App\Http\Controllers\MonitoreoController::class, 'posicionesEnVivo'])->name('monitoreo.posiciones');
             Route::get('control-paradas', [\App\Http\Controllers\ControlParadasController::class, 'index'])->name('control-paradas.index');
+            Route::get('control-recorrido', [ControlRecorridoController::class, 'index'])->name('control-recorrido.index');
+            Route::get('control-recorrido/{id}', [ControlRecorridoController::class, 'show'])->name('control-recorrido.show');
+            Route::get('control-recorrido/{id}/historial', [ControlRecorridoController::class, 'historial'])->name('control-recorrido.historial');
+            Route::get('control-recorrido/{id}/mapa', [ControlRecorridoController::class, 'mapaAmpliado'])->name('control-recorrido.mapa');
             Route::resource('asignacion-turno', AsignacionTurnoController::class);
-        });
-
-        Route::middleware('role:conductor')->group(function () {
-            Route::get('seguimiento-rutas', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('seguimiento-rutas.index');
-            Route::get('monitoreo', [\App\Http\Controllers\MonitoreoController::class, 'index'])->name('monitoreo.index');
-            Route::get('monitoreo/posiciones', [\App\Http\Controllers\MonitoreoController::class, 'posicionesEnVivo'])->name('monitoreo.posiciones');
         });
 
         Route::middleware('role:admin|propietario|fiscalizador')->group(function () {

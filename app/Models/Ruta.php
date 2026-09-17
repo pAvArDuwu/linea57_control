@@ -40,11 +40,43 @@ class Ruta extends Model
     // ─── Relaciones ────────────────────────────────────────────────────────
 
     /**
-     * Todos los turnos de esta ruta.
+     * Turnos asignados a esta ruta (a través de asignacion_turnos).
+     * Nota de arquitectura: la tabla turno es un catálogo de horarios sin columna ruta_id.
+     */
+    public function turnosAsignados()
+    {
+        return $this->hasManyThrough(
+            \App\Models\Turno::class,
+            \App\Models\AsignacionTurno::class,
+            'ruta_id',  // FK en asignacion_turnos
+            'id',       // PK en turno
+            'id',       // PK en ruta
+            'turno_id'  // FK en asignacion_turnos hacia turno
+        )->distinct();
+    }
+
+    /**
+     * Alias compatible de turnos asignados a esta ruta.
      */
     public function turnos()
     {
-        return $this->hasMany(\App\Models\Turno::class, 'ruta_id', 'id');
+        return $this->turnosAsignados();
+    }
+
+    /**
+     * Asignaciones de turno de esta ruta.
+     */
+    public function asignacionesTurno()
+    {
+        return $this->hasMany(\App\Models\AsignacionTurno::class, 'ruta_id');
+    }
+
+    /**
+     * Relación directa con la tabla pivote con metadatos de orden y sentido.
+     */
+    public function rutaParadas()
+    {
+        return $this->hasMany(\App\Models\RutaParada::class, 'ruta_id');
     }
 
     /**

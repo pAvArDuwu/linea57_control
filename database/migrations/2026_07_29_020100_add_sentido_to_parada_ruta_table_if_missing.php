@@ -16,7 +16,7 @@ return new class extends Migration
         }
 
         Schema::table('parada_ruta', function (Blueprint $table) {
-            $table->enum('sentido', ['ida', 'vuelta'])->default('ida')->after('orden');
+            $table->enum('sentido', ['Ida', 'Vuelta'])->default('Ida')->after('orden');
         });
     }
 

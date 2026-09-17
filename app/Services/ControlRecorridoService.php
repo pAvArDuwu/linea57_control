@@ -49,7 +49,7 @@ class ControlRecorridoService
             ->get();
 
         // IDs de paradas ya cumplidas en esta asignación
-        $cumplidasIds = ControlRecorrido::where('asignacion_turno_id', $asignacion->id)
+        $cumplidasIds = $asignacion->controlesRecorrido()
             ->where('estado', 'cumplido')
             ->pluck('ruta_parada_id')
             ->toArray();
@@ -97,7 +97,6 @@ class ControlRecorridoService
         // Si está dentro del radio de tolerancia, registrar parada cumplida
         if ($distancia <= self::RADIO_TOLERANCIA_METROS) {
             $control = ControlRecorrido::create([
-                'asignacion_turno_id' => $asignacion->id,
                 'seguimiento_gps_id'  => $gps->id,
                 'ruta_parada_id'      => $siguienteParada->id,
                 'fecha_hora'          => $gps->fecha_hora_gps,
