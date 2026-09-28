@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use App\Models\Concerns\TieneEstadoLogico;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class Propietario
@@ -20,10 +21,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property $fecha_registro
  * @property $created_at
  * @property $updated_at
- *
  * @property Micro[] $micros
- * @package App
- * @mixin \Illuminate\Database\Eloquent\Builder
+ *
+ * @mixin Builder
  */
 class Propietario extends Model
 {
@@ -40,11 +40,30 @@ class Propietario extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function getNombreAttribute($value): ?string { return $this->user?->name ?? $value; }
-    public function getApellidoAttribute($value): ?string { return $this->user?->apellido ?? $value; }
-    public function getTelefonoAttribute($value): ?string { return $this->user?->telefono ?? $value; }
-    public function getCorreoAttribute($value): ?string { return $this->user?->email ?? $value; }
-    public function getCiAttribute($value): ?string { return $this->user?->ci ?? $value; }
+    public function getNombreAttribute($value): ?string
+    {
+        return $this->user?->name ?? $value;
+    }
+
+    public function getApellidoAttribute($value): ?string
+    {
+        return $this->user?->apellido ?? $value;
+    }
+
+    public function getTelefonoAttribute($value): ?string
+    {
+        return $this->user?->telefono ?? $value;
+    }
+
+    public function getCorreoAttribute($value): ?string
+    {
+        return $this->user?->email ?? $value;
+    }
+
+    public function getCiAttribute($value): ?string
+    {
+        return $this->user?->ci ?? $value;
+    }
 
     public function micros(): HasMany
     {

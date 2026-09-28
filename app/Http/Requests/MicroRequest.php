@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -18,7 +19,7 @@ class MicroRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -43,7 +44,7 @@ class MicroRequest extends FormRequest
                 'max:50',
                 Rule::unique('micro', 'chasis')->ignore($id),
             ],
-            'anio_fabricacion' => 'nullable|integer|min:1950|max:' . (date('Y') + 1),
+            'anio_fabricacion' => 'nullable|integer|min:1950|max:'.(date('Y') + 1),
             'modelo' => 'required|string|max:30',
             'marca' => 'required|string|max:30',
             'capacidad_pasajeros' => 'required|integer|min:1',

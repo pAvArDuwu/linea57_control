@@ -28,7 +28,7 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-        /**
+    /**
      * Handle an incoming registration request.
      *
      * @throws ValidationException

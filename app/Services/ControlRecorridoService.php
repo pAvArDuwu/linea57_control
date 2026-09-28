@@ -28,7 +28,7 @@ class ControlRecorridoService
     public function evaluarPunto(AsignacionTurno $asignacion, SeguimientoGps $gps): ?ControlRecorrido
     {
         $ruta = $asignacion->ruta;
-        if (!$ruta) {
+        if (! $ruta) {
             return null;
         }
 
@@ -59,12 +59,12 @@ class ControlRecorridoService
             && $paradasIda->every(fn ($rp) => in_array($rp->id, $cumplidasIds));
 
         // Seleccionar la secuencia activa según la fase del recorrido
-        if (!$todasIdaCumplidas && $paradasIda->isNotEmpty()) {
+        if (! $todasIdaCumplidas && $paradasIda->isNotEmpty()) {
             $secuenciaActiva = $paradasIda;
-            $sentidoActivo   = 'Ida';
+            $sentidoActivo = 'Ida';
         } elseif ($paradasVuelta->isNotEmpty()) {
             $secuenciaActiva = $paradasVuelta;
-            $sentidoActivo   = 'Vuelta';
+            $sentidoActivo = 'Vuelta';
         } else {
             // Sin más paradas: ruta completamente cubierta
             return null;
@@ -76,10 +76,10 @@ class ControlRecorridoService
 
         // Encontrar la siguiente parada esperada en la secuencia activa
         $siguienteParada = $secuenciaActiva->first(
-            fn ($rp) => !in_array($rp->id, $cumplidasIds)
+            fn ($rp) => ! in_array($rp->id, $cumplidasIds)
         );
 
-        if (!$siguienteParada || !$siguienteParada->parada) {
+        if (! $siguienteParada || ! $siguienteParada->parada) {
             return null;
         }
 
@@ -97,13 +97,16 @@ class ControlRecorridoService
         // Si está dentro del radio de tolerancia, registrar parada cumplida
         if ($distancia <= self::RADIO_TOLERANCIA_METROS) {
             $control = ControlRecorrido::create([
-                'seguimiento_gps_id'  => $gps->id,
-                'ruta_parada_id'      => $siguienteParada->id,
-                'fecha_hora'          => $gps->fecha_hora_gps,
-                'estado'              => 'cumplido',
-                'distancia_metros'    => round($distancia, 2),
-                'observacion'         => "Parada cumplida [{$sentidoActivo}]: {$siguienteParada->parada->nombre} a {$distancia}m",
+                'asignacion_turno_id' => $asignacion->id,
+                'ruta_parada_id' => $siguienteParada->id,
+                'fecha_hora' => $gps->fecha_hora_gps,
+                'estado' => 'cumplido',
+                'distancia_metros' => round($distancia, 2),
+                'observacion' => "Parada cumplida [{$sentidoActivo}]: {$siguienteParada->parada->nombre} a {$distancia}m",
             ]);
+
+            // Vincular el punto GPS a este control_recorrido
+            $gps->update(['control_recorrido_id' => $control->id]);
 
             // ── Culminación automática ────────────────────────────────────
             // Se completa al cumplir la última parada:
@@ -117,7 +120,7 @@ class ControlRecorridoService
 
             if ($esUltimaParadaTotal && $asignacion->estado === 'en_curso') {
                 $asignacion->update([
-                    'estado'       => 'completado',
+                    'estado' => 'completado',
                     'hora_llegada' => now()->format('H:i:s'),
                 ]);
 
@@ -131,21 +134,21 @@ class ControlRecorridoService
     }
 
     /**
-     * Calcula la distancia en metros entre dos puntos geográficos (Haversine).
+     * Calcula la distancia Haversine en metros entre dos coordenadas geográficas.
      */
     public function calcularDistanciaMetros(float $lat1, float $lon1, float $lat2, float $lon2): float
     {
-        $radioTierra = 6371000; // Metros
+        $earthRadius = 6371000; // Radio de la Tierra en metros
 
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
 
         $a = sin($dLat / 2) * sin($dLat / 2) +
-             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-             sin($dLon / 2) * sin($dLon / 2);
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
-        return $radioTierra * $c;
+        return $earthRadius * $c;
     }
 }

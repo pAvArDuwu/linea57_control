@@ -15,17 +15,17 @@ return [
     |
     */
 
-        'defaults' => [
-            'guard' => 'web',
-            'passwords' => 'users',
-        ],
+    'defaults' => [
+        'guard' => 'web',
+        'passwords' => 'users',
+    ],
 
-        'guards' => [
-            'web' => [
-                'driver' => 'session',
-                'provider' => 'users',
-            ],
+    'guards' => [
+        'web' => [
+            'driver' => 'session',
+            'provider' => 'users',
         ],
+    ],
 
     /*
     |--------------------------------------------------------------------------

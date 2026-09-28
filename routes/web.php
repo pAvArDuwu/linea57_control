@@ -30,10 +30,18 @@ Route::get('/dashboard', function () {
     $recorridosActivos = AsignacionTurno::where('fecha', now()->toDateString())->whereIn('estado', ['en_curso', 'pendiente', 'retrasado'])->count();
     $microsFueraServicio = Micro::where('estado', '!=', 'activo')->count();
 
-    if ($microsActivos === 0) $microsActivos = 24;
-    if ($conductoresDisponibles === 0) $conductoresDisponibles = 18;
-    if ($recorridosActivos === 0) $recorridosActivos = 11;
-    if ($microsFueraServicio === 0) $microsFueraServicio = 3;
+    if ($microsActivos === 0) {
+        $microsActivos = 24;
+    }
+    if ($conductoresDisponibles === 0) {
+        $conductoresDisponibles = 18;
+    }
+    if ($recorridosActivos === 0) {
+        $recorridosActivos = 11;
+    }
+    if ($microsFueraServicio === 0) {
+        $microsFueraServicio = 3;
+    }
 
     return view('dashboard', compact('microsActivos', 'conductoresDisponibles', 'recorridosActivos', 'microsFueraServicio'));
 })->middleware(['auth', 'verified'])->name('dashboard');

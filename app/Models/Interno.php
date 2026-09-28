@@ -18,7 +18,7 @@ class Interno extends Model
 
     public function micro()
     {
-        return $this->hasOne(\App\Models\Micro::class, 'interno_id', 'id');
+        return $this->hasOne(Micro::class, 'interno_id', 'id');
     }
 
     protected function estadoBadge(): Attribute
@@ -26,8 +26,8 @@ class Interno extends Model
         return Attribute::get(function () {
             $config = [
                 'disponible' => ['bg' => '#e6f4ea', 'color' => '#1e7e34', 'label' => 'Disponible'],
-                'asignado'   => ['bg' => '#e8f0fe', 'color' => '#1565c0', 'label' => 'Asignado'],
-                'inactivo'   => ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => 'Inactivo'],
+                'asignado' => ['bg' => '#e8f0fe', 'color' => '#1565c0', 'label' => 'Asignado'],
+                'inactivo' => ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => 'Inactivo'],
             ];
 
             return $config[$this->estado] ?? $config['inactivo'];

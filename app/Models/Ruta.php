@@ -3,24 +3,26 @@
 namespace App\Models;
 
 use App\Models\Concerns\TieneEstadoLogico;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * Class Ruta
  *
- * @property int    $id
+ * @property int $id
  * @property string $nombre
  * @property string $descripcion
  * @property string $estado
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property Collection<Parada> $paradas
+ * @property Collection<Parada> $paradasIda
+ * @property Collection<Parada> $paradasVuelta
+ * @property Collection<Turno> $turnos
  *
- * @property \Illuminate\Database\Eloquent\Collection<Parada> $paradas
- * @property \Illuminate\Database\Eloquent\Collection<Parada> $paradasIda
- * @property \Illuminate\Database\Eloquent\Collection<Parada> $paradasVuelta
- * @property \Illuminate\Database\Eloquent\Collection<Turno>  $turnos
- * @package App
- * @mixin \Illuminate\Database\Eloquent\Builder
+ * @mixin Builder
  */
 class Ruta extends Model
 {
@@ -46,8 +48,8 @@ class Ruta extends Model
     public function turnosAsignados()
     {
         return $this->hasManyThrough(
-            \App\Models\Turno::class,
-            \App\Models\AsignacionTurno::class,
+            Turno::class,
+            AsignacionTurno::class,
             'ruta_id',  // FK en asignacion_turnos
             'id',       // PK en turno
             'id',       // PK en ruta
@@ -68,7 +70,7 @@ class Ruta extends Model
      */
     public function asignacionesTurno()
     {
-        return $this->hasMany(\App\Models\AsignacionTurno::class, 'ruta_id');
+        return $this->hasMany(AsignacionTurno::class, 'ruta_id');
     }
 
     /**
@@ -76,7 +78,7 @@ class Ruta extends Model
      */
     public function rutaParadas()
     {
-        return $this->hasMany(\App\Models\RutaParada::class, 'ruta_id');
+        return $this->hasMany(RutaParada::class, 'ruta_id');
     }
 
     /**
@@ -85,11 +87,11 @@ class Ruta extends Model
      */
     public function paradas()
     {
-        return $this->belongsToMany(\App\Models\Parada::class, 'parada_ruta', 'ruta_id', 'parada_id')
-                    ->withPivot(['orden', 'sentido', 'estado'])
-                    ->orderByPivot('sentido')
-                    ->orderByPivot('orden')
-                    ->withTimestamps();
+        return $this->belongsToMany(Parada::class, 'parada_ruta', 'ruta_id', 'parada_id')
+            ->withPivot(['orden', 'sentido', 'estado'])
+            ->orderByPivot('sentido')
+            ->orderByPivot('orden')
+            ->withTimestamps();
     }
 
     /**
@@ -97,11 +99,11 @@ class Ruta extends Model
      */
     public function paradasIda()
     {
-        return $this->belongsToMany(\App\Models\Parada::class, 'parada_ruta', 'ruta_id', 'parada_id')
-                    ->withPivot(['orden', 'sentido', 'estado'])
-                    ->wherePivot('sentido', 'Ida')
-                    ->orderByPivot('orden')
-                    ->withTimestamps();
+        return $this->belongsToMany(Parada::class, 'parada_ruta', 'ruta_id', 'parada_id')
+            ->withPivot(['orden', 'sentido', 'estado'])
+            ->wherePivot('sentido', 'Ida')
+            ->orderByPivot('orden')
+            ->withTimestamps();
     }
 
     /**
@@ -109,10 +111,10 @@ class Ruta extends Model
      */
     public function paradasVuelta()
     {
-        return $this->belongsToMany(\App\Models\Parada::class, 'parada_ruta', 'ruta_id', 'parada_id')
-                    ->withPivot(['orden', 'sentido', 'estado'])
-                    ->wherePivot('sentido', 'Vuelta')
-                    ->orderByPivot('orden')
-                    ->withTimestamps();
+        return $this->belongsToMany(Parada::class, 'parada_ruta', 'ruta_id', 'parada_id')
+            ->withPivot(['orden', 'sentido', 'estado'])
+            ->wherePivot('sentido', 'Vuelta')
+            ->orderByPivot('orden')
+            ->withTimestamps();
     }
 }

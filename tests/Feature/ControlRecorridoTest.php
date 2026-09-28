@@ -4,10 +4,13 @@ namespace Tests\Feature;
 
 use App\Models\AsignacionTurno;
 use App\Models\Conductor;
+use App\Models\ControlRecorrido;
 use App\Models\Micro;
 use App\Models\Parada;
+use App\Models\Propietario;
 use App\Models\Ruta;
 use App\Models\RutaParada;
+use App\Models\SeguimientoGps;
 use App\Models\Turno;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,6 +22,7 @@ class ControlRecorridoTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected AsignacionTurno $asignacion;
 
     protected function setUp(): void
@@ -60,7 +64,7 @@ class ControlRecorridoTest extends TestCase
             'estado' => 'activo',
         ]);
 
-        $propietario = \App\Models\Propietario::create([
+        $propietario = Propietario::create([
             'nombre' => 'Carlos',
             'apellido' => 'Suarez',
             'telefono' => '71111111',
@@ -150,23 +154,26 @@ class ControlRecorridoTest extends TestCase
 
     public function test_control_recorrido_relations_work_via_has_through(): void
     {
-        $gps = \App\Models\SeguimientoGps::create([
+        $control = ControlRecorrido::create([
             'asignacion_turno_id' => $this->asignacion->id,
+            'fecha_hora_inicio' => now(),
+            'fecha_hora' => now(),
+            'estado' => 'en_curso',
+        ]);
+
+        $gps = SeguimientoGps::create([
+            'control_recorrido_id' => $control->id,
             'fecha_hora_gps' => now(),
             'latitud' => -17.7830,
             'longitud' => -63.1820,
             'velocidad' => 15.0,
         ]);
 
-        $control = \App\Models\ControlRecorrido::create([
-            'seguimiento_gps_id' => $gps->id,
-            'fecha_hora' => now(),
-            'estado' => 'cumplido',
-            'distancia_metros' => 20.0,
-        ]);
-
         $this->assertNotNull($control->asignacionTurno);
         $this->assertSame($this->asignacion->id, $control->asignacionTurno->id);
+        $this->assertSame($this->asignacion->id, $gps->asignacionTurno->id);
+        $this->assertTrue($control->seguimientosGps->contains($gps));
+        $this->assertTrue($this->asignacion->seguimientosGps->contains($gps));
         $this->assertTrue($this->asignacion->controlesRecorrido->contains($control));
     }
 }

@@ -89,10 +89,10 @@ return new class extends Migration
         }
 
         $result = DB::selectOne(
-            "SELECT COUNT(*) AS cnt FROM information_schema.STATISTICS
+            'SELECT COUNT(*) AS cnt FROM information_schema.STATISTICS
              WHERE TABLE_SCHEMA = DATABASE()
                AND TABLE_NAME = ?
-               AND INDEX_NAME = ?",
+               AND INDEX_NAME = ?',
             [$table, $indexName]
         );
 

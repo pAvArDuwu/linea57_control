@@ -15,9 +15,9 @@ class StoreUbicacionGpsRequest extends FormRequest
     {
         return [
             'fecha_hora_gps' => ['required', 'date'],
-            'latitud'        => ['required', 'numeric', 'between:-90,90'],
-            'longitud'       => ['required', 'numeric', 'between:-180,180'],
-            'velocidad'      => ['nullable', 'numeric', 'min:0'],
+            'latitud' => ['required', 'numeric', 'between:-90,90'],
+            'longitud' => ['required', 'numeric', 'between:-180,180'],
+            'velocidad' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 }

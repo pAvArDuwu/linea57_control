@@ -18,14 +18,14 @@ class TurnoController extends Controller
         $buscar = $request->input('buscar');
 
         $turnos = Turno::where('estado', '!=', 'inactivo')
-                    ->when($buscar, function ($q) use ($buscar) {
-                        $q->where(function ($subQuery) use ($buscar) {
-                            $subQuery->where('nombre', 'LIKE', '%' . $buscar . '%')
-                                     ->orWhere('descripcion', 'LIKE', '%' . $buscar . '%');
-                        });
-                    })
-                    ->orderBy('id')
-                    ->paginate(10);
+            ->when($buscar, function ($q) use ($buscar) {
+                $q->where(function ($subQuery) use ($buscar) {
+                    $subQuery->where('nombre', 'LIKE', '%'.$buscar.'%')
+                        ->orWhere('descripcion', 'LIKE', '%'.$buscar.'%');
+                });
+            })
+            ->orderBy('id')
+            ->paginate(10);
 
         return view('turno.index', compact('turnos', 'buscar'));
     }
@@ -35,7 +35,8 @@ class TurnoController extends Controller
      */
     public function create(): View
     {
-        $turno = new Turno();
+        $turno = new Turno;
+
         return view('turno.create', compact('turno'));
     }
 
@@ -45,18 +46,17 @@ class TurnoController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'nombre'      => [
+            'nombre' => [
                 'required',
                 'in:mañana,tarde,noche',
-                Rule::unique('turno', 'nombre')->where(fn ($q) => 
-                    $q->where('hora_inicio', $request->input('hora_inicio'))
-                      ->where('hora_fin', $request->input('hora_fin'))
+                Rule::unique('turno', 'nombre')->where(fn ($q) => $q->where('hora_inicio', $request->input('hora_inicio'))
+                    ->where('hora_fin', $request->input('hora_fin'))
                 ),
             ],
             'hora_inicio' => ['required', 'date_format:H:i'],
-            'hora_fin'    => ['required', 'date_format:H:i'],
+            'hora_fin' => ['required', 'date_format:H:i'],
             'descripcion' => ['nullable', 'string', 'max:255'],
-            'estado'      => ['required', 'in:activo,inactivo'],
+            'estado' => ['required', 'in:activo,inactivo'],
         ], [
             'nombre.unique' => 'Ya existe un turno con este nombre y mismo horario de inicio/fin.',
             'nombre.in' => 'El tipo de turno debe ser: mañana, tarde o noche.',
@@ -74,6 +74,7 @@ class TurnoController extends Controller
     public function show(int $id): View
     {
         $turno = Turno::findOrFail($id);
+
         return view('turno.show', compact('turno'));
     }
 
@@ -83,6 +84,7 @@ class TurnoController extends Controller
     public function edit(int $id): View
     {
         $turno = Turno::findOrFail($id);
+
         return view('turno.edit', compact('turno'));
     }
 
@@ -94,20 +96,19 @@ class TurnoController extends Controller
         $turno = Turno::findOrFail($id);
 
         $data = $request->validate([
-            'nombre'      => [
+            'nombre' => [
                 'required',
                 'in:mañana,tarde,noche',
                 Rule::unique('turno', 'nombre')
-                    ->where(fn ($q) => 
-                        $q->where('hora_inicio', $request->input('hora_inicio'))
-                          ->where('hora_fin', $request->input('hora_fin'))
+                    ->where(fn ($q) => $q->where('hora_inicio', $request->input('hora_inicio'))
+                        ->where('hora_fin', $request->input('hora_fin'))
                     )
                     ->ignore($turno->id),
             ],
             'hora_inicio' => ['required', 'date_format:H:i'],
-            'hora_fin'    => ['required', 'date_format:H:i'],
+            'hora_fin' => ['required', 'date_format:H:i'],
             'descripcion' => ['nullable', 'string', 'max:255'],
-            'estado'      => ['required', 'in:activo,inactivo'],
+            'estado' => ['required', 'in:activo,inactivo'],
         ], [
             'nombre.unique' => 'Ya existe otro turno con este nombre y mismo horario de inicio/fin.',
             'nombre.in' => 'El tipo de turno debe ser: mañana, tarde o noche.',

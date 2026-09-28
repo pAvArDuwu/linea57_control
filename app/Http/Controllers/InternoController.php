@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\InternoRequest;
 use App\Models\Interno;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\InternoRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -18,13 +18,13 @@ class InternoController extends Controller
     {
         $buscar = $request->input('buscar');
         $internos = Interno::where('estado', '!=', 'inactivo')
-                            ->when($buscar, function ($query, $buscar) {
-                                return $query->where(function ($subQuery) use ($buscar) {
-                                    $subQuery->where('numero_interno', 'LIKE', '%' . $buscar . '%')
-                                             ->orWhere('estado', 'LIKE', '%' . $buscar . '%');
-                                });
-                            })
-                            ->paginate(10);
+            ->when($buscar, function ($query, $buscar) {
+                return $query->where(function ($subQuery) use ($buscar) {
+                    $subQuery->where('numero_interno', 'LIKE', '%'.$buscar.'%')
+                        ->orWhere('estado', 'LIKE', '%'.$buscar.'%');
+                });
+            })
+            ->paginate(10);
 
         return view('interno.index', compact('internos', 'buscar'));
     }
@@ -34,7 +34,7 @@ class InternoController extends Controller
      */
     public function create(): View
     {
-        $interno = new Interno();
+        $interno = new Interno;
 
         return view('interno.create', compact('interno'));
     }

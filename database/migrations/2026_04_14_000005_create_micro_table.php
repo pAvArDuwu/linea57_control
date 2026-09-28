@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('micro', function (Blueprint $table) {
-            $table->id(); 
+            $table->id();
             $table->foreignId('propietario_id')->constrained('propietarios')->onDelete('cascade');
-            $table->foreignId('interno_id')->nullable()->constrained('interno')->onDelete('set null'); 
+            $table->foreignId('interno_id')->nullable()->constrained('interno')->onDelete('set null');
             $table->string('placa', 20);
             $table->string('chasis', 50)->nullable();
             $table->year('anio_fabricacion')->nullable();
             $table->string('modelo', 30);
             $table->string('marca', 30);
-            $table->integer('capacidad_pasajeros'); 
+            $table->integer('capacidad_pasajeros');
             $table->enum('estado', ['activo', 'inactivo'])->default('activo');
             $table->timestamps();
         });

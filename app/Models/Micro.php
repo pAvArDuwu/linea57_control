@@ -27,11 +27,11 @@ class Micro extends Model
 
     public function propietario()
     {
-        return $this->belongsTo(\App\Models\Propietario::class, 'propietario_id', 'id');
+        return $this->belongsTo(Propietario::class, 'propietario_id', 'id');
     }
 
     public function interno()
     {
-        return $this->belongsTo(\App\Models\Interno::class, 'interno_id', 'id');
+        return $this->belongsTo(Interno::class, 'interno_id', 'id');
     }
 }

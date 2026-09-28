@@ -1,11 +1,14 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+use App\Models\AsignacionTurno;
+use Illuminate\Contracts\Console\Kernel;
+
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
-$a = \App\Models\AsignacionTurno::find(3);
+$a = AsignacionTurno::find(3);
 if ($a) {
     $a->update([
         'estado' => 'pendiente',

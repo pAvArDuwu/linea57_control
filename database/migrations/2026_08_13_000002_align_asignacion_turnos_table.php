@@ -19,7 +19,7 @@ return new class extends Migration
         Schema::table('asignacion_turnos', function (Blueprint $table) {
             if (! Schema::hasColumn('asignacion_turnos', 'interno_id')) {
                 $table->foreignId('interno_id')->nullable()->after('micro_id')
-                      ->constrained('interno')->nullOnDelete();
+                    ->constrained('interno')->nullOnDelete();
             }
         });
     }

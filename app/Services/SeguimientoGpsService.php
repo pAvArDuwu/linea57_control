@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AsignacionTurno;
+use App\Models\ControlRecorrido;
 use App\Models\SeguimientoGps;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -28,10 +29,33 @@ class SeguimientoGpsService
         }
 
         return DB::transaction(function () use ($asignacion, $datos) {
-            // Evitar duplicados (idempotencia)
+            // Instancia temporal para calcular proximidad
+            $gpsTemp = new SeguimientoGps([
+                'fecha_hora_gps' => $datos['fecha_hora_gps'],
+                'latitud' => $datos['latitud'],
+                'longitud' => $datos['longitud'],
+                'velocidad' => $datos['velocidad'] ?? 0.0,
+            ]);
+
+            // 1. Evaluar si la ubicación coincide con la siguiente parada esperada
+            $control = $this->controlRecorridoService->evaluarPunto($asignacion, $gpsTemp);
+
+            // 2. Si no tocó una parada, asociar al control_recorrido general en ruta de la asignación
+            if (! $control) {
+                $control = ControlRecorrido::firstOrCreate(
+                    ['asignacion_turno_id' => $asignacion->id, 'ruta_parada_id' => null],
+                    [
+                        'fecha_hora' => $datos['fecha_hora_gps'],
+                        'estado' => 'en_curso',
+                        'observacion' => 'Seguimiento en ruta',
+                    ]
+                );
+            }
+
+            // 3. Registrar el punto GPS apuntando estrictamente a su control_recorrido padre
             $gps = SeguimientoGps::firstOrCreate(
                 [
-                    'asignacion_turno_id' => $asignacion->id,
+                    'control_recorrido_id' => $control->id,
                     'fecha_hora_gps' => $datos['fecha_hora_gps'],
                 ],
                 [
@@ -41,11 +65,6 @@ class SeguimientoGpsService
                     'fecha_hora_sincronizacion' => now(),
                 ]
             );
-
-            // Un reintento debe ser idempotente: no vuelve a crear controles.
-            $control = $gps->wasRecentlyCreated
-                ? $this->controlRecorridoService->evaluarPunto($asignacion, $gps)
-                : null;
 
             return [
                 'seguimiento_gps' => $gps,

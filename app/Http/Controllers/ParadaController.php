@@ -20,7 +20,7 @@ class ParadaController extends Controller
             ->when($buscar, function ($query, $buscar) {
                 return $query->where(function ($subQuery) use ($buscar) {
                     $subQuery->where('nombre', 'LIKE', "%{$buscar}%")
-                             ->orWhere('referencia', 'LIKE', "%{$buscar}%");
+                        ->orWhere('referencia', 'LIKE', "%{$buscar}%");
                 });
             })->paginate(12);
 
@@ -32,7 +32,8 @@ class ParadaController extends Controller
      */
     public function create()
     {
-        $parada = new Parada();
+        $parada = new Parada;
+
         return view('parada.create', compact('parada'));
     }
 

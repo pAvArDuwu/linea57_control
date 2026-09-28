@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if(!Schema::hasTable('asignacion_turnos')) {
+        if (! Schema::hasTable('asignacion_turnos')) {
 
             return;
         }
-        Schema::table('asignacion_turnos', function (Blueprint $table){
-            if(Schema::hasColumn('asignacion_turnos','interno_id')){
+        Schema::table('asignacion_turnos', function (Blueprint $table) {
+            if (Schema::hasColumn('asignacion_turnos', 'interno_id')) {
                 $table->dropForeign(['interno_id']);
                 $table->dropColumn('interno_id');
             }
@@ -25,17 +25,17 @@ return new class extends Migration
 
     public function down(): void
     {
-        if(!Schema::hasTable('asignacion_turnos')) {
+        if (! Schema::hasTable('asignacion_turnos')) {
 
             return;
         }
         Schema::table('asignacion_turnos', function (Blueprint $table) {
-            if(Schema::hasColumn('asignacion_turnos', 'interno_id')){
-               $table->foreignId('interno_id')
-               ->nullable()
-               ->after('micro_id')
-               ->constrained('interno')
-               ->nullOnDelete();
+            if (Schema::hasColumn('asignacion_turnos', 'interno_id')) {
+                $table->foreignId('interno_id')
+                    ->nullable()
+                    ->after('micro_id')
+                    ->constrained('interno')
+                    ->nullOnDelete();
             }
         });
     }

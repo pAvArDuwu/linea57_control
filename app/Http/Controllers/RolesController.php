@@ -3,28 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-public function index(Request $request)
-{
-    $buscar = $request->input('buscar');
+    public function index(Request $request)
+    {
+        $buscar = $request->input('buscar');
 
-    $roles = Role::where('estado', '!=', 'inactivo')
-        ->when($buscar, function ($query, $buscar) {
-            return $query->where('name', 'LIKE', '%' . $buscar . '%');
-        })
-        ->paginate(10);
+        $roles = Role::where('estado', '!=', 'inactivo')
+            ->when($buscar, function ($query, $buscar) {
+                return $query->where('name', 'LIKE', '%'.$buscar.'%');
+            })
+            ->paginate(10);
 
-    return view('roles.index', compact('roles', 'buscar'));
-}
-
+        return view('roles.index', compact('roles', 'buscar'));
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -32,6 +31,7 @@ public function index(Request $request)
     public function create()
     {
         $permissions = Permission::all();
+
         return view('roles.create', compact('permissions'));
 
     }
@@ -44,20 +44,19 @@ public function index(Request $request)
         $request->validate([
             'name' => 'required|unique:roles,name',
             'descripcion' => 'nullable|string',
-            'estado' => 'required|in:activo,inactivo'
+            'estado' => 'required|in:activo,inactivo',
         ]);
-        
+
         Role::create([
             'name' => $request->name,
             'descripcion' => $request->descripcion,
             'estado' => $request->estado,
-            'guard_name' => 'web'
+            'guard_name' => 'web',
         ]);
-        
-        return redirect()->route('roles.index')->with('success','Rol creado con éxito');
+
+        return redirect()->route('roles.index')->with('success', 'Rol creado con éxito');
     }
-   
-    
+
     public function show(string $id)
     {
         // Este método no se usa actualmente. Se puede habilitar para mostrar detalles del rol.
@@ -66,17 +65,17 @@ public function index(Request $request)
     public function assignUsers(Request $request)
     {
         $buscar = $request->input('buscar');
-        
+
         $usersQuery = User::with('roles');
         if ($buscar) {
             $usersQuery->where('name', 'LIKE', "%{$buscar}%")
-                       ->orWhere('email', 'LIKE', "%{$buscar}%");
+                ->orWhere('email', 'LIKE', "%{$buscar}%");
         }
         $users = $usersQuery->paginate(12);
-        
+
         $allUsers = User::all();
         $roles = Role::all();
-        
+
         $edit_user_id = $request->input('edit_user');
         $edit_user = $edit_user_id ? User::find($edit_user_id) : null;
 
@@ -101,7 +100,7 @@ public function index(Request $request)
     {
         $user = User::findOrFail($id);
         $user->syncRoles([]);
-        
+
         return redirect()->route('roles.assign')->with('info', 'Roles eliminados del usuario.');
     }
 
@@ -109,11 +108,12 @@ public function index(Request $request)
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
-    {   
-              $role = Role::findById($id); // Corregido: Necesitamos buscar el rol antes de enviarlo a la vista
+    {
+        $role = Role::findById($id); // Corregido: Necesitamos buscar el rol antes de enviarlo a la vista
         $permissions = Permission::all();
+
         return view('roles.edit', compact('role', 'permissions'));
-       
+
     }
 
     /**
@@ -126,7 +126,7 @@ public function index(Request $request)
         $request->validate([
             'name' => "required|unique:roles,name,$id",
             'descripcion' => 'nullable|string',
-            'estado' => 'required|in:activo,inactivo'
+            'estado' => 'required|in:activo,inactivo',
         ]);
 
         $role->update([
@@ -143,7 +143,7 @@ public function index(Request $request)
      */
     public function destroy(string $id)
     {
-         $role = Role::findById($id);
+        $role = Role::findById($id);
         $role->delete();
 
         return redirect()->route('roles.index')->with('info', 'Rol eliminado con éxito');

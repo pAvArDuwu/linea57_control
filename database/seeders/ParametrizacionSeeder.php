@@ -3,10 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Conductor;
-use App\Models\Propietario;
 use App\Models\Interno;
 use App\Models\Micro;
 use App\Models\parada;
+use App\Models\Propietario;
 use App\Models\Ruta;
 use Illuminate\Database\Seeder;
 
@@ -96,7 +96,7 @@ class ParametrizacionSeeder extends Seeder
         $paradaIds = parada::whereIn('nombre', array_column($paradas, 'nombre'))->pluck('id', 'nombre')->all();
         foreach ($rutas as $index => $rutaData) {
             $ruta = Ruta::updateOrCreate(['nombre' => $rutaData['nombre']], [...$rutaData, 'estado' => 'activo']);
-            
+
             $p1 = $paradaIds[$paradas[$index]['nombre']];
             $p2 = $paradaIds[$paradas[($index + 1) % count($paradas)]['nombre']];
             $p3 = $paradaIds[$paradas[($index + 2) % count($paradas)]['nombre']];

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MicroRequest;
+use App\Models\Interno;
 use App\Models\Micro;
 use App\Models\Propietario;
-use App\Models\Interno;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Requests\MicroRequest;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -20,19 +20,19 @@ class MicroController extends Controller
     {
         $buscar = $request->input('buscar');
         $micros = Micro::with(['propietario', 'interno'])
-                       ->where('estado', '!=', 'inactivo')
-                       ->when($buscar, function ($query, $buscar) {
-                           return $query->where(function ($subQuery) use ($buscar) {
-                               $subQuery->where('placa', 'LIKE', '%' . $buscar . '%')
-                                        ->orWhere('modelo', 'LIKE', '%' . $buscar . '%')
-                                        ->orWhere('marca', 'LIKE', '%' . $buscar . '%')
-                                        ->orWhereHas('propietario', function ($q) use ($buscar) {
-                                            $q->where('nombre', 'LIKE', "%{$buscar}%")
-                                              ->orWhere('apellido', 'LIKE', "%{$buscar}%");
-                                        });
-                           });
-                       })
-                       ->paginate(10);
+            ->where('estado', '!=', 'inactivo')
+            ->when($buscar, function ($query, $buscar) {
+                return $query->where(function ($subQuery) use ($buscar) {
+                    $subQuery->where('placa', 'LIKE', '%'.$buscar.'%')
+                        ->orWhere('modelo', 'LIKE', '%'.$buscar.'%')
+                        ->orWhere('marca', 'LIKE', '%'.$buscar.'%')
+                        ->orWhereHas('propietario', function ($q) use ($buscar) {
+                            $q->where('nombre', 'LIKE', "%{$buscar}%")
+                                ->orWhere('apellido', 'LIKE', "%{$buscar}%");
+                        });
+                });
+            })
+            ->paginate(10);
 
         return view('micro.index', compact('micros', 'buscar'));
     }
@@ -42,7 +42,7 @@ class MicroController extends Controller
      */
     public function create(): View
     {
-        $micro = new Micro();
+        $micro = new Micro;
         $propietarios = Propietario::where('estado', 'activo')->orderBy('nombre')->get();
         $internos = Interno::whereIn('estado', ['disponible', 'activo'])->orderBy('numero_interno')->get();
 

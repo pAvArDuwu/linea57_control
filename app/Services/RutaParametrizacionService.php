@@ -14,10 +14,9 @@ class RutaParametrizacionService
      * recrea en una sola transacción corta. Permite actualizar Ida, Vuelta o ambos
      * sentidos de forma independiente.
      *
-     * @param  Ruta   $ruta
-     * @param  array  $paradasIda     Array de parada_id en el orden deseado (sentido Ida).
-     *                                Pasar array vacío [] para borrar las paradas de Ida.
-     *                                Pasar null para no tocar las paradas de Ida.
+     * @param  array  $paradasIda  Array de parada_id en el orden deseado (sentido Ida).
+     *                             Pasar array vacío [] para borrar las paradas de Ida.
+     *                             Pasar null para no tocar las paradas de Ida.
      * @param  array  $paradasVuelta  Igual que $paradasIda pero para Vuelta.
      */
     public function guardarParametrizacion(
@@ -39,8 +38,7 @@ class RutaParametrizacionService
     /**
      * Elimina las paradas de un sentido específico y las recrea.
      *
-     * @param  int    $rutaId
-     * @param  string $sentido  'Ida' | 'Vuelta'
+     * @param  string  $sentido  'Ida' | 'Vuelta'
      * @param  array  $paradaIds  Array de parada_id ordenados
      */
     private function reemplazarSentido(int $rutaId, string $sentido, array $paradaIds): void
@@ -58,17 +56,17 @@ class RutaParametrizacionService
         $rows = [];
         foreach ($uniqueParadaIds as $index => $paradaId) {
             $rows[] = [
-                'ruta_id'    => $rutaId,
-                'parada_id'  => (int) $paradaId,
-                'orden'      => $index + 1,
-                'sentido'    => $sentido,
-                'estado'     => 'activo',
+                'ruta_id' => $rutaId,
+                'parada_id' => (int) $paradaId,
+                'orden' => $index + 1,
+                'sentido' => $sentido,
+                'estado' => 'activo',
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         }
 
-        if (!empty($rows)) {
+        if (! empty($rows)) {
             DB::table('parada_ruta')->insert($rows);
         }
     }

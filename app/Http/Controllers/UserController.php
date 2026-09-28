@@ -12,9 +12,9 @@ class UserController extends Controller
     {
         $buscar = $request->input('buscar');
         $users = User::with('roles')
-            ->where(function($query) use ($buscar) {
-                $query->where('name', 'LIKE', '%' . $buscar . '%')
-                      ->orWhere('email', 'LIKE', '%' . $buscar . '%');
+            ->where(function ($query) use ($buscar) {
+                $query->where('name', 'LIKE', '%'.$buscar.'%')
+                    ->orWhere('email', 'LIKE', '%'.$buscar.'%');
             })
             ->paginate(10);
 
@@ -90,6 +90,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
+
         return redirect()->route('users.index')->with('success', 'Usuario eliminado correctamente.');
     }
 }

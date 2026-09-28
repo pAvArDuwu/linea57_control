@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Modelo ControlRecorrido - Evaluación automática de una posición GPS respecto a la ruta y paradas.
+ * Modelo ControlRecorrido - Evaluación automática de recorrido asociado a una asignación de turno.
  *
  * @property int $id
- * @property int $seguimiento_gps_id
+ * @property int $asignacion_turno_id
  * @property int|null $ruta_parada_id
  * @property string $fecha_hora
- * @property string $estado      pendiente | cumplido | omitido | fuera_ruta
+ * @property string $estado pendiente | cumplido | omitido | fuera_ruta | en_curso | completado | cancelado
  * @property float|null $distancia_metros
  * @property string|null $observacion
  */
@@ -25,7 +25,7 @@ class ControlRecorrido extends Model
     protected $table = 'control_recorrido';
 
     protected $fillable = [
-        'seguimiento_gps_id',
+        'asignacion_turno_id',
         'ruta_parada_id',
         'fecha_hora',
         'estado',
@@ -42,35 +42,34 @@ class ControlRecorrido extends Model
     }
 
     /**
-     * Asignación de turno derivada a través de seguimiento_gps.
+     * Asignación de turno a la que pertenece este registro de control.
      */
-    public function asignacionTurno(): HasOneThrough
+    public function asignacionTurno(): BelongsTo
     {
-        return $this->hasOneThrough(
-            AsignacionTurno::class,
-            SeguimientoGps::class,
-            'id',                  // Foreign key on SeguimientoGps (matches seguimiento_gps_id)
-            'id',                  // Foreign key on AsignacionTurno (matches asignacion_turno_id)
-            'seguimiento_gps_id',  // Local key on ControlRecorrido
-            'asignacion_turno_id'  // Local key on SeguimientoGps
-        );
+        return $this->belongsTo(AsignacionTurno::class, 'asignacion_turno_id');
     }
 
-    public function seguimientoGps(): BelongsTo
-    {
-        return $this->belongsTo(SeguimientoGps::class, 'seguimiento_gps_id');
-    }
-
+    /**
+     * Parada de la ruta evaluada en este control.
+     */
     public function rutaParada(): BelongsTo
     {
         return $this->belongsTo(RutaParada::class, 'ruta_parada_id');
     }
 
     /**
-     * Alias de rutaParada para coherencia de nomenclatura.
+     * Alias de rutaParada para compatibilidad.
      */
     public function paradaRuta(): BelongsTo
     {
         return $this->rutaParada();
+    }
+
+    /**
+     * Posiciones GPS registradas durante este recorrido.
+     */
+    public function seguimientosGps(): HasMany
+    {
+        return $this->hasMany(SeguimientoGps::class, 'control_recorrido_id');
     }
 }

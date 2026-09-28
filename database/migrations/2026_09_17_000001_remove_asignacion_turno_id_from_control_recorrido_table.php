@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('control_recorrido')) {
+        if (! Schema::hasTable('control_recorrido')) {
             return;
         }
 
@@ -28,12 +28,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        if (!Schema::hasTable('control_recorrido')) {
+        if (! Schema::hasTable('control_recorrido')) {
             return;
         }
 
         Schema::table('control_recorrido', function (Blueprint $table) {
-            if (!Schema::hasColumn('control_recorrido', 'asignacion_turno_id')) {
+            if (! Schema::hasColumn('control_recorrido', 'asignacion_turno_id')) {
                 $table->foreignId('asignacion_turno_id')
                     ->nullable()
                     ->after('id')

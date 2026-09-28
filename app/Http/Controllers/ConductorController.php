@@ -25,15 +25,15 @@ class ConductorController extends Controller
     {
         $buscar = $request->input('buscar');
         $conductores = Conductor::where('estado', '!=', 'inactivo')
-                                ->when($buscar, function ($query, $buscar) {
-                                    return $query->where(function ($subQuery) use ($buscar) {
-                                        $subQuery->where('nombre', 'LIKE', '%' . $buscar . '%')
-                                            ->orWhere('apellido', 'LIKE', '%' . $buscar . '%')
-                                            ->orWhere('correo', 'LIKE', '%' . $buscar . '%')
-                                            ->orWhere('ci', 'LIKE', '%' . $buscar . '%');
-                                    });
-                                })
-                                ->paginate(10);
+            ->when($buscar, function ($query, $buscar) {
+                return $query->where(function ($subQuery) use ($buscar) {
+                    $subQuery->where('nombre', 'LIKE', '%'.$buscar.'%')
+                        ->orWhere('apellido', 'LIKE', '%'.$buscar.'%')
+                        ->orWhere('correo', 'LIKE', '%'.$buscar.'%')
+                        ->orWhere('ci', 'LIKE', '%'.$buscar.'%');
+                });
+            })
+            ->paginate(10);
 
         return view('conductor.index', compact('conductores', 'buscar'));
     }
@@ -43,7 +43,7 @@ class ConductorController extends Controller
      */
     public function create()
     {
-        $conductor = new Conductor();
+        $conductor = new Conductor;
         $usuarios = $this->usuariosDisponibles();
 
         return view('conductor.create', compact('conductor', 'usuarios'));
@@ -71,6 +71,7 @@ class ConductorController extends Controller
     public function show(string $id)
     {
         $conductor = Conductor::findOrFail($id);
+
         return view('conductor.show', compact('conductor'));
     }
 

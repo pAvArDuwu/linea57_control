@@ -116,10 +116,13 @@
         @enderror
     </div>
 
+    {{-- Hora de salida y Estado – solo visibles al EDITAR (supervisión admin) --}}
+    {{-- SDD Sección 13: al crear, estado='pendiente' y horas son automáticas --}}
+    @if($asignacion->exists)
     {{-- Hora de salida --}}
     <div class="col-md-6">
         <label for="hora_salida" class="form-label fw-semibold">
-            <i class="bi bi-play-circle me-1 text-success"></i>Hora de salida programada / inicial
+            <i class="bi bi-play-circle me-1 text-success"></i>Hora de salida
         </label>
         <input type="time" name="hora_salida" id="hora_salida"
                class="form-control @error('hora_salida') is-invalid @enderror"
@@ -128,7 +131,7 @@
         @error('hora_salida')
             <div class="invalid-feedback"><strong>{{ $message }}</strong></div>
         @enderror
-        <div class="form-text text-success"><i class="bi bi-geo-alt-fill me-1"></i>La <strong>hora de llegada</strong> se registrará de forma 100% automática al cumplir la última parada por GPS.</div>
+        <div class="form-text text-success"><i class="bi bi-geo-alt-fill me-1"></i>La <strong>hora de llegada</strong> se registra automáticamente al cumplir la última parada por GPS.</div>
     </div>
 
     {{-- Estado --}}
@@ -149,6 +152,15 @@
             <div class="invalid-feedback"><strong>{{ $message }}</strong></div>
         @enderror
     </div>
+    @else
+    <div class="col-md-12">
+        <div class="alert alert-info mb-0" style="border-radius: 10px;">
+            <i class="bi bi-info-circle me-1"></i>
+            El <strong>estado</strong> se establece automáticamente como <em>Pendiente</em>.
+            La <strong>hora de salida</strong> se registrará al iniciar el turno y la <strong>hora de llegada</strong> al cumplir la última parada por GPS.
+        </div>
+    </div>
+    @endif
 
     {{-- Observaciones --}}
     <div class="col-md-12">

@@ -50,6 +50,7 @@ class AsignacionTurnoController extends Controller
 
             $turnosAsignados = $turnosCatalogo->mapWithKeys(function ($t) use ($asignacionesMicro) {
                 $asig = $asignacionesMicro->firstWhere('turno_id', $t->id);
+
                 return [$t->nombre => $asig];
             });
 
@@ -62,11 +63,11 @@ class AsignacionTurnoController extends Controller
 
         // Paginado de asignaciones con filtro
         $asignaciones = AsignacionTurno::with([
-                'turno',
-                'conductor.user',
-                'micro.interno',
-                'ruta'
-            ])
+            'turno',
+            'conductor.user',
+            'micro.interno',
+            'ruta',
+        ])
             ->when($buscar, fn ($q) => $q->buscarPorConductor($buscar))
             ->orderByDesc('fecha')
             ->orderByDesc('id')
@@ -91,7 +92,7 @@ class AsignacionTurnoController extends Controller
         $rutas = Ruta::where('estado', 'activo')->orderBy('nombre')->get();
         $micros = Micro::where('estado', 'activo')->with('interno')->orderBy('placa')->get();
         $conductores = Conductor::where('estado', 'activo')->orderBy('nombre')->get();
-        $asignacion = new AsignacionTurno();
+        $asignacion = new AsignacionTurno;
 
         return view('asignacion_turno.create', compact(
             'asignacion',
@@ -104,18 +105,17 @@ class AsignacionTurnoController extends Controller
 
     /**
      * Almacena una nueva asignación de turno.
+     * SDD Sección 13 y 40: estado siempre 'pendiente' al crear;
+     * hora_salida y hora_llegada son determinados por el flujo de ejecución.
      */
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'fecha'        => ['required', 'date'],
-            'turno_id'     => ['required', 'integer', 'exists:turno,id'],
-            'ruta_id'      => ['required', 'integer', 'exists:ruta,id'],
-            'micro_id'     => ['required', 'integer', 'exists:micro,id'],
+            'fecha' => ['required', 'date'],
+            'turno_id' => ['required', 'integer', 'exists:turno,id'],
+            'ruta_id' => ['required', 'integer', 'exists:ruta,id'],
+            'micro_id' => ['required', 'integer', 'exists:micro,id'],
             'conductor_id' => ['required', 'integer', 'exists:conductor,id'],
-            'hora_salida'  => ['nullable', 'date_format:H:i'],
-            'hora_llegada' => ['nullable', 'date_format:H:i'],
-            'estado'       => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
             'observaciones' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -135,7 +135,7 @@ class AsignacionTurnoController extends Controller
             'turno',
             'conductor',
             'micro.interno',
-            'ruta'
+            'ruta',
         ])->findOrFail($id);
 
         return view('asignacion_turno.show', compact('asignacion'));
@@ -163,20 +163,21 @@ class AsignacionTurnoController extends Controller
 
     /**
      * Actualiza una asignación de turno.
+     * Panel admin conserva control de estado para supervisión operativa.
+     * hora_llegada es determinada automáticamente por el flujo GPS (SDD Sección 27).
      */
     public function update(Request $request, int $id): RedirectResponse
     {
         $asignacion = AsignacionTurno::findOrFail($id);
 
         $data = $request->validate([
-            'fecha'        => ['required', 'date'],
-            'turno_id'     => ['required', 'integer', 'exists:turno,id'],
-            'ruta_id'      => ['required', 'integer', 'exists:ruta,id'],
-            'micro_id'     => ['required', 'integer', 'exists:micro,id'],
+            'fecha' => ['required', 'date'],
+            'turno_id' => ['required', 'integer', 'exists:turno,id'],
+            'ruta_id' => ['required', 'integer', 'exists:ruta,id'],
+            'micro_id' => ['required', 'integer', 'exists:micro,id'],
             'conductor_id' => ['required', 'integer', 'exists:conductor,id'],
-            'hora_salida'  => ['nullable', 'date_format:H:i'],
-            'hora_llegada' => ['nullable', 'date_format:H:i'],
-            'estado'       => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
+            'hora_salida' => ['nullable', 'date_format:H:i'],
+            'estado' => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
             'observaciones' => ['nullable', 'string', 'max:1000'],
         ]);
 

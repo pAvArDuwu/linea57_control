@@ -30,6 +30,8 @@ class AsignacionTurnoApi extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * SDD Sección 13 y 40: solo se aceptan datos de planificación.
+     * Estado, hora_salida y hora_llegada son determinados por el flujo.
      */
     public function store(Request $request)
     {
@@ -39,9 +41,6 @@ class AsignacionTurnoApi extends Controller
             'ruta_id' => ['required', 'integer', 'exists:ruta,id'],
             'micro_id' => ['required', 'integer', 'exists:micro,id'],
             'conductor_id' => ['required', 'integer', 'exists:conductor,id'],
-            'hora_salida' => ['nullable', 'date_format:H:i'],
-            'hora_llegada' => ['nullable', 'date_format:H:i'],
-            'estado' => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
             'observaciones' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -62,6 +61,8 @@ class AsignacionTurnoApi extends Controller
 
     /**
      * Update the specified resource in storage.
+     * SDD Sección 13: transiciones de estado se gestionan vía endpoints
+     * dedicados (iniciar, finalizar, cancelar).
      */
     public function update(Request $request, string $id)
     {
@@ -73,9 +74,6 @@ class AsignacionTurnoApi extends Controller
             'ruta_id' => ['required', 'integer', 'exists:ruta,id'],
             'micro_id' => ['required', 'integer', 'exists:micro,id'],
             'conductor_id' => ['required', 'integer', 'exists:conductor,id'],
-            'hora_salida' => ['nullable', 'date_format:H:i'],
-            'hora_llegada' => ['nullable', 'date_format:H:i'],
-            'estado' => ['required', 'in:pendiente,en_curso,completado,retrasado,cancelado'],
             'observaciones' => ['nullable', 'string', 'max:1000'],
         ]);
 

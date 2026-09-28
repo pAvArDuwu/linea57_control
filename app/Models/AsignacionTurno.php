@@ -5,6 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Modelo AsignacionTurno – entidad transaccional diaria.
@@ -12,15 +16,15 @@ use Illuminate\Database\Eloquent\Model;
  * Representa: en una fecha determinada, un conductor conduce un micro/interno
  * en un turno determinado sobre una ruta determinada.
  *
- * @property int         $id
- * @property string      $fecha
- * @property int         $turno_id
- * @property int         $ruta_id
- * @property int         $micro_id
- * @property int         $conductor_id
+ * @property int $id
+ * @property string $fecha
+ * @property int $turno_id
+ * @property int $ruta_id
+ * @property int $micro_id
+ * @property int $conductor_id
  * @property string|null $hora_salida
  * @property string|null $hora_llegada
- * @property string      $estado       pendiente | en_curso | completado | retrasado | cancelado
+ * @property string $estado pendiente | en_curso | completado | retrasado | cancelado
  * @property string|null $observaciones
  */
 class AsignacionTurno extends Model
@@ -46,7 +50,7 @@ class AsignacionTurno extends Model
         return $query->where(function ($q) use ($criterio) {
             $q->whereHas('conductor', function ($c) use ($criterio) {
                 $c->where('nombre', 'like', "%{$criterio}%")
-                  ->orWhere('apellido', 'like', "%{$criterio}%");
+                    ->orWhere('apellido', 'like', "%{$criterio}%");
             })->orWhere('fecha', 'like', "%{$criterio}%");
         });
     }
@@ -57,11 +61,11 @@ class AsignacionTurno extends Model
     {
         return Attribute::get(function () {
             $badges = [
-                'pendiente'  => ['bg' => '#fff9c4', 'color' => '#795548', 'label' => 'Pendiente'],
-                'en_curso'   => ['bg' => '#e3f2fd', 'color' => '#1565c0', 'label' => 'En curso'],
+                'pendiente' => ['bg' => '#fff9c4', 'color' => '#795548', 'label' => 'Pendiente'],
+                'en_curso' => ['bg' => '#e3f2fd', 'color' => '#1565c0', 'label' => 'En curso'],
                 'completado' => ['bg' => '#e6f4ea', 'color' => '#1e7e34', 'label' => 'Completado'],
-                'retrasado'  => ['bg' => '#fff3e0', 'color' => '#e65100', 'label' => 'Retrasado'],
-                'cancelado'  => ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => 'Cancelado'],
+                'retrasado' => ['bg' => '#fff3e0', 'color' => '#e65100', 'label' => 'Retrasado'],
+                'cancelado' => ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => 'Cancelado'],
             ];
 
             return $badges[$this->estado] ?? ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => ucfirst($this->estado)];
@@ -80,51 +84,71 @@ class AsignacionTurno extends Model
 
     public function estaActivo(): bool
     {
-        return !in_array($this->estado, ['cancelado', 'completado']);
+        return ! in_array($this->estado, ['cancelado', 'completado']);
     }
 
     // ─── Relaciones ────────────────────────────────────────────────────
 
-    /** @return \Illuminate\Database\Eloquent\Relations\BelongsTo */
+    /** @return BelongsTo */
     public function turno()
     {
-        return $this->belongsTo(\App\Models\Turno::class, 'turno_id');
+        return $this->belongsTo(Turno::class, 'turno_id');
     }
 
-    /** @return \Illuminate\Database\Eloquent\Relations\BelongsTo */
+    /** @return BelongsTo */
     public function ruta()
     {
-        return $this->belongsTo(\App\Models\Ruta::class, 'ruta_id');
+        return $this->belongsTo(Ruta::class, 'ruta_id');
     }
 
-    /** @return \Illuminate\Database\Eloquent\Relations\BelongsTo */
+    /** @return BelongsTo */
     public function micro()
     {
-        return $this->belongsTo(\App\Models\Micro::class, 'micro_id');
+        return $this->belongsTo(Micro::class, 'micro_id');
     }
 
-    /** @return \Illuminate\Database\Eloquent\Relations\BelongsTo */
+    /** @return BelongsTo */
     public function conductor()
     {
-        return $this->belongsTo(\App\Models\Conductor::class, 'conductor_id');
+        return $this->belongsTo(Conductor::class, 'conductor_id');
     }
 
-    /** @return \Illuminate\Database\Eloquent\Relations\HasMany */
-    public function seguimientosGps()
+    /**
+     * Controles de recorrido ejecutados para esta asignación.
+     */
+    public function controlesRecorrido(): HasMany
     {
-        return $this->hasMany(\App\Models\SeguimientoGps::class, 'asignacion_turno_id');
+        return $this->hasMany(ControlRecorrido::class, 'asignacion_turno_id');
     }
 
-    /** @return \Illuminate\Database\Eloquent\Relations\HasManyThrough */
-    public function controlesRecorrido()
+    /**
+     * Alias de controlesRecorrido para pluralización.
+     */
+    public function controlesRecorridos(): HasMany
+    {
+        return $this->controlesRecorrido();
+    }
+
+    /**
+     * Recorrido activo o más reciente de la asignación.
+     */
+    public function controlRecorrido(): HasOne
+    {
+        return $this->hasOne(ControlRecorrido::class, 'asignacion_turno_id')->latestOfMany();
+    }
+
+    /**
+     * Posiciones GPS del micro obtenidas a través de la sesión de ControlRecorrido (Asignacion -> Control -> Seguimiento).
+     */
+    public function seguimientosGps(): HasManyThrough
     {
         return $this->hasManyThrough(
-            \App\Models\ControlRecorrido::class,
-            \App\Models\SeguimientoGps::class,
-            'asignacion_turno_id', // Foreign key en seguimiento_gps hacia asignacion_turnos
-            'seguimiento_gps_id',  // Foreign key en control_recorrido hacia seguimiento_gps
-            'id',                  // Local key en asignacion_turnos
-            'id'                   // Local key en seguimiento_gps
+            SeguimientoGps::class,
+            ControlRecorrido::class,
+            'asignacion_turno_id',     // FK en control_recorrido hacia asignacion_turnos
+            'control_recorrido_id',    // FK en seguimiento_gps hacia control_recorrido
+            'id',                      // Local key en asignacion_turnos
+            'id'                       // Local key en control_recorrido
         );
     }
 }

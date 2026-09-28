@@ -10,7 +10,6 @@ use App\Models\Parada;
 use App\Models\Propietario;
 use App\Models\Ruta;
 use App\Models\RutaParada;
-use App\Models\SeguimientoGps;
 use App\Models\Turno;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -138,9 +137,10 @@ class SeguimientoGpsApiTest extends TestCase
             ->assertJsonPath('message', 'Ubicación procesada correctamente.');
 
         $this->assertDatabaseHas('seguimiento_gps', [
-            'asignacion_turno_id' => $this->asignacion->id,
+            'control_recorrido_id' => $this->asignacion->controlRecorrido->id,
             'latitud' => -17.78301000,
         ]);
+        $this->assertSame(1, $this->asignacion->seguimientosGps()->count());
     }
 
     public function test_duplicate_gps_point_is_deduplicated_safely(): void
@@ -165,7 +165,7 @@ class SeguimientoGpsApiTest extends TestCase
             ->assertCreated();
 
         // Sólo debe existir 1 registro en BD
-        $this->assertSame(1, SeguimientoGps::where('asignacion_turno_id', $this->asignacion->id)->count());
+        $this->assertSame(1, $this->asignacion->seguimientosGps()->count());
     }
 
     public function test_dashboard_resolves_conductor_name_from_user_profile(): void
@@ -203,6 +203,7 @@ class SeguimientoGpsApiTest extends TestCase
             ->assertCreated();
 
         $this->assertDatabaseHas('control_recorrido', [
+            'asignacion_turno_id' => $this->asignacion->id,
             'estado' => 'cumplido',
         ]);
         $this->assertSame(1, $this->asignacion->controlesRecorrido()->where('estado', 'cumplido')->count());
@@ -250,7 +251,7 @@ class SeguimientoGpsApiTest extends TestCase
             ->assertJsonPath('resultado.total_procesados', 2)
             ->assertJsonPath('resultado.guardados', 2);
 
-        $this->assertSame(2, SeguimientoGps::where('asignacion_turno_id', $this->asignacion->id)->count());
+        $this->assertSame(2, $this->asignacion->seguimientosGps()->count());
     }
 
     public function test_conductor_cannot_query_another_conductors_route(): void

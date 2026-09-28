@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -34,7 +35,7 @@ class RegistrationTest extends TestCase
 
     public function test_unverified_users_are_redirected_to_verification_notice_after_login(): void
     {
-        $user = \App\Models\User::factory()->create([
+        $user = User::factory()->create([
             'email' => 'unverified@example.com',
             'password' => bcrypt('password'),
             'email_verified_at' => null,
@@ -51,7 +52,7 @@ class RegistrationTest extends TestCase
 
     public function test_users_without_assigned_role_are_redirected_to_pending_screen_after_login(): void
     {
-        $user = \App\Models\User::factory()->create([
+        $user = User::factory()->create([
             'email' => 'pending@example.com',
             'password' => bcrypt('password'),
             'email_verified_at' => now(),
@@ -68,7 +69,7 @@ class RegistrationTest extends TestCase
 
     public function test_users_cannot_register_with_duplicate_ci(): void
     {
-        \App\Models\User::factory()->create([
+        User::factory()->create([
             'ci' => '9981314',
             'email' => 'original@example.com',
         ]);

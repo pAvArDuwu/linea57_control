@@ -5,13 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 /**
  * Modelo SeguimientoGps - Registro de posiciones geográficas enviadas por el dispositivo móvil.
  *
+ * Pertenece exclusivamente a ControlRecorrido (sin FK directa a asignacion_turnos).
+ *
  * @property int $id
- * @property int $asignacion_turno_id
+ * @property int $control_recorrido_id
  * @property string $fecha_hora_gps
  * @property float $latitud
  * @property float $longitud
@@ -25,7 +27,7 @@ class SeguimientoGps extends Model
     protected $table = 'seguimiento_gps';
 
     protected $fillable = [
-        'asignacion_turno_id',
+        'control_recorrido_id',
         'fecha_hora_gps',
         'latitud',
         'longitud',
@@ -44,13 +46,26 @@ class SeguimientoGps extends Model
         ];
     }
 
-    public function asignacionTurno(): BelongsTo
+    /**
+     * Recorrido (sesión) al que pertenece esta posición GPS.
+     */
+    public function controlRecorrido(): BelongsTo
     {
-        return $this->belongsTo(AsignacionTurno::class, 'asignacion_turno_id');
+        return $this->belongsTo(ControlRecorrido::class, 'control_recorrido_id');
     }
 
-    public function controlRecorrido(): HasOne
+    /**
+     * Asignación de turno obtenida a través de ControlRecorrido.
+     */
+    public function asignacionTurno(): HasOneThrough
     {
-        return $this->hasOne(ControlRecorrido::class, 'seguimiento_gps_id');
+        return $this->hasOneThrough(
+            AsignacionTurno::class,
+            ControlRecorrido::class,
+            'id',                   // Local key on ControlRecorrido (matches control_recorrido_id)
+            'id',                   // Local key on AsignacionTurno (matches asignacion_turno_id)
+            'control_recorrido_id', // Foreign key on SeguimientoGps
+            'asignacion_turno_id'   // Foreign key on ControlRecorrido
+        );
     }
 }

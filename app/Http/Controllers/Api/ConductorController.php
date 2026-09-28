@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Conductor;
 use App\Http\Requests\Api\StoreConductorRequest;
+use App\Models\Conductor;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 

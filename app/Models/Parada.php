@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Models\Concerns\TieneEstadoLogico;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Ruta;
 
 class Parada extends Model
 {
@@ -23,7 +22,7 @@ class Parada extends Model
     public function rutas()
     {
         return $this->belongsToMany(Ruta::class, 'parada_ruta', 'parada_id', 'ruta_id')
-                    ->withPivot(['orden', 'sentido', 'estado'])
-                    ->withTimestamps();
+            ->withPivot(['orden', 'sentido', 'estado'])
+            ->withTimestamps();
     }
 }

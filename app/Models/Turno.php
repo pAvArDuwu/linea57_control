@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\Concerns\TieneEstadoLogico;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Modelo Turno – catálogo estático de horarios de operación.
@@ -12,14 +14,14 @@ use Illuminate\Database\Eloquent\Model;
  * Un turno representa un bloque horario (Mañana / Tarde / Noche).
  * NO se crea un registro por cada día; es un parámetro reutilizable.
  *
- * @property int    $id
- * @property string $nombre      Enum: mañana | tarde | noche
+ * @property int $id
+ * @property string $nombre Enum: mañana | tarde | noche
  * @property string $hora_inicio Hora habitual de inicio (HH:MM:SS)
- * @property string $hora_fin    Hora habitual de finalización (HH:MM:SS)
+ * @property string $hora_fin Hora habitual de finalización (HH:MM:SS)
  * @property string|null $descripcion
- * @property string $estado      activo | inactivo
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * @property string $estado activo | inactivo
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
  */
 class Turno extends Model
 {
@@ -42,8 +44,8 @@ class Turno extends Model
      */
     public const NOMBRES = [
         'mañana' => 'Mañana',
-        'tarde'  => 'Tarde',
-        'noche'  => 'Noche',
+        'tarde' => 'Tarde',
+        'noche' => 'Noche',
     ];
 
     /**
@@ -62,8 +64,8 @@ class Turno extends Model
         return Attribute::get(function () {
             $config = [
                 'mañana' => ['icono' => 'bi-sun', 'bg' => '#fff8e1', 'color' => '#f9a825'],
-                'tarde'  => ['icono' => 'bi-cloud-sun', 'bg' => '#fff3e0', 'color' => '#ef6c00'],
-                'noche'  => ['icono' => 'bi-moon-stars', 'bg' => '#ede7f6', 'color' => '#5e35b1'],
+                'tarde' => ['icono' => 'bi-cloud-sun', 'bg' => '#fff3e0', 'color' => '#ef6c00'],
+                'noche' => ['icono' => 'bi-moon-stars', 'bg' => '#ede7f6', 'color' => '#5e35b1'],
             ];
 
             return $config[$this->nombre] ?? ['icono' => 'bi-clock', 'bg' => '#e3f2fd', 'color' => '#0B3C78'];
@@ -79,6 +81,7 @@ class Turno extends Model
             if ($this->estado === 'activo') {
                 return ['bg' => '#e6f4ea', 'color' => '#1e7e34', 'label' => 'Activo', 'icono' => 'bi-check-circle-fill'];
             }
+
             return ['bg' => '#f0f0f0', 'color' => '#6c757d', 'label' => 'Inactivo', 'icono' => 'bi-dash-circle-fill'];
         });
     }
@@ -86,10 +89,10 @@ class Turno extends Model
     /**
      * Un turno puede estar asociado a muchas asignaciones de turno.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function asignaciones()
     {
-        return $this->hasMany(\App\Models\AsignacionTurno::class, 'turno_id');
+        return $this->hasMany(AsignacionTurno::class, 'turno_id');
     }
 }

@@ -1,8 +1,13 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+use App\Models\AsignacionTurno;
+use App\Models\Parada;
+use App\Models\SeguimientoGps;
+use Illuminate\Contracts\Console\Kernel;
+
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
 $paradasSCZ = [
@@ -16,16 +21,16 @@ $paradasSCZ = [
 ];
 
 foreach ($paradasSCZ as $id => $data) {
-    $p = \App\Models\Parada::find($id);
+    $p = Parada::find($id);
     if ($p) {
         $p->update($data);
     }
 }
 
 // También actualizar la posición inicial GPS de la asignación 5 si existe
-$asig = \App\Models\AsignacionTurno::find(5);
+$asig = AsignacionTurno::find(5);
 if ($asig) {
-    \App\Models\SeguimientoGps::updateOrCreate(
+    SeguimientoGps::updateOrCreate(
         [
             'asignacion_turno_id' => $asig->id,
             'fecha_hora_gps' => now()->toDateTimeString(),

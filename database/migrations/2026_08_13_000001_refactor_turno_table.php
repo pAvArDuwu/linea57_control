@@ -27,7 +27,7 @@ return new class extends Migration
                 // Intentar soltar la FK con convención Laravel estándar
                 try {
                     $table->dropForeign(['fiscalizador_id']);
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     // Si la FK tiene otro nombre, ignorar
                 }
                 $table->dropColumn('fiscalizador_id');
@@ -41,7 +41,8 @@ return new class extends Migration
             Schema::table('turno', function (Blueprint $table) {
                 try {
                     $table->dropForeign(['interno_id']);
-                } catch (\Throwable $e) {}
+                } catch (Throwable $e) {
+                }
                 $table->dropColumn('interno_id');
             });
         }
@@ -53,7 +54,8 @@ return new class extends Migration
             Schema::table('turno', function (Blueprint $table) {
                 try {
                     $table->dropForeign(['ruta_id']);
-                } catch (\Throwable $e) {}
+                } catch (Throwable $e) {
+                }
                 $table->dropColumn('ruta_id');
             });
         }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Ruta;
 use App\Models\Parada;
+use App\Models\Ruta;
 use App\Models\RutaParada;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -22,9 +22,9 @@ class RutaParadaController extends Controller
                 $query->whereHas('ruta', function ($q) use ($buscar) {
                     $q->where('nombre', 'like', "%{$buscar}%");
                 })
-                ->orWhereHas('parada', function ($q) use ($buscar) {
-                    $q->where('nombre', 'like', "%{$buscar}%");
-                });
+                    ->orWhereHas('parada', function ($q) use ($buscar) {
+                        $q->where('nombre', 'like', "%{$buscar}%");
+                    });
             })
             ->paginate(10);
 
@@ -38,7 +38,7 @@ class RutaParadaController extends Controller
     {
         $rutas = Ruta::where('estado', 'activo')->get();
         $paradas = Parada::where('estado', 'activo')->get();
-        $rutaParada = new RutaParada();
+        $rutaParada = new RutaParada;
 
         return view('rutas_paradas.create', compact('rutas', 'paradas', 'rutaParada'));
     }
@@ -52,9 +52,8 @@ class RutaParadaController extends Controller
             'ruta_id' => [
                 'required',
                 'exists:ruta,id',
-                Rule::unique('parada_ruta', 'ruta_id')->where(fn ($q) => 
-                    $q->where('parada_id', $request->input('parada_id'))
-                      ->where('sentido', $request->input('sentido'))
+                Rule::unique('parada_ruta', 'ruta_id')->where(fn ($q) => $q->where('parada_id', $request->input('parada_id'))
+                    ->where('sentido', $request->input('sentido'))
                 ),
             ],
             'parada_id' => 'required|exists:paradas,id',
@@ -105,9 +104,8 @@ class RutaParadaController extends Controller
                 'required',
                 'exists:ruta,id',
                 Rule::unique('parada_ruta', 'ruta_id')
-                    ->where(fn ($q) => 
-                        $q->where('parada_id', $request->input('parada_id'))
-                          ->where('sentido', $request->input('sentido'))
+                    ->where(fn ($q) => $q->where('parada_id', $request->input('parada_id'))
+                        ->where('sentido', $request->input('sentido'))
                     )
                     ->ignore($rutaParada->id),
             ],

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Ruta;
 use App\Models\Parada;
+use App\Models\Ruta;
 use App\Services\RutaParametrizacionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -24,14 +24,14 @@ class RutaController extends Controller
     {
         $buscar = $request->input('buscar');
         $rutas = Ruta::withCount('paradas')
-                     ->where('estado', '!=', 'inactivo')
-                     ->when($buscar, function ($query, $buscar) {
-                         return $query->where(function ($subQuery) use ($buscar) {
-                             $subQuery->where('nombre', 'LIKE', "%{$buscar}%")
-                                      ->orWhere('descripcion', 'LIKE', "%{$buscar}%");
-                         });
-                     })
-                     ->paginate(10);
+            ->where('estado', '!=', 'inactivo')
+            ->when($buscar, function ($query, $buscar) {
+                return $query->where(function ($subQuery) use ($buscar) {
+                    $subQuery->where('nombre', 'LIKE', "%{$buscar}%")
+                        ->orWhere('descripcion', 'LIKE', "%{$buscar}%");
+                });
+            })
+            ->paginate(10);
 
         return view('ruta.index', compact('rutas', 'buscar'));
     }
@@ -41,9 +41,9 @@ class RutaController extends Controller
      */
     public function create(): View
     {
-        $ruta = new Ruta();
+        $ruta = new Ruta;
         $paradas = Parada::where('estado', 'activo')->orderBy('nombre')->get();
-        $paradasIda    = collect();
+        $paradasIda = collect();
         $paradasVuelta = collect();
 
         return view('ruta.create', compact('ruta', 'paradas', 'paradasIda', 'paradasVuelta'));
@@ -61,10 +61,10 @@ class RutaController extends Controller
                 'max:50',
                 Rule::unique('ruta', 'nombre'),
             ],
-            'descripcion'    => 'nullable|string',
-            'estado'         => 'required|in:activo,inactivo',
-            'paradas_ida'    => 'nullable|array',
-            'paradas_ida.*'  => 'exists:paradas,id',
+            'descripcion' => 'nullable|string',
+            'estado' => 'required|in:activo,inactivo',
+            'paradas_ida' => 'nullable|array',
+            'paradas_ida.*' => 'exists:paradas,id',
             'paradas_vuelta' => 'nullable|array',
             'paradas_vuelta.*' => 'exists:paradas,id',
         ], [
@@ -99,8 +99,8 @@ class RutaController extends Controller
     public function edit($id): View
     {
         $ruta = Ruta::findOrFail($id);
-        $paradas       = Parada::where('estado', 'activo')->orderBy('nombre')->get();
-        $paradasIda    = $ruta->paradasIda()->get();
+        $paradas = Parada::where('estado', 'activo')->orderBy('nombre')->get();
+        $paradasIda = $ruta->paradasIda()->get();
         $paradasVuelta = $ruta->paradasVuelta()->get();
 
         return view('ruta.edit', compact('ruta', 'paradas', 'paradasIda', 'paradasVuelta'));
@@ -120,10 +120,10 @@ class RutaController extends Controller
                 'max:50',
                 Rule::unique('ruta', 'nombre')->ignore($ruta->id),
             ],
-            'descripcion'    => 'nullable|string',
-            'estado'         => 'required|in:activo,inactivo',
-            'paradas_ida'    => 'nullable|array',
-            'paradas_ida.*'  => 'exists:paradas,id',
+            'descripcion' => 'nullable|string',
+            'estado' => 'required|in:activo,inactivo',
+            'paradas_ida' => 'nullable|array',
+            'paradas_ida.*' => 'exists:paradas,id',
             'paradas_vuelta' => 'nullable|array',
             'paradas_vuelta.*' => 'exists:paradas,id',
         ], [

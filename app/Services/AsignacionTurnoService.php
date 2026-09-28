@@ -16,6 +16,11 @@ class AsignacionTurnoService
         $this->validarTurnoActivo($datos['turno_id']);
         $this->validarDisponibilidad($datos);
 
+        // SDD Sección 13: estado siempre 'pendiente' al crear;
+        // hora_salida y hora_llegada son determinados por el flujo de ejecución.
+        $datos['estado'] = 'pendiente';
+        unset($datos['hora_salida'], $datos['hora_llegada']);
+
         return AsignacionTurno::create($datos);
     }
 
@@ -37,7 +42,7 @@ class AsignacionTurnoService
      */
     public function iniciar(AsignacionTurno $asignacion, ?int $conductorId = null): AsignacionTurno
     {
-        if ($conductorId !== null && (int)$asignacion->conductor_id !== (int)$conductorId) {
+        if ($conductorId !== null && (int) $asignacion->conductor_id !== (int) $conductorId) {
             throw ValidationException::withMessages([
                 'conductor' => 'No tienes autorización para iniciar esta asignación de turno.',
             ]);
@@ -62,13 +67,13 @@ class AsignacionTurnoService
      */
     public function finalizar(AsignacionTurno $asignacion, ?int $conductorId = null): AsignacionTurno
     {
-        if ($conductorId !== null && (int)$asignacion->conductor_id !== (int)$conductorId) {
+        if ($conductorId !== null && (int) $asignacion->conductor_id !== (int) $conductorId) {
             throw ValidationException::withMessages([
                 'conductor' => 'No tienes autorización para finalizar esta asignación de turno.',
             ]);
         }
 
-        if (!in_array($asignacion->estado, ['en_curso', 'retrasado'])) {
+        if (! in_array($asignacion->estado, ['en_curso', 'retrasado'])) {
             throw ValidationException::withMessages([
                 'estado' => "La asignación no puede finalizarse porque su estado actual es '{$asignacion->estado}'.",
             ]);

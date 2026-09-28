@@ -295,10 +295,10 @@ file_put_contents("$basePath\\lib\\screens\\asignacion_turno\\turno_activo_scree
 
 // 2. Update asignacion_turno_list_screen.dart to open TurnoActivoScreen on tap or when started
 $listScreen = file_get_contents("$basePath\\lib\\screens\\asignacion_turno\\asignacion_turno_list_screen.dart");
-if (!str_contains($listScreen, 'turno_activo_screen.dart')) {
-    $listScreen = "import 'turno_activo_screen.dart';\n" . $listScreen;
+if (! str_contains($listScreen, 'turno_activo_screen.dart')) {
+    $listScreen = "import 'turno_activo_screen.dart';\n".$listScreen;
     $listScreen = str_replace(
-        "onTap: () async {",
+        'onTap: () async {',
         "onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TurnoActivoScreen(asignacion: a))),\n                                              child: const SizedBox(),\n                                            );\n                                          },\n                                        ),\n                                        onTap2: () async {",
         $listScreen
     );

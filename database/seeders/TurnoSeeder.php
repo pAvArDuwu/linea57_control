@@ -15,25 +15,25 @@ class TurnoSeeder extends Seeder
     {
         $turnos = [
             [
-                'nombre'      => 'mañana',
+                'nombre' => 'mañana',
                 'hora_inicio' => '05:00:00',
-                'hora_fin'    => '13:00:00',
+                'hora_fin' => '13:00:00',
                 'descripcion' => 'Turno de mañana',
-                'estado'      => 'activo',
+                'estado' => 'activo',
             ],
             [
-                'nombre'      => 'tarde',
+                'nombre' => 'tarde',
                 'hora_inicio' => '13:00:00',
-                'hora_fin'    => '21:00:00',
+                'hora_fin' => '21:00:00',
                 'descripcion' => 'Turno de tarde',
-                'estado'      => 'activo',
+                'estado' => 'activo',
             ],
             [
-                'nombre'      => 'noche',
+                'nombre' => 'noche',
                 'hora_inicio' => '21:00:00',
-                'hora_fin'    => '05:00:00',
+                'hora_fin' => '05:00:00',
                 'descripcion' => 'Turno nocturno',
-                'estado'      => 'activo',
+                'estado' => 'activo',
             ],
         ];
 

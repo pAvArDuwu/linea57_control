@@ -18,10 +18,15 @@ class AsignacionTurnoDriverApiTest extends TestCase
     use RefreshDatabase;
 
     protected User $userConductor;
+
     protected Conductor $conductor;
+
     protected Turno $turno;
+
     protected Ruta $ruta;
+
     protected Micro $micro;
+
     protected string $token;
 
     protected function setUp(): void

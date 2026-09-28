@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('paradas', function (Blueprint $table) {
             // Añadir columna 'referencia' después de 'nombre' si no existe
-            if (!Schema::hasColumn('paradas', 'referencia')) {
+            if (! Schema::hasColumn('paradas', 'referencia')) {
                 $table->string('referencia', 255)->nullable()->after('nombre');
             }
         });
