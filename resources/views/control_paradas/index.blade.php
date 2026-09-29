@@ -10,6 +10,9 @@
             <p class="text-muted mb-0">Auditoría y verificación automática del paso de unidades por cada parada de la ruta</p>
         </div>
         <div class="d-flex gap-2">
+            <a href="{{ route('control-recorrido.index') }}" class="btn btn-primary px-3 py-2" style="border-radius: 10px;">
+                <i class="bi bi-signpost-split me-1"></i>Ver Control de Recorrido
+            </a>
             <a href="{{ route('monitoreo.index') }}" class="btn btn-outline-primary px-3 py-2" style="border-radius: 10px;">
                 <i class="bi bi-map me-1"></i>Ver Seguimiento en Mapa
             </a>

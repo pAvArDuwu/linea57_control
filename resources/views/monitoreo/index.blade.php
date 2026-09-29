@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
     #mapaMonitoreo {
-        height: 560px;
+        height: clamp(380px, 68vh, 620px);
         border-radius: 16px;
         z-index: 1;
     }
@@ -40,70 +40,93 @@
         color: white;
         border-color: #15803d;
     }
+    .side-scroll-container {
+        max-height: clamp(340px, 60vh, 540px);
+        overflow-y: auto;
+    }
+    .unit-card-item {
+        transition: all 0.2s ease;
+        border-radius: 12px;
+    }
+    .unit-card-item:hover {
+        border-color: var(--primary) !important;
+        background: #f4f8ff !important;
+    }
 </style>
 
 <div class="container-fluid py-4">
     <!-- Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <div>
             <h4 class="fw-bold mb-1" style="color: var(--primary);">
-                <i class="bi bi-map-fill me-2"></i>Seguimiento de Rutas (GPS en Vivo)
+                <i class="bi bi-geo-alt-fill me-2" style="color: var(--accent);"></i>Seguimiento GPS (Monitoreo en Vivo)
             </h4>
-            <p class="text-muted mb-0">Ubicación satelital en tiempo real de los conductores y microbuses en Santa Cruz de la Sierra (Línea 61)</p>
+            <p class="text-muted mb-0 small">Ubicación satelital en tiempo real de unidades en ruta en Santa Cruz de la Sierra (Línea 61)</p>
         </div>
-        <div class="d-flex align-items-center gap-3">
-            <div class="d-flex align-items-center gap-2 bg-white px-3 py-2 rounded-3 shadow-sm border">
+        <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 bg-white px-3 py-1.5 rounded-3 shadow-sm border" style="font-size: 0.82rem;">
                 <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
-                <span class="small fw-semibold text-dark">En vivo · Santa Cruz (5s)</span>
+                <span class="fw-semibold text-dark">En vivo (5s)</span>
             </div>
-            <a href="{{ route('control-paradas.index') }}" class="btn btn-outline-primary px-3 py-2" style="border-radius: 10px;">
-                <i class="bi bi-pin-map me-1"></i>Ver Control de Paradas
+            <a href="{{ route('control-recorrido.index') }}" class="btn btn-outline-primary px-3 py-1.5" style="border-radius: 10px; font-size: 0.85rem;">
+                <i class="bi bi-signpost-split me-1"></i>Control de Recorrido
             </a>
         </div>
     </div>
 
-    <!-- Contenido Principal: Mapa + Panel de Paradas y Unidades -->
-    <div class="row g-4">
-        <!-- Mapa de Seguimiento GPS -->
-        <div class="col-12 col-xl-8">
+    <!-- Contenido Principal: Mapa + Panel Compacto Tabulado -->
+    <div class="row g-3">
+        <!-- Mapa de Seguimiento GPS (Ocupa 3/4 en pantallas grandes) -->
+        <div class="col-12 col-lg-8 col-xl-9">
             <div class="card border-0 shadow-sm" style="border-radius: 16px;">
-                <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center" style="border-radius: 16px 16px 0 0;">
+                <div class="card-header bg-white border-bottom py-2.5 px-3 d-flex justify-content-between align-items-center" style="border-radius: 16px 16px 0 0;">
                     <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-map-fill text-primary"></i>
-                        <span class="fw-bold text-dark">Mapa de Posicionamiento GPS</span>
+                        <span class="fw-bold text-dark small">Mapa de Posicionamiento GPS</span>
                     </div>
                     <span id="contadorUnidades" class="badge rounded-pill bg-primary px-3 py-1">Cargando unidades...</span>
                 </div>
-                <div class="card-body p-3">
+                <div class="card-body p-2">
                     <div id="mapaMonitoreo"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Panel Lateral: Unidades y Control de Paradas -->
-        <div class="col-12 col-xl-4">
-            <!-- Selector de Unidad Activa -->
-            <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
-                <div class="card-header bg-white border-bottom py-3 px-4" style="border-radius: 16px 16px 0 0;">
-                    <span class="fw-bold text-dark"><i class="bi bi-bus-front-fill text-primary me-2"></i>Unidades en Ruta</span>
+        <!-- Panel Lateral Tabulado Compacto (Ocupa 1/4 responsive) -->
+        <div class="col-12 col-lg-4 col-xl-3">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
+                <div class="card-header bg-white border-bottom p-2" style="border-radius: 16px 16px 0 0;">
+                    <ul class="nav nav-pills nav-fill gap-1" id="monitoreoTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active py-1.5 px-2 fw-semibold small" id="tabUnidades" data-bs-toggle="tab" data-bs-target="#panelUnidades" type="button" role="tab" style="border-radius: 10px;">
+                                <i class="bi bi-bus-front me-1"></i>Unidades
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link py-1.5 px-2 fw-semibold small" id="tabParadas" data-bs-toggle="tab" data-bs-target="#panelParadas" type="button" role="tab" style="border-radius: 10px;">
+                                <i class="bi bi-pin-map me-1"></i>Paradas <span id="paradasProgresoBadge" class="badge bg-success rounded-pill ms-1" style="font-size: 0.68rem;">0/0</span>
+                            </button>
+                        </li>
+                    </ul>
                 </div>
-                <div class="card-body p-3" id="listaUnidadesContainer" style="max-height: 240px; overflow-y: auto;">
-                    <div class="text-center py-3 text-muted small">Cargando unidades activas...</div>
-                </div>
-            </div>
+                <div class="card-body p-2">
+                    <div class="tab-content" id="monitoreoTabsContent">
+                        <!-- Tab 1: Unidades en Ruta -->
+                        <div class="tab-pane fade show active" id="panelUnidades" role="tabpanel">
+                            <div class="side-scroll-container px-1" id="listaUnidadesContainer">
+                                <div class="text-center py-4 text-muted small">Cargando unidades activas...</div>
+                            </div>
+                        </div>
 
-            <!-- Panel de Control de Paradas de la Unidad Seleccionada -->
-            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
-                <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center" style="border-radius: 16px 16px 0 0;">
-                    <div>
-                        <span class="fw-bold text-dark"><i class="bi bi-pin-map-fill text-accent me-2" style="color: var(--accent);"></i>Control de Paradas</span>
-                    </div>
-                    <span id="paradasProgresoBadge" class="badge bg-success rounded-pill px-3 py-1">0 / 0</span>
-                </div>
-                <div class="card-body p-3" id="listaParadasContainer" style="max-height: 280px; overflow-y: auto;">
-                    <div class="text-center py-4 text-muted small">
-                        <i class="bi bi-geo-alt fs-2 d-block mb-1 opacity-50"></i>
-                        Selecciona una unidad en ruta para auditar el cumplimiento de sus paradas.
+                        <!-- Tab 2: Control de Paradas de la Unidad Seleccionada -->
+                        <div class="tab-pane fade" id="panelParadas" role="tabpanel">
+                            <div class="side-scroll-container px-1" id="listaParadasContainer">
+                                <div class="text-center py-4 text-muted small">
+                                    <i class="bi bi-geo-alt fs-2 d-block mb-1 opacity-50"></i>
+                                    Selecciona una unidad para auditar sus paradas.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -121,7 +144,7 @@ let unidadSeleccionadaId = null;
 let unidadesData = [];
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Inicializar Mapa centrado en Santa Cruz / Cochabamba
+    // Inicializar Mapa centrado en Santa Cruz
     map = L.map('mapaMonitoreo').setView([-17.7830, -63.1820], 14);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -144,14 +167,12 @@ async function actualizarPosiciones() {
         renderListaUnidades();
         renderMapaMarkers();
 
-        // Si hay una unidad seleccionada, refrescar su lista de paradas
         if (unidadSeleccionadaId) {
             const u = unidadesData.find(x => x.asignacion_id === unidadSeleccionadaId);
             if (u) {
                 renderControlParadas(u);
             }
         } else if (unidadesData.length > 0) {
-            // Seleccionar automáticamente la primera unidad
             seleccionarUnidad(unidadesData[0].asignacion_id);
         }
     } catch (e) {
@@ -162,7 +183,7 @@ async function actualizarPosiciones() {
 function renderListaUnidades() {
     const container = document.getElementById('listaUnidadesContainer');
     if (unidadesData.length === 0) {
-        container.innerHTML = `<div class="text-center py-3 text-muted small">No hay unidades en ruta hoy.</div>`;
+        container.innerHTML = `<div class="text-center py-4 text-muted small"><i class="bi bi-info-circle fs-3 d-block mb-1 opacity-50"></i>No hay unidades en ruta hoy.</div>`;
         return;
     }
 
@@ -170,14 +191,14 @@ function renderListaUnidades() {
     unidadesData.forEach(u => {
         const isSelected = u.asignacion_id === unidadSeleccionadaId;
         html += `
-            <div class="p-3 mb-2 rounded-3 border cursor-pointer ${isSelected ? 'border-primary bg-light' : 'bg-white'}"
-                 onclick="seleccionarUnidad(${u.asignacion_id})" style="cursor: pointer; transition: all 0.2s;">
+            <div class="p-2.5 mb-2 border cursor-pointer unit-card-item ${isSelected ? 'border-primary bg-primary bg-opacity-10' : 'bg-white'}"
+                 onclick="seleccionarUnidad(${u.asignacion_id})" style="cursor: pointer;">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="fw-bold text-dark">${u.placa} <span class="badge bg-light text-primary border ms-1">Int. ${u.interno}</span></span>
-                    <span class="badge ${u.estado === 'en_curso' ? 'bg-primary' : 'bg-warning'} text-uppercase" style="font-size: 0.68rem;">${u.estado}</span>
+                    <span class="fw-bold text-dark small">${u.placa} <span class="badge bg-white text-primary border ms-1">Int. ${u.interno}</span></span>
+                    <span class="badge ${u.estado === 'en_curso' ? 'bg-primary' : 'bg-warning'} text-uppercase" style="font-size: 0.65rem;">${u.estado}</span>
                 </div>
-                <div class="small text-muted"><i class="bi bi-person-fill me-1"></i>${u.conductor}</div>
-                <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
+                <div class="small text-muted text-truncate" style="font-size: 0.78rem;"><i class="bi bi-person-fill me-1 text-primary"></i>${u.conductor}</div>
+                <div class="d-flex justify-content-between align-items-center mt-1 text-muted" style="font-size: 0.72rem;">
                     <span><i class="bi bi-speedometer2 me-1"></i>${u.velocidad} km/h</span>
                     <span><i class="bi bi-clock me-1"></i>${u.ultima_actualizacion}</span>
                 </div>
@@ -188,7 +209,6 @@ function renderListaUnidades() {
 }
 
 function renderMapaMarkers() {
-    // Actualizar marcadores de micro
     unidadesData.forEach(u => {
         if (markers[u.asignacion_id]) {
             markers[u.asignacion_id].setLatLng([u.latitud, u.longitud]);
@@ -226,24 +246,22 @@ function seleccionarUnidad(asignacionId) {
     renderListaUnidades();
     renderControlParadas(u);
 
-    // Centrar mapa en la unidad
     map.setView([u.latitud, u.longitud], 15);
 
-    // Dibujar paradas de la ruta en el mapa
     stopMarkers.forEach(m => map.removeLayer(m));
     stopMarkers = [];
 
     if (u.paradas && u.paradas.length > 0) {
         const routeCoords = [];
 
-        u.paradas.forEach((p, idx) => {
+        u.paradas.forEach((p) => {
             routeCoords.push([p.latitud, p.longitud]);
 
             const stopIcon = L.divIcon({
                 className: `custom-stop-marker ${p.cumplida ? 'cumplida' : ''}`,
                 html: `${p.orden}`,
-                iconSize: [24, 24],
-                iconAnchor: [12, 12],
+                iconSize: [22, 22],
+                iconAnchor: [11, 11],
             });
 
             const sm = L.marker([p.latitud, p.longitud], { icon: stopIcon })
@@ -267,10 +285,10 @@ function renderControlParadas(u) {
     const badge = document.getElementById('paradasProgresoBadge');
     const container = document.getElementById('listaParadasContainer');
 
-    badge.innerText = `${u.paradas_cumplidas} / ${u.total_paradas}`;
+    badge.innerText = `${u.paradas_cumplidas}/${u.total_paradas}`;
 
     if (!u.paradas || u.paradas.length === 0) {
-        container.innerHTML = `<div class="text-center py-3 text-muted small">Esta ruta no tiene paradas configuradas.</div>`;
+        container.innerHTML = `<div class="text-center py-4 text-muted small">Esta ruta no tiene paradas configuradas.</div>`;
         return;
     }
 
@@ -278,20 +296,20 @@ function renderControlParadas(u) {
     u.paradas.forEach((p, idx) => {
         const isLast = idx === u.paradas.length - 1;
         html += `
-            <div class="d-flex align-items-center justify-content-between p-2 mb-2 rounded-2 ${p.cumplida ? 'bg-success-subtle border border-success' : 'bg-light border'}">
+            <div class="d-flex align-items-center justify-content-between p-2 mb-1.5 rounded-2 ${p.cumplida ? 'bg-success-subtle border border-success' : 'bg-light border'}">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="badge ${p.cumplida ? 'bg-success' : 'bg-secondary'} rounded-circle" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                    <span class="badge ${p.cumplida ? 'bg-success' : 'bg-secondary'} rounded-circle" style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem;">
                         ${p.orden}
                     </span>
                     <div>
-                        <div class="fw-semibold text-dark small">${p.nombre}</div>
-                        ${isLast ? '<span class="badge bg-primary text-white" style="font-size: 0.65rem;">Cierre Automático</span>' : ''}
+                        <div class="fw-semibold text-dark small" style="font-size: 0.78rem;">${p.nombre}</div>
+                        ${isLast ? '<span class="badge bg-primary text-white" style="font-size: 0.6rem;">Cierre Automático</span>' : ''}
                     </div>
                 </div>
                 <div>
                     ${p.cumplida
-                        ? `<span class="badge bg-success small"><i class="bi bi-check-lg me-1"></i>${p.hora_cumplida || 'Cumplido'}</span>`
-                        : `<span class="badge bg-secondary-subtle text-muted small">Pendiente</span>`
+                        ? `<span class="badge bg-success" style="font-size: 0.68rem;"><i class="bi bi-check-lg me-1"></i>${p.hora_cumplida || 'Cumplido'}</span>`
+                        : `<span class="badge bg-secondary-subtle text-muted" style="font-size: 0.68rem;">Pendiente</span>`
                     }
                 </div>
             </div>

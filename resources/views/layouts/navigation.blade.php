@@ -120,14 +120,11 @@
         <a class="nav-link {{ request()->routeIs('asignacion-turno.*') ? 'active' : '' }}" href="{{ route('asignacion-turno.index') }}">
             <i class="bi bi-calendar2-check me-2"></i><span>Asignación de Turnos</span>
         </a>
-        <a class="nav-link {{ request()->routeIs('seguimiento-rutas.*') || request()->routeIs('monitoreo.*') ? 'active' : '' }}" href="{{ route('monitoreo.index') }}">
-            <i class="bi bi-map me-2"></i><span>Seguimiento de Rutas</span>
-        </a>
-        <a class="nav-link {{ request()->routeIs('control-paradas.*') ? 'active' : '' }}" href="{{ route('control-paradas.index') }}">
-            <i class="bi bi-pin-map me-2"></i><span>Control de Paradas</span>
-        </a>
         <a class="nav-link {{ request()->routeIs('control-recorrido.*') ? 'active' : '' }}" href="{{ route('control-recorrido.index') }}">
             <i class="bi bi-signpost-split me-2"></i><span>Control de Recorrido</span>
+        </a>
+        <a class="nav-link {{ request()->routeIs('seguimiento-rutas.*') || request()->routeIs('monitoreo.*') ? 'active' : '' }}" href="{{ route('monitoreo.index') }}">
+            <i class="bi bi-geo-alt me-2"></i><span>Seguimiento GPS / Monitoreo</span>
         </a>
     </div>
     @endif
