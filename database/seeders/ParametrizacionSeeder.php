@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\Conductor;
 use App\Models\Interno;
 use App\Models\Micro;
-use App\Models\parada;
+use App\Models\Parada;
 use App\Models\Propietario;
 use App\Models\Ruta;
 use Illuminate\Database\Seeder;
@@ -62,7 +62,7 @@ class ParametrizacionSeeder extends Seeder
         ];
 
         foreach ($paradas as $parada) {
-            parada::updateOrCreate(['nombre' => $parada['nombre']], $parada);
+            Parada::updateOrCreate(['nombre' => $parada['nombre']], $parada);
         }
 
         $propietarioIds = Propietario::whereIn('correo', array_column($propietarios, 'correo'))->pluck('id', 'correo')->all();
@@ -93,7 +93,7 @@ class ParametrizacionSeeder extends Seeder
             ['nombre' => 'Línea 61 - Radial Este', 'descripcion' => 'Recorrido hacia la zona este.'],
         ];
 
-        $paradaIds = parada::whereIn('nombre', array_column($paradas, 'nombre'))->pluck('id', 'nombre')->all();
+        $paradaIds = Parada::whereIn('nombre', array_column($paradas, 'nombre'))->pluck('id', 'nombre')->all();
         foreach ($rutas as $index => $rutaData) {
             $ruta = Ruta::updateOrCreate(['nombre' => $rutaData['nombre']], [...$rutaData, 'estado' => 'activo']);
 
@@ -101,14 +101,32 @@ class ParametrizacionSeeder extends Seeder
             $p2 = $paradaIds[$paradas[($index + 1) % count($paradas)]['nombre']];
             $p3 = $paradaIds[$paradas[($index + 2) % count($paradas)]['nombre']];
 
-            $ruta->paradas()->sync([
-                $p1 => ['orden' => 1, 'sentido' => 'Ida', 'estado' => 'activo'],
-                $p2 => ['orden' => 2, 'sentido' => 'Ida', 'estado' => 'activo'],
-                $p3 => ['orden' => 3, 'sentido' => 'Ida', 'estado' => 'activo'],
-                $p3 => ['orden' => 1, 'sentido' => 'Vuelta', 'estado' => 'activo'],
-                $p2 => ['orden' => 2, 'sentido' => 'Vuelta', 'estado' => 'activo'],
-                $p1 => ['orden' => 3, 'sentido' => 'Vuelta', 'estado' => 'activo'],
-            ]);
+            // La clave de un sync() de belongsToMany es el id de la parada, por lo que
+            // listar $p1/$p2/$p3 dos veces (Ida y Vuelta) hacia que la segunda entrada
+            // sobrescribiera a la primera y la ruta quedara sin paradas de ida.
+            // Se inserta fila por fila para que ambas sentidos convivan en la tabla.
+            $sentidos = [
+                'Ida' => [$p1, $p2, $p3],
+                'Vuelta' => [$p3, $p2, $p1],
+            ];
+
+            $filas = [];
+            foreach ($sentidos as $sentido => $idsParada) {
+                foreach ($idsParada as $orden => $paradaId) {
+                    $filas[] = [
+                        'ruta_id' => $ruta->id,
+                        'parada_id' => $paradaId,
+                        'orden' => $orden + 1,
+                        'sentido' => $sentido,
+                        'estado' => 'activo',
+                    ];
+                }
+            }
+
+            // sync([]) desvincula el pivot previo (que solo conservaba los
+            // sentidos de Vuelta por el bug de claves duplicadas).
+            $ruta->paradas()->sync([]);
+            \Illuminate\Support\Facades\DB::table('parada_ruta')->insert($filas);
         }
     }
 }

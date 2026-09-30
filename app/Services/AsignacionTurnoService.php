@@ -65,7 +65,7 @@ class AsignacionTurnoService
     /**
      * Finaliza una asignación de turno (en_curso/retrasado -> completado).
      */
-    public function finalizar(AsignacionTurno $asignacion, ?int $conductorId = null): AsignacionTurno
+    public function finalizar(AsignacionTurno $asignacion, ?int $conductorId = null, ?string $observaciones = null): AsignacionTurno
     {
         if ($conductorId !== null && (int) $asignacion->conductor_id !== (int) $conductorId) {
             throw ValidationException::withMessages([
@@ -79,10 +79,18 @@ class AsignacionTurnoService
             ]);
         }
 
-        $asignacion->update([
+        $cambios = [
             'estado' => 'completado',
             'hora_llegada' => now()->format('H:i:s'),
-        ]);
+        ];
+
+        // Antes el cuerpo de la petición se ignoraba por completo y las
+        // observaciones enviadas por el conductor se perdian en silencio.
+        if ($observaciones !== null && trim($observaciones) !== '') {
+            $cambios['observaciones'] = $observaciones;
+        }
+
+        $asignacion->update($cambios);
 
         return $asignacion->fresh(['turno', 'conductor', 'micro.interno', 'ruta.paradas']);
     }

@@ -205,7 +205,15 @@ class AsignacionTurnoApi extends Controller
             ], 403);
         }
 
-        $finalizada = $this->asignacionTurnoService->finalizar($asignacion, $conductor->id);
+        $datos = $request->validate([
+            'observaciones' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $finalizada = $this->asignacionTurnoService->finalizar(
+            $asignacion,
+            $conductor->id,
+            $datos['observaciones'] ?? null
+        );
 
         return response()->json([
             'message' => 'Turno finalizado correctamente.',
