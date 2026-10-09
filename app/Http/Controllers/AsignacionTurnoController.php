@@ -14,9 +14,7 @@ use Illuminate\View\View;
 
 class AsignacionTurnoController extends Controller
 {
-    public function __construct(
-        protected AsignacionTurnoService $asignacionTurnoService
-    ) {}
+    public function __construct( protected AsignacionTurnoService $asignacionTurnoService){}
 
     /**
      * Tablero interactivo y lista de asignaciones de turno (SDD Sección 30).

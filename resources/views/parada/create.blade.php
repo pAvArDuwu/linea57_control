@@ -8,7 +8,7 @@
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{{ route('parada.index') }}" class="text-decoration-none">Paradas</a></li>
-                    <li class="breadcrumb-item active">Crear Nueva</li>
+                    <li class="breadcrumb-item active">Registrar Nueva</li>
                 </ol>
             </nav>
 

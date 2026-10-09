@@ -6,7 +6,7 @@
             <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="{{ route('propietario.index') }}" class="text-decoration-none">Propietarios</a></li>
-                    <li class="breadcrumb-item active">Nuevo Propietario</li>
+                    <li class="breadcrumb-item active">Registrar Propietario</li>
                 </ol>
             </nav>
             <form method="POST" action="{{ route('propietario.store') }}">

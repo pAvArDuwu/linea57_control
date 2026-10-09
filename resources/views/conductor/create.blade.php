@@ -4,7 +4,7 @@
     <div class="row justify-content-center"><div class="col-lg-9">
         <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a href="{{ route('conductor.index') }}" class="text-decoration-none">Conductores</a></li>
-            <li class="breadcrumb-item active">Nuevo Conductor</li>
+            <li class="breadcrumb-item active">Registar Conductor</li>
         </ol></nav>
         <div class="card border-0 shadow-sm" style="border-radius: 16px;">
             <div class="card-header bg-white border-bottom py-3 px-4" style="border-radius: 16px 16px 0 0;">

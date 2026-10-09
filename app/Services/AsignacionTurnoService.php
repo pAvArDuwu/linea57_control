@@ -16,8 +16,7 @@ class AsignacionTurnoService
         $this->validarTurnoActivo($datos['turno_id']);
         $this->validarDisponibilidad($datos);
 
-        // SDD Sección 13: estado siempre 'pendiente' al crear;
-        // hora_salida y hora_llegada son determinados por el flujo de ejecución.
+        
         $datos['estado'] = 'pendiente';
         unset($datos['hora_salida'], $datos['hora_llegada']);
 
