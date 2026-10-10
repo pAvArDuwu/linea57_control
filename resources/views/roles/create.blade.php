@@ -6,7 +6,7 @@
             <i class="bi bi-arrow-left"></i>
         </a>
         <div>
-            <h4 class="fw-bold mb-1" style="color: var(--primary);">Crear Nuevo Rol</h4>
+            <h4 class="fw-bold mb-1" style="color: var(--primary);">Registrar Nuevo Rol</h4>
             <p class="text-muted mb-0">Completa los datos para registrar un nuevo rol</p>
         </div>
     </div>

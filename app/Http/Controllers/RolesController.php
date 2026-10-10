@@ -68,18 +68,34 @@ class RolesController extends Controller
 
         $usersQuery = User::with('roles');
         if ($buscar) {
-            $usersQuery->where('name', 'LIKE', "%{$buscar}%")
-                ->orWhere('email', 'LIKE', "%{$buscar}%");
+            $usersQuery->where(function ($query) use ($buscar) {
+                $query->where('name', 'LIKE', "%{$buscar}%")
+                    ->orWhere('email', 'LIKE', "%{$buscar}%");
+            });
         }
-        $users = $usersQuery->paginate(12);
+        $users = $usersQuery
+            ->orderBy('name')
+            ->paginate(12)
+            ->appends(['buscar' => $buscar]);
 
-        $allUsers = User::all();
-        $roles = Role::all();
+        return view('roles.assign', compact('users', 'buscar'));
+    }
 
-        $edit_user_id = $request->input('edit_user');
-        $edit_user = $edit_user_id ? User::find($edit_user_id) : null;
+    public function createUserRoleAssignment()
+    {
+        $allUsers = User::orderBy('name')->get();
+        $roles = Role::where('estado', '!=', 'inactivo')->orderBy('name')->get();
 
-        return view('roles.assign', compact('users', 'allUsers', 'roles', 'buscar', 'edit_user'));
+        return view('roles.assign-form', compact('allUsers', 'roles'));
+    }
+
+    public function editUserRoleAssignment(string $id)
+    {
+        $edit_user = User::with('roles')->findOrFail($id);
+        $allUsers = User::orderBy('name')->get();
+        $roles = Role::where('estado', '!=', 'inactivo')->orderBy('name')->get();
+
+        return view('roles.assign-form', compact('edit_user', 'allUsers', 'roles'));
     }
 
     public function storeUserRoles(Request $request)

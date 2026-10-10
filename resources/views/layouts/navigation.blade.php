@@ -17,7 +17,7 @@
     <!-- General Section -->
     <div class="menu-title">General</div>
     <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
-        <i class="bi bi-grid-1x2 me-2"></i><span>Dashboard</span>
+        <i class="bi bi-grid-1x2 me-2"></i><span>Panel de Control</span>
     </a>
 
     <!-- Módulos Section -->
@@ -88,10 +88,10 @@
         <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
             <i class="bi bi-people me-2"></i><span>Usuarios</span>
         </a>
-        <a class="nav-link {{ request()->routeIs('roles.*') && !request()->routeIs('roles.assign') ? 'active' : '' }}" href="{{ route('roles.index') }}">
+        <a class="nav-link {{ request()->routeIs('roles.*') && !request()->routeIs('roles.assign*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
             <i class="bi bi-shield me-2"></i><span>Roles</span>
         </a>
-        <a class="nav-link {{ request()->routeIs('roles.assign') ? 'active' : '' }}" href="{{ route('roles.assign') }}">
+        <a class="nav-link {{ request()->routeIs('roles.assign*') ? 'active' : '' }}" href="{{ route('roles.assign') }}">
             <i class="bi bi-person-gear me-2"></i><span>Asignar Roles</span>
         </a>
     </div>

@@ -81,6 +81,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::middleware('role:admin|propietario')->group(function () {
             Route::get('roles/asignar', [RolesController::class, 'assignUsers'])->name('roles.assign');
+            Route::get('roles/asignar/registrar', [RolesController::class, 'createUserRoleAssignment'])->name('roles.assign.create');
+            Route::get('roles/asignar/{id}/editar', [RolesController::class, 'editUserRoleAssignment'])->name('roles.assign.edit');
             Route::post('roles/asignar', [RolesController::class, 'storeUserRoles'])->name('roles.assign.store');
             Route::delete('roles/asignar/{id}', [RolesController::class, 'destroyUserRoles'])->name('roles.assign.destroy');
             Route::resource('roles', RolesController::class);

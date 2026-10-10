@@ -10,7 +10,7 @@
         <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
             <h5 class="mb-0 text-dark">Lista de Usuarios</h5>
             <a href="{{ route('users.create') }}" class="btn btn-sm fw-bold" style="background-color:#E07B15;border-color:#E07B15;color:white;">
-                + Crear Nuevo Usuario
+                + Registrar Usuario
             </a>
         </div>
         <div class="card-body">

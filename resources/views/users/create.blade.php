@@ -6,7 +6,7 @@
         <div class="col-md-8">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 text-dark">Crear Nuevo Usuario</h5>
+                    <h5 class="mb-0 text-dark">Registrar Usuario</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('users.store') }}" method="POST">
