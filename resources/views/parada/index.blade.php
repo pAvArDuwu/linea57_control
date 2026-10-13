@@ -11,7 +11,7 @@
             <p class="text-muted mb-0">Administra las paradas del sistema de transporte</p>
         </div>
         <a href="{{ route('parada.create') }}" class="btn btn-primary-custom px-4 py-2">
-            <i class="bi bi-plus-lg me-2"></i>Nueva Parada
+            <i class="bi bi-plus-lg me-2"></i>Registrar Parada
         </a>
     </div>
 

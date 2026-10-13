@@ -10,7 +10,7 @@
         </div>
         <a href="{{ route('turno.create') }}" class="btn px-4 py-2"
            style="border-radius: 12px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; font-weight: 600; box-shadow: 0 4px 15px rgba(11,60,120,0.25);">
-            <i class="bi bi-plus-lg me-2"></i>Nuevo Turno
+            <i class="bi bi-plus-lg me-2"></i>Registrar Turno
         </a>
     </div>
 
