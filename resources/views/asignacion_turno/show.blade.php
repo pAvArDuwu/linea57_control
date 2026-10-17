@@ -47,7 +47,7 @@
                                     <i class="bi bi-clock me-1"></i>Turno
                                 </div>
                                 @php
-                                    $iconos = ['mañana' => '☀️', 'tarde' => '🌤️', 'noche' => '🌙'];
+                                    $iconos = ['mañana' , 'tarde' , 'noche'];
                                 @endphp
                                 <div class="fw-bold fs-5">
                                     {{ $iconos[$asignacion->turno?->nombre ?? ''] ?? '' }}

@@ -21,7 +21,7 @@ class SeguimientoGpsApiController extends Controller
      */
     public function guardarUbicacion(StoreUbicacionGpsRequest $request, int $asignacionId): JsonResponse
     {
-        $asignacion = AsignacionTurno::findOrFail($asignacionId);
+        $asignacion = AsignacionTurno::noCanceladas()->findOrFail($asignacionId);
         $conductor = $request->user()->conductor;
 
         if (! $conductor || (int) $asignacion->conductor_id !== (int) $conductor->id) {
@@ -43,7 +43,7 @@ class SeguimientoGpsApiController extends Controller
      */
     public function sincronizarLote(SincronizarUbicacionesGpsRequest $request): JsonResponse
     {
-        $asignacion = AsignacionTurno::findOrFail($request->input('asignacion_turno_id'));
+        $asignacion = AsignacionTurno::noCanceladas()->findOrFail($request->input('asignacion_turno_id'));
         $conductor = $request->user()->conductor;
 
         if (! $conductor || (int) $asignacion->conductor_id !== (int) $conductor->id) {
@@ -71,7 +71,7 @@ class SeguimientoGpsApiController extends Controller
             'ruta.paradas',
             'controlesRecorrido.rutaParada.parada',
             'seguimientosGps' => fn ($q) => $q->latest('fecha_hora_gps')->take(1),
-        ])->findOrFail($asignacionId);
+        ])->noCanceladas()->findOrFail($asignacionId);
         $conductor = $request->user()->conductor;
 
         if (! $conductor || (int) $asignacion->conductor_id !== (int) $conductor->id) {

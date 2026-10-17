@@ -46,6 +46,8 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        $user->sendEmailVerificationNotification();
+
         return redirect()->route('users.index')->with('success', 'Usuario creado correctamente.');
     }
 

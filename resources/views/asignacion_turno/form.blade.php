@@ -23,10 +23,10 @@
         <select name="turno_id" id="turno_id"
                 class="form-select @error('turno_id') is-invalid @enderror"
                 style="border-radius: 10px;">
-            <option value="">— Seleccionar turno —</option>
+            <option value="">Seleccionar turno </option>
             @foreach($turnos as $turno)
                 @php
-                    $iconos = ['mañana' => '☀️', 'tarde' => '🌤️', 'noche' => '🌙'];
+                    $iconos = ['mañana' , 'tarde' , 'noche'];
                     $etiqueta = ($iconos[$turno->nombre] ?? '') . ' ' . $turno->nombre_label;
                     $etiqueta .= ' (' . \Carbon\Carbon::parse($turno->hora_inicio)->format('H:i') . ' - ' . \Carbon\Carbon::parse($turno->hora_fin)->format('H:i') . ')';
                 @endphp
@@ -39,7 +39,6 @@
         @error('turno_id')
             <div class="invalid-feedback"><strong>{{ $message }}</strong></div>
         @enderror
-        <div class="form-text">Solo se muestran turnos activos. No es posible crear turnos aquí.</div>
     </div>
 
     
@@ -153,13 +152,7 @@
         @enderror
     </div>
     @else
-    <div class="col-md-12">
-        <div class="alert alert-info mb-0" style="border-radius: 10px;">
-            <i class="bi bi-info-circle me-1"></i>
-            El <strong>estado</strong> se establece automáticamente como <em>Pendiente</em>.
-            La <strong>hora de salida</strong> se registrará al iniciar el turno y la <strong>hora de llegada</strong> al cumplir la última parada por GPS.
-        </div>
-    </div>
+   
     @endif
 
     {{-- Observaciones --}}

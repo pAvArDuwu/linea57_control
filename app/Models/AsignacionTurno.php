@@ -55,6 +55,11 @@ class AsignacionTurno extends Model
         });
     }
 
+    public function scopeNoCanceladas(Builder $query): Builder
+    {
+        return $query->where('estado', '!=', 'cancelado');
+    }
+
     // ─── Accessors ─────────────────────────────────────────────────────
 
     protected function estadoBadge(): Attribute

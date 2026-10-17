@@ -8,13 +8,14 @@ use App\Models\Micro;
 use App\Models\Ruta;
 use App\Models\Turno;
 use App\Services\AsignacionTurnoService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class AsignacionTurnoController extends Controller
 {
-    public function __construct( protected AsignacionTurnoService $asignacionTurnoService){}
+    public function __construct(protected AsignacionTurnoService $asignacionTurnoService) {}
 
     /**
      * Tablero interactivo y lista de asignaciones de turno (SDD Sección 30).
@@ -66,6 +67,7 @@ class AsignacionTurnoController extends Controller
             'micro.interno',
             'ruta',
         ])
+            ->noCanceladas()
             ->when($buscar, fn ($q) => $q->buscarPorConductor($buscar))
             ->orderByDesc('fecha')
             ->orderByDesc('id')
@@ -129,12 +131,12 @@ class AsignacionTurnoController extends Controller
      */
     public function show(int $id): View
     {
-        $asignacion = AsignacionTurno::with([
+        $asignacion = $this->asignacionDisponible($id)->with([
             'turno',
             'conductor',
             'micro.interno',
             'ruta',
-        ])->findOrFail($id);
+        ])->firstOrFail();
 
         return view('asignacion_turno.show', compact('asignacion'));
     }
@@ -144,7 +146,7 @@ class AsignacionTurnoController extends Controller
      */
     public function edit(int $id): View
     {
-        $asignacion = AsignacionTurno::findOrFail($id);
+        $asignacion = $this->asignacionDisponible($id)->firstOrFail();
         $turnos = Turno::where('estado', 'activo')->orderBy('nombre')->get();
         $rutas = Ruta::where('estado', 'activo')->orderBy('nombre')->get();
         $micros = Micro::where('estado', 'activo')->with('interno')->orderBy('placa')->get();
@@ -166,7 +168,7 @@ class AsignacionTurnoController extends Controller
      */
     public function update(Request $request, int $id): RedirectResponse
     {
-        $asignacion = AsignacionTurno::findOrFail($id);
+        $asignacion = $this->asignacionDisponible($id)->firstOrFail();
 
         $data = $request->validate([
             'fecha' => ['required', 'date'],
@@ -191,11 +193,16 @@ class AsignacionTurnoController extends Controller
      */
     public function destroy(int $id): RedirectResponse
     {
-        $asignacion = AsignacionTurno::findOrFail($id);
+        $asignacion = $this->asignacionDisponible($id)->firstOrFail();
         $this->asignacionTurnoService->cancelar($asignacion);
 
         return redirect()
             ->route('asignacion-turno.index')
             ->with('info', 'Asignación cancelada correctamente.');
+    }
+
+    private function asignacionDisponible(int $id): Builder
+    {
+        return AsignacionTurno::noCanceladas()->whereKey($id);
     }
 }

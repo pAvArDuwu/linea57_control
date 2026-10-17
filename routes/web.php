@@ -86,6 +86,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('roles/asignar', [RolesController::class, 'storeUserRoles'])->name('roles.assign.store');
             Route::delete('roles/asignar/{id}', [RolesController::class, 'destroyUserRoles'])->name('roles.assign.destroy');
             Route::resource('roles', RolesController::class);
+        });
+
+        Route::middleware('role:admin|propietario|fiscalizador')->group(function () {
             Route::resource('users', UserController::class);
         });
     });

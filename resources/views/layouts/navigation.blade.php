@@ -70,7 +70,7 @@
     @endif
 
     <!-- MÓDULO 2: SEGURIDAD -->
-    @if(Auth::user()->hasRole(['admin', 'propietario']))
+    @if(Auth::user()->hasRole(['admin', 'propietario', 'fiscalizador']))
     @php
         $seguridadActive = request()->routeIs('users.*') || request()->routeIs('roles.*');
     @endphp
@@ -88,12 +88,14 @@
         <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
             <i class="bi bi-people me-2"></i><span>Usuarios</span>
         </a>
+        @if(Auth::user()->hasRole(['admin', 'propietario']))
         <a class="nav-link {{ request()->routeIs('roles.*') && !request()->routeIs('roles.assign*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
             <i class="bi bi-shield me-2"></i><span>Roles</span>
         </a>
         <a class="nav-link {{ request()->routeIs('roles.assign*') ? 'active' : '' }}" href="{{ route('roles.assign') }}">
             <i class="bi bi-person-gear me-2"></i><span>Asignar Roles</span>
         </a>
+        @endif
     </div>
     @endif
 

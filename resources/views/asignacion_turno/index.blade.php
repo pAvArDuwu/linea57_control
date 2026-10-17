@@ -12,7 +12,7 @@
         <div class="d-flex gap-2">
             <a href="{{ route('asignacion-turno.create') }}" class="btn px-4 py-2"
                style="border-radius: 12px; background: linear-gradient(135deg, var(--accent) 0%, #a02035 100%); color: white; font-weight: 600; box-shadow: 0 4px 15px rgba(123,30,43,0.25);">
-                <i class="bi bi-plus-lg me-2"></i>Nueva Asignación
+                <i class="bi bi-plus-lg me-2"></i>Registrar Nueva Asignación
             </a>
         </div>
     </div>

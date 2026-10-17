@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\AsignacionTurno;
 use App\Services\AsignacionTurnoService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class AsignacionTurnoApi extends Controller
@@ -21,6 +22,7 @@ class AsignacionTurnoApi extends Controller
         $buscar = $request->input('buscar');
 
         $asignaciones = AsignacionTurno::with(['turno', 'conductor', 'micro', 'ruta'])
+            ->noCanceladas()
             ->when($buscar, fn ($q) => $q->buscarPorConductor($buscar))
             ->orderByDesc('fecha')
             ->paginate(15);
@@ -54,7 +56,9 @@ class AsignacionTurnoApi extends Controller
      */
     public function show(string $id)
     {
-        $asignacion = AsignacionTurno::with(['turno', 'conductor', 'micro', 'ruta'])->findOrFail($id);
+        $asignacion = $this->asignacionDisponible((int) $id)
+            ->with(['turno', 'conductor', 'micro', 'ruta'])
+            ->firstOrFail();
 
         return response()->json($asignacion);
     }
@@ -66,7 +70,7 @@ class AsignacionTurnoApi extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $asignacion = AsignacionTurno::findOrFail($id);
+        $asignacion = $this->asignacionDisponible((int) $id)->firstOrFail();
 
         $data = $request->validate([
             'fecha' => ['required', 'date'],
@@ -87,7 +91,7 @@ class AsignacionTurnoApi extends Controller
      */
     public function destroy(string $id)
     {
-        $asignacion = AsignacionTurno::findOrFail($id);
+        $asignacion = $this->asignacionDisponible((int) $id)->firstOrFail();
         $this->asignacionTurnoService->cancelar($asignacion);
 
         return response()->json(['message' => 'Asignación cancelada correctamente']);
@@ -108,6 +112,7 @@ class AsignacionTurnoApi extends Controller
         }
 
         $asignaciones = AsignacionTurno::where('conductor_id', $conductor->id)
+            ->noCanceladas()
             ->with(['turno', 'micro.interno', 'ruta.paradas'])
             ->orderByDesc('fecha')
             ->orderByDesc('id')
@@ -174,7 +179,7 @@ class AsignacionTurnoApi extends Controller
      */
     public function iniciar(Request $request, int $id)
     {
-        $asignacion = AsignacionTurno::findOrFail($id);
+        $asignacion = $this->asignacionDisponible($id)->firstOrFail();
         $conductor = $request->user()->conductor;
 
         if (! $conductor) {
@@ -196,7 +201,7 @@ class AsignacionTurnoApi extends Controller
      */
     public function finalizar(Request $request, int $id)
     {
-        $asignacion = AsignacionTurno::findOrFail($id);
+        $asignacion = $this->asignacionDisponible($id)->firstOrFail();
         $conductor = $request->user()->conductor;
 
         if (! $conductor) {
@@ -219,5 +224,10 @@ class AsignacionTurnoApi extends Controller
             'message' => 'Turno finalizado correctamente.',
             'asignacion' => $finalizada,
         ]);
+    }
+
+    private function asignacionDisponible(int $id): Builder
+    {
+        return AsignacionTurno::noCanceladas()->whereKey($id);
     }
 }
