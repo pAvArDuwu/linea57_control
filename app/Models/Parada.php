@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Models\Concerns\TieneEstadoLogico;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Parada extends Model
 {
-    use TieneEstadoLogico;
+    use HasFactory, TieneEstadoLogico;
 
     protected $table = 'paradas';
 

@@ -1,32 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    .hist-table thead th {
-        font-size: 0.76rem;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        color: #64748b;
-        font-weight: 700;
-        background: #f8fafc;
-        border-bottom: 2px solid #e2e8f0;
-        padding: 0.75rem 1rem;
-        white-space: nowrap;
-    }
-    .hist-table tbody td {
-        padding: 0.8rem 1rem;
-        vertical-align: middle;
-        font-size: 0.88rem;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    .hist-table tbody tr:hover td { background: #fafbfc; }
-    .sentido-badge-ida    { background: #e8f0fe; color: #1565c0; }
-    .sentido-badge-vuelta { background: #f3e5f5; color: #7b1fa2; }
-    .estado-cumplido { background: #e6f4ea; color: #1e7e34; }
-    .estado-omitido  { background: #fce8e6; color: #c62828; }
-    .estado-pendiente{ background: #fff9c4; color: #7a5c00; }
-    .meta-row { background: #f8fafc; border-radius: 10px; padding: 0.6rem 1rem; font-size: 0.85rem; }
-</style>
+@vite('resources/css/control-recorrido.css')
 
 <div class="container-fluid py-4">
 

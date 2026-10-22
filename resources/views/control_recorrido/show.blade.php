@@ -2,21 +2,7 @@
 
 @section('content')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-    #mapDetalle { height: 420px; border-radius: 14px; }
-    .legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-    .marker-bus { background:#7B1E2B; color:#fff; border:2px solid #fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; box-shadow:0 0 0 4px rgba(123,30,43,.35); animation: pulseBus 2s infinite; }
-    @keyframes pulseBus { 0%{ box-shadow:0 0 0 0 rgba(123,30,43,.6); } 70%{ box-shadow:0 0 0 10px rgba(123,30,43,0); } 100%{ box-shadow:0 0 0 0 rgba(123,30,43,0); } }
-    .marker-stop { border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; border:2px solid; }
-    .marker-stop.cumplida  { background:#10b981; color:#fff; border-color:#059669; }
-    .marker-stop.pendiente { background:#f59e0b; color:#fff; border-color:#d97706; }
-    .marker-stop.omitida   { background:#ef4444; color:#fff; border-color:#dc2626; }
-    .meta-chip { background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.4rem 0.8rem; font-size:0.82rem; }
-    .progress-bar-custom { height:8px; border-radius:10px; background:#e2e8f0; overflow:hidden; }
-    .progress-bar-custom .fill { height:100%; border-radius:10px; background: linear-gradient(90deg,#10b981,#3b82f6); transition:width .5s ease; }
-    .next-stop-card { border-left: 4px solid #f59e0b; background:#fffbeb; border-radius:0 10px 10px 0; }
-    .gps-info { font-size:0.8rem; }
-</style>
+@vite('resources/css/control-recorrido.css')
 
 <div class="container-fluid py-4">
 

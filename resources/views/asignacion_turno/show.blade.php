@@ -9,9 +9,9 @@
                 </a>
             </div>
 
-            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+            <div class="card border-0 shadow-sm assignment-detail-card">
                 {{-- Header --}}
-                <div class="card-header py-3 px-4" style="border-radius: 16px 16px 0 0; background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);">
+                <div class="card-header py-3 px-4 assignment-detail-header">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h5 class="mb-0 fw-bold text-white">
@@ -42,7 +42,7 @@
                     <div class="row g-4">
                         {{-- Turno --}}
                         <div class="col-md-6">
-                            <div class="p-3 rounded-3 h-100" style="background: #f8f9fc; border: 1px solid #eef2f7;">
+                            <div class="p-3 rounded-3 h-100 assignment-detail-panel">
                                 <div class="text-muted small fw-semibold mb-2">
                                     <i class="bi bi-clock me-1"></i>Turno
                                 </div>
@@ -63,7 +63,7 @@
 
                         {{-- Ruta --}}
                         <div class="col-md-6">
-                            <div class="p-3 rounded-3 h-100" style="background: #f8f9fc; border: 1px solid #eef2f7;">
+                            <div class="p-3 rounded-3 h-100 assignment-detail-panel">
                                 <div class="text-muted small fw-semibold mb-2">
                                     <i class="bi bi-signpost-2 me-1"></i>Ruta
                                 </div>
@@ -73,7 +73,7 @@
 
                         {{-- Conductor --}}
                         <div class="col-md-6">
-                            <div class="p-3 rounded-3 h-100" style="background: #f8f9fc; border: 1px solid #eef2f7;">
+                            <div class="p-3 rounded-3 h-100 assignment-detail-panel">
                                 <div class="text-muted small fw-semibold mb-2">
                                     <i class="bi bi-person-badge me-1"></i>Conductor
                                 </div>
@@ -88,7 +88,7 @@
 
                         {{-- Micro / Interno --}}
                         <div class="col-md-6">
-                            <div class="p-3 rounded-3 h-100" style="background: #f8f9fc; border: 1px solid #eef2f7;">
+                            <div class="p-3 rounded-3 h-100 assignment-detail-panel">
                                 <div class="text-muted small fw-semibold mb-2">
                                     <i class="bi bi-bus-front me-1"></i>Micro / Interno
                                 </div>
@@ -106,7 +106,7 @@
 
                         {{-- Horas operativas --}}
                         <div class="col-md-6">
-                            <div class="p-3 rounded-3" style="background: #f8f9fc; border: 1px solid #eef2f7;">
+                            <div class="p-3 rounded-3 assignment-detail-panel">
                                 <div class="text-muted small fw-semibold mb-2">
                                     <i class="bi bi-clock-history me-1"></i>Horario operativo
                                 </div>
@@ -130,7 +130,7 @@
                         {{-- Observaciones --}}
                         @if($asignacion->observaciones)
                         <div class="col-md-6">
-                            <div class="p-3 rounded-3" style="background: #f8f9fc; border: 1px solid #eef2f7;">
+                            <div class="p-3 rounded-3 assignment-detail-panel">
                                 <div class="text-muted small fw-semibold mb-2">
                                     <i class="bi bi-chat-text me-1"></i>Observaciones
                                 </div>
@@ -141,8 +141,8 @@
                     </div>
                 </div>
 
-                <div class="card-footer bg-white border-top py-3 px-4 d-flex gap-2 justify-content-end" style="border-radius: 0 0 16px 16px;">
-                    <a href="{{ route('asignacion-turno.index') }}" class="btn btn-primary px-4" style="border-radius: 10px;">
+                <div class="card-footer bg-white border-top py-3 px-4 d-flex gap-2 justify-content-end assignment-detail-footer">
+                    <a href="{{ route('asignacion-turno.index') }}" class="btn btn-primary px-4 assignment-footer-action">
                         <i class="bi bi-arrow-left me-1"></i>Volver
                     </a>
                     @if($asignacion->estado !== 'cancelado')
@@ -150,7 +150,7 @@
                             @csrf @method('DELETE')
                             <button type="submit"
                                     onclick="return confirm('¿Cancelar esta asignación?')"
-                                    class="btn btn-outline-secondary px-4" style="border-radius: 10px;">
+                                    class="btn btn-outline-secondary px-4 assignment-footer-action">
                                 <i class="bi bi-x-circle me-1"></i>Cancelar asignación
                             </button>
                         </form>

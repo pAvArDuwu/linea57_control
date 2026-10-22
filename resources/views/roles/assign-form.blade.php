@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@vite('resources/js/roles.js')
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
         <div class="col-12 col-xl-10">
@@ -284,26 +285,4 @@
     }
 </style>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const roleOptions = document.querySelectorAll('.role-option');
-        const count = document.getElementById('selected-role-count');
-        const label = document.getElementById('selected-role-label');
-
-        function updateRoleSelection() {
-            const selected = document.querySelectorAll('.role-option-input:checked').length;
-            count.textContent = selected;
-            label.textContent = selected === 1 ? 'rol seleccionado' : 'roles seleccionados';
-            roleOptions.forEach(function (option) {
-                option.classList.toggle('selected', option.querySelector('.role-option-input').checked);
-            });
-        }
-
-        roleOptions.forEach(function (option) {
-            option.querySelector('.role-option-input').addEventListener('change', updateRoleSelection);
-        });
-
-        updateRoleSelection();
-    });
-</script>
 @endsection

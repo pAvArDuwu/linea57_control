@@ -1,5 +1,6 @@
 @extends('layouts.app')
 @section('content')
+@vite('resources/js/catalogos.js')
 <div class="container-fluid py-4">
     <div class="row justify-content-center"><div class="col-lg-9">
         <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb mb-0">
@@ -73,5 +74,4 @@
         </div>
     </div></div>
 </div>
-<script>document.getElementById('user_id')?.addEventListener('change',function(){let o=this.options[this.selectedIndex];['nombre','apellido','ci','telefono','correo'].forEach(k=>document.getElementById(k).value=o.dataset[k]||'');});</script>
 @endsection

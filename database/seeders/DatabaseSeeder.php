@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
 
         // Catálogos base: parametricación, transporte y turnos del día.
         $this->call(ParametrizacionSeeder::class);
+        $this->call(Linea61Seeder::class);
         $this->call(TransporteSeeder::class);
         $this->call(TurnoSeeder::class);
 

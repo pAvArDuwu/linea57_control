@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\TieneEstadoLogico;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
@@ -26,7 +27,7 @@ use Illuminate\Support\Carbon;
  */
 class Ruta extends Model
 {
-    use TieneEstadoLogico;
+    use HasFactory, TieneEstadoLogico;
 
     protected $perPage = 20;
 

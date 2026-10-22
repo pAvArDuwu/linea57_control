@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@vite('resources/css/catalogos.css')
 <div class="container-fluid py-4">
     {{-- Header --}}
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
@@ -174,37 +175,6 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<style>
-    .btn-primary-custom {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        border: none;
-        color: white;
-        border-radius: 12px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(11, 60, 120, 0.25);
-    }
-    .btn-primary-custom:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(11, 60, 120, 0.35);
-        color: white;
-    }
-    .btn-action {
-        border-radius: 8px;
-        padding: 0.35rem 0.55rem;
-        transition: all 0.2s ease;
-    }
-    .btn-action:hover {
-        transform: translateY(-1px);
-    }
-    .table > tbody > tr {
-        transition: background-color 0.15s ease;
-    }
-    .table > tbody > tr:hover {
-        background-color: #f8f9fc !important;
-    }
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

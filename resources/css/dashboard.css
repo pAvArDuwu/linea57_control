@@ -1,0 +1,179 @@
+.dash-stat-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 1.3rem;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.dash-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+}
+
+.dash-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.card-border-navy::before { background: var(--primary, #0B3C78); }
+.card-border-wine::before { background: var(--accent, #7B1E2B); }
+.card-border-teal::before { background: #0284C7; }
+.card-border-amber::before { background: #D97706; }
+
+.stat-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.icon-bg-navy { background: #E8F0FE; color: var(--primary, #0B3C78); }
+.icon-bg-wine { background: #FDE8EC; color: var(--accent, #7B1E2B); }
+.icon-bg-teal { background: #E0F2FE; color: #0284C7; }
+.icon-bg-amber { background: #FEF3C7; color: #D97706; }
+
+.panel-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+}
+
+.panel-card-header {
+    background: #182C4D;
+    color: #ffffff;
+    padding: 1rem 1.4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#mapaMonitoreo {
+    height: 520px;
+    border-radius: 12px;
+    z-index: 1;
+}
+
+.custom-bus-marker {
+    background-color: var(--accent, #7B1E2B);
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 5px rgba(123, 30, 43, 0.35), 0 4px 10px rgba(0,0,0,0.3);
+    font-size: 14px;
+    animation: pulseMarker 2s infinite;
+}
+
+@keyframes pulseMarker {
+    0% { box-shadow: 0 0 0 0 rgba(123, 30, 43, 0.6); }
+    70% { box-shadow: 0 0 0 10px rgba(123, 30, 43, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(123, 30, 43, 0); }
+}
+
+.custom-stop-marker {
+    background: #1e293b;
+    color: #ffffff;
+    border: 2px solid #64748b;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.custom-stop-marker.cumplida {
+    background: #10B981;
+    color: white;
+    border-color: #059669;
+}
+
+.unit-card {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 0.55rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.unit-card:hover {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+    transform: translateY(-1px);
+}
+
+.unit-card.selected {
+    border: 2px solid var(--accent, #7B1E2B);
+    background: #FFF5F6;
+    box-shadow: 0 2px 8px rgba(123, 30, 43, 0.15);
+}
+
+.stop-card-item {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+    margin-bottom: 0.45rem;
+    transition: all 0.2s ease;
+}
+
+.stop-card-item.cumplida { border-left: 4px solid #10B981; }
+.stop-card-item.pendiente { border-left: 4px solid var(--accent, #7B1E2B); }
+
+.banner-cr {
+    background: linear-gradient(135deg, #182C4D 0%, #0B3C78 100%);
+    border-radius: 16px;
+    color: #ffffff;
+    padding: 1.4rem 1.6rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.banner-cr::after {
+    content: '';
+    position: absolute;
+    right: -30px;
+    bottom: -30px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+}
+
+.table-dash thead th {
+    background: #F8FAFC;
+    color: #64748B;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid #E2E8F0;
+    padding: 0.85rem 1rem;
+}
+
+.table-dash tbody td {
+    padding: 0.85rem 1rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle;
+}
+
+.table-dash tbody tr:hover td { background: #F8FAFC; }

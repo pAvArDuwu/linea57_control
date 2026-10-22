@@ -2,53 +2,7 @@
 
 @section('content')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-    body { overflow: hidden; }
-    #mapaAmpliado { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; }
-    .overlay-header {
-        position: fixed; top: 0; left: 0; right: 0; z-index: 500;
-        background: rgba(255,255,255,0.96); backdrop-filter: blur(10px);
-        border-bottom: 1px solid #e2e8f0; padding: 0.65rem 1.2rem;
-        display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-    }
-    .panel-left {
-        position: fixed; top: 58px; left: 0; bottom: 0; width: 280px; z-index: 400;
-        background: rgba(255,255,255,0.97); backdrop-filter: blur(8px);
-        border-right: 1px solid #e2e8f0; overflow-y: auto; padding: 0;
-        transition: transform .25s ease;
-    }
-    .panel-left.collapsed { transform: translateX(-280px); }
-    .panel-right {
-        position: fixed; top: 58px; right: 0; bottom: 0; width: 280px; z-index: 400;
-        background: rgba(255,255,255,0.97); backdrop-filter: blur(8px);
-        border-left: 1px solid #e2e8f0; overflow-y: auto; padding: 0;
-        transition: transform .25s ease;
-    }
-    .panel-toggle-left  { position: fixed; top: 50%; left: 285px; transform: translateY(-50%); z-index: 410; transition: left .25s ease; }
-    .panel-toggle-left.collapsed-pos { left: 5px; }
-    .parada-item-mapa {
-        display: flex; align-items: center; gap: 0.6rem;
-        padding: 0.65rem 1rem; border-bottom: 1px solid #f1f5f9;
-        cursor: pointer; transition: background .15s ease; font-size: 0.85rem;
-    }
-    .parada-item-mapa:hover { background: #f8fafc; }
-    .dot-cumplida  { width:10px;height:10px;border-radius:50%;background:#10b981;flex-shrink:0; }
-    .dot-pendiente { width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0; }
-    .dot-omitida   { width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0; }
-    .marker-bus { background:#7B1E2B;color:#fff;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 0 0 4px rgba(123,30,43,.4);animation:pbm 2s infinite; }
-    @keyframes pbm { 0%{box-shadow:0 0 0 0 rgba(123,30,43,.6);}70%{box-shadow:0 0 0 10px rgba(123,30,43,0);}100%{box-shadow:0 0 0 0 rgba(123,30,43,0);} }
-    .marker-stop { border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid; }
-    .marker-stop.cumplida  { background:#10b981;color:#fff;border-color:#059669; }
-    .marker-stop.pendiente { background:#f59e0b;color:#fff;border-color:#d97706; }
-    .panel-section { padding: 0.9rem 1rem 0.5rem; border-bottom: 1px solid #f1f5f9; }
-    .panel-section-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; font-weight: 700; margin-bottom: 0.5rem; }
-    .stat-mini { text-align: center; }
-    .stat-mini .val { font-size: 1.3rem; font-weight: 700; line-height: 1; }
-    .stat-mini .lbl { font-size: 0.72rem; color: #64748b; }
-    .progress-mini { height: 6px; border-radius: 10px; background: #e2e8f0; overflow: hidden; margin-top: 0.4rem; }
-    .progress-mini .fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg,#10b981,#3b82f6); }
-    .gps-info { font-size: 0.78rem; color: #64748b; }
-</style>
+@vite('resources/css/control-recorrido.css')
 
 {{-- Header superpuesto --}}
 <div class="overlay-header">

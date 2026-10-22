@@ -1,4 +1,5 @@
 <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+    @vite('resources/js/catalogos.js')
     <div class="card-header bg-white border-bottom py-3 px-4" style="border-radius: 16px 16px 0 0;">
         <div class="d-flex align-items-center gap-2">
             <div class="d-flex align-items-center justify-content-center rounded-circle"
@@ -88,4 +89,3 @@
         </button>
     </div>
 </div>
-<script>document.getElementById('user_id')?.addEventListener('change',function(){let o=this.options[this.selectedIndex];['nombre','apellido','ci','telefono','correo'].forEach(k=>document.getElementById(k).value=o.dataset[k]||'');});</script>
