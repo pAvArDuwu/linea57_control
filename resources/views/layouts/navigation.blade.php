@@ -133,25 +133,29 @@
 
     <!-- MÓDULO 4: REPORTES -->
     @if(Auth::user()->hasRole(['admin', 'propietario', 'fiscalizador']))
-    <a class="nav-link" 
+    @php
+        $reportesActive = request()->routeIs('reportes.*');
+        $reporteActivo = $reportesActive ? request()->route('reporte') : null;
+    @endphp
+    <a class="nav-link {{ $reportesActive ? 'active' : '' }}" 
        data-bs-toggle="collapse" 
        href="#reportesSubmenu" 
        role="button" 
-       aria-expanded="false" 
+       aria-expanded="{{ $reportesActive ? 'true' : 'false' }}" 
        aria-controls="reportesSubmenu">
         <i class="bi bi-bar-chart-line me-2"></i>
         <span>Reportes</span>
         <i class="bi bi-caret-down-fill ms-auto"></i>
     </a>
-    <div class="collapse submenu" id="reportesSubmenu">
-        <a class="nav-link" href="#">
-            <i class="bi bi-file-earmark-bar-graph me-2"></i><span>Reporte de Rutas</span>
+    <div class="collapse submenu {{ $reportesActive ? 'show' : '' }}" id="reportesSubmenu">
+        <a class="nav-link {{ $reporteActivo === 'asignaciones-conductor' ? 'active' : '' }}" href="{{ route('reportes.show', 'asignaciones-conductor') }}">
+            <i class="bi bi-file-earmark-person me-2"></i><span>Asignaciones por Conductor</span>
         </a>
-        <a class="nav-link" href="#">
-            <i class="bi bi-file-earmark-person me-2"></i><span>Reporte de Conductores</span>
+        <a class="nav-link {{ $reporteActivo === 'micros-propietario' ? 'active' : '' }}" href="{{ route('reportes.show', 'micros-propietario') }}">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i><span>Micros por Propietario</span>
         </a>
-        <a class="nav-link" href="#">
-            <i class="bi bi-file-earmark-spreadsheet me-2"></i><span>Reporte de Flota</span>
+        <a class="nav-link {{ $reporteActivo === 'paradas-omitidas' ? 'active' : '' }}" href="{{ route('reportes.show', 'paradas-omitidas') }}">
+            <i class="bi bi-file-earmark-bar-graph me-2"></i><span>Paradas Omitidas</span>
         </a>
     </div>
     @endif

@@ -10,6 +10,7 @@ use App\Http\Controllers\MonitoreoController;
 use App\Http\Controllers\ParadaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropietarioController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\RutaController;
 use App\Http\Controllers\RutaParadaController;
@@ -66,6 +67,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('control-recorrido/{id}/historial', [ControlRecorridoController::class, 'historial'])->name('control-recorrido.historial');
             Route::get('control-recorrido/{id}/mapa', [ControlRecorridoController::class, 'mapaAmpliado'])->name('control-recorrido.mapa');
             Route::resource('asignacion-turno', AsignacionTurnoController::class);
+        });
+
+        Route::middleware('role:admin|propietario|fiscalizador')->prefix('reportes')->name('reportes.')->group(function () {
+            Route::get('/', [ReporteController::class, 'index'])->name('index');
+            Route::get('{reporte}/pdf', [ReporteController::class, 'pdf'])->name('pdf');
+            Route::get('{reporte}/excel', [ReporteController::class, 'excel'])->name('excel');
+            Route::get('{reporte}', [ReporteController::class, 'show'])->name('show');
         });
 
         Route::middleware('role:admin|propietario|fiscalizador')->group(function () {
