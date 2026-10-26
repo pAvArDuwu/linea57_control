@@ -57,6 +57,13 @@
                 </header>
 
                 <main class="p-3 p-lg-4">
+                    @if (session('error'))
+                        <div class="alert alert-danger d-flex align-items-start gap-2" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+                            <div>{{ session('error') }}</div>
+                        </div>
+                    @endif
+
                     @yield('content')
                     {{ $slot ?? '' }}
                 </main>

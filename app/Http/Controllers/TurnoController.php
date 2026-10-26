@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Turno;
+use App\Services\IntegridadAsignacionesService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class TurnoController extends Controller
 {
+    public function __construct(protected IntegridadAsignacionesService $integridad) {}
+
     /**
      * Lista todos los turnos del catálogo.
      */
@@ -114,6 +118,8 @@ class TurnoController extends Controller
             'nombre.in' => 'El tipo de turno debe ser: mañana, tarde o noche.',
         ]);
 
+        $this->integridad->asegurarCambioDeEstadoPermitido($turno, $data);
+
         $turno->update($data);
 
         return redirect()->route('turno.index')
@@ -126,7 +132,13 @@ class TurnoController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         $turno = Turno::findOrFail($id);
-        $turno->desactivar();
+
+        try {
+            $this->integridad->desactivar($turno);
+        } catch (ValidationException $e) {
+            return redirect()->route('turno.index')
+                ->with('error', $e->validator->errors()->first('estado'));
+        }
 
         return redirect()->route('turno.index')
             ->with('info', 'Turno desactivado correctamente.');

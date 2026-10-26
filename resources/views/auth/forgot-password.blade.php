@@ -1,65 +1,47 @@
-<x-guest-layout title="Recuperar Contraseña">
-    <div class="auth-single-screen">
-        <div class="auth-single-box">
-            <!-- Brand Header -->
-            <div class="text-center mb-4">
-                <div class="rounded-3 d-inline-flex align-items-center justify-content-center text-white shadow-sm mb-3" 
-                     style="width: 52px; height: 52px; background: linear-gradient(135deg, #0B3C78 0%, #7B1E2B 100%);">
-                    <i class="bi bi-key fs-4"></i>
-                </div>
-                <div class="d-block badge px-2 py-1 rounded-2 mb-2 mx-auto" style="background: rgba(11, 60, 120, 0.1); color: #0B3C78; font-weight: 700; font-size: 0.75rem; width: fit-content;">
-                    RECUPERACIÓN
-                </div>
-                <h3 class="fw-bold text-dark mb-1" style="letter-spacing: -0.3px;">Recuperar Contraseña</h3>
-                <p class="text-muted small mb-0">Ingresa tu correo y te enviaremos el enlace para restablecerla.</p>
+<x-guest-layout title="Recuperar contraseña">
+    <div class="auth-single">
+        <div class="auth-card">
+            <div class="auth-card-brand">
+                <x-auth-brand compact />
             </div>
 
-            <!-- Session Status -->
+            <x-auth-heading
+                align="center"
+                icon="bi-key"
+                eyebrow="Recuperación"
+                title="Recuperar contraseña"
+                description="Ingresa tu correo y te enviaremos el enlace para restablecerla."
+            />
+
             @if (session('status'))
-                <div class="alert alert-success py-2 px-3 small rounded-3 mb-3" role="alert">
-                    <i class="bi bi-check-circle me-1"></i>{{ session('status') }}
-                </div>
+                <x-auth-status type="success">{{ session('status') }}</x-auth-status>
             @endif
 
             <form method="POST" action="{{ route('password.email') }}">
                 @csrf
 
-                <!-- Email Address -->
-                <div class="mb-4">
-                    <label for="email" class="form-label-custom">Correo Electrónico</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted px-3" style="border-color: #E2E8F0;">
-                            <i class="bi bi-envelope"></i>
-                        </span>
-                        <input id="email" class="form-control form-control-custom border-start-0 ps-2 @error('email') is-invalid @enderror" 
-                               type="email" name="email" value="{{ old('email') }}" required autofocus placeholder="tu@correo.com">
-                    </div>
-                    @error('email')
-                        <div class="text-danger small mt-1" style="font-size: 0.8rem;">
-                            <i class="bi bi-exclamation-circle me-1"></i>{{ $message }}
-                        </div>
-                    @enderror
-                </div>
+                <x-auth-field
+                    name="email"
+                    label="Correo electrónico"
+                    type="email"
+                    icon="bi-envelope"
+                    placeholder="tu@correo.com"
+                    autocomplete="username"
+                    :required="true"
+                    :autofocus="true"
+                />
 
-                <div class="d-grid mb-3">
-                    <button type="submit" class="btn-blue-auth">
-                        <span>Enviar enlace</span>
-                        <i class="bi bi-send"></i>
-                    </button>
-                </div>
+                <button type="submit" class="auth-btn auth-btn--primary auth-btn--block auth-submit">
+                    Enviar enlace
+                    <i class="bi bi-send" aria-hidden="true"></i>
+                </button>
 
-                <!-- Separador -->
-                <div class="auth-divider">
-                    <span>o</span>
-                </div>
+                <div class="auth-divider"><span>o</span></div>
 
-                <!-- Enlace directo simplificado a Login -->
-                <div class="d-grid">
-                    <a href="{{ route('login') }}" class="btn-blue-outline">
-                        <i class="bi bi-arrow-left"></i>
-                        <span>Iniciar sesión</span>
-                    </a>
-                </div>
+                <a href="{{ route('login') }}" class="auth-btn auth-btn--secondary auth-btn--block">
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                    Volver a iniciar sesión
+                </a>
             </form>
         </div>
     </div>

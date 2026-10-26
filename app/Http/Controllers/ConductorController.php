@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Conductor;
 use App\Models\User;
+use App\Services\IntegridadAsignacionesService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ConductorController extends Controller
 {
-    public function __construct()
+    public function __construct(protected IntegridadAsignacionesService $integridad)
     {
         $this->middleware('permission:conductor.index')->only('index');
         $this->middleware('permission:conductor.create')->only(['create', 'store']);
@@ -99,6 +101,8 @@ class ConductorController extends Controller
             'user_id' => ['nullable', 'integer', 'exists:users,id', Rule::unique('conductor', 'user_id')->ignore($conductor->id)],
         ]);
 
+        $this->integridad->asegurarCambioDeEstadoPermitido($conductor, $request->all());
+
         $conductor->update($request->all());
 
         return redirect()->route('conductor.index')->with('success', 'Conductor actualizado con éxito.');
@@ -110,7 +114,13 @@ class ConductorController extends Controller
     public function destroy(string $id)
     {
         $conductor = Conductor::findOrFail($id);
-        $conductor->update(['estado' => 'inactivo']);
+
+        try {
+            $this->integridad->desactivar($conductor);
+        } catch (ValidationException $e) {
+            return redirect()->route('conductor.index')
+                ->with('error', $e->validator->errors()->first('estado'));
+        }
 
         return redirect()->route('conductor.index')->with('success', 'Conductor eliminado con éxito.');
     }

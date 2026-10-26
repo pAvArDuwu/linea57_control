@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ruta;
+use App\Services\IntegridadAsignacionesService;
 use Illuminate\Http\Request;
 
 class RutaController extends Controller
 {
+    public function __construct(protected IntegridadAsignacionesService $integridad) {}
+
     public function index()
     {
         return response()->json(Ruta::where('estado', '!=', 'inactivo')->get());
@@ -28,6 +31,7 @@ class RutaController extends Controller
     public function update(Request $request, string $id)
     {
         $ruta = Ruta::findOrFail($id);
+        $this->integridad->asegurarCambioDeEstadoPermitido($ruta, $request->all());
         $ruta->update($request->all());
 
         return response()->json($ruta);
@@ -36,7 +40,7 @@ class RutaController extends Controller
     public function destroy(string $id)
     {
         $ruta = Ruta::findOrFail($id);
-        $ruta->update(['estado' => 'inactivo']);
+        $this->integridad->desactivar($ruta);
 
         return response()->json(['message' => 'Ruta desactivada correctamente']);
     }

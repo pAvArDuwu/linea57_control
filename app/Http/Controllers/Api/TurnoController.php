@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Turno;
+use App\Services\IntegridadAsignacionesService;
 use Illuminate\Http\Request;
 
 class TurnoController extends Controller
 {
+    public function __construct(protected IntegridadAsignacionesService $integridad) {}
+
     public function index()
     {
         return response()->json(Turno::where('estado', '!=', 'inactivo')->get());
@@ -30,7 +33,9 @@ class TurnoController extends Controller
     public function update(Request $request, string $id)
     {
         $turno = Turno::findOrFail($id);
-        $turno->update($this->validar($request, true));
+        $datos = $this->validar($request, true);
+        $this->integridad->asegurarCambioDeEstadoPermitido($turno, $datos);
+        $turno->update($datos);
 
         return response()->json($turno->fresh());
     }
@@ -38,7 +43,7 @@ class TurnoController extends Controller
     public function destroy(string $id)
     {
         $turno = Turno::findOrFail($id);
-        $turno->update(['estado' => 'inactivo']);
+        $this->integridad->desactivar($turno);
 
         return response()->json(['message' => 'Turno desactivado correctamente']);
     }

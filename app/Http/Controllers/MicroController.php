@@ -6,13 +6,17 @@ use App\Http\Requests\MicroRequest;
 use App\Models\Interno;
 use App\Models\Micro;
 use App\Models\Propietario;
+use App\Services\IntegridadAsignacionesService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class MicroController extends Controller
 {
+    public function __construct(protected IntegridadAsignacionesService $integridad) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -95,7 +99,10 @@ class MicroController extends Controller
         $micro = Micro::findOrFail($id);
         $oldInternoId = $micro->interno_id;
 
-        $micro->update($request->validated());
+        $datos = $request->validated();
+        $this->integridad->asegurarCambioDeEstadoPermitido($micro, $datos);
+
+        $micro->update($datos);
 
         if ($oldInternoId && $oldInternoId != $micro->interno_id) {
             Interno::where('id', $oldInternoId)->update(['estado' => 'disponible']);
@@ -114,10 +121,17 @@ class MicroController extends Controller
     public function destroy($id): RedirectResponse
     {
         $micro = Micro::findOrFail($id);
+
+        try {
+            $this->integridad->desactivar($micro);
+        } catch (ValidationException $e) {
+            return Redirect::route('micro.index')
+                ->with('error', $e->validator->errors()->first('estado'));
+        }
+
         if ($micro->interno_id) {
             Interno::where('id', $micro->interno_id)->update(['estado' => 'disponible']);
         }
-        $micro->update(['estado' => 'inactivo']);
 
         return Redirect::route('micro.index')
             ->with('success', 'Micro desactivado correctamente.');

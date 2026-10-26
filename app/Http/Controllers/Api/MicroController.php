@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Micro;
+use App\Services\IntegridadAsignacionesService;
 use Illuminate\Http\Request;
 
 class MicroController extends Controller
 {
+    public function __construct(protected IntegridadAsignacionesService $integridad) {}
+
     public function index()
     {
         return response()->json(Micro::where('estado', '!=', 'inactivo')->get());
@@ -28,6 +31,7 @@ class MicroController extends Controller
     public function update(Request $request, string $id)
     {
         $micro = Micro::findOrFail($id);
+        $this->integridad->asegurarCambioDeEstadoPermitido($micro, $request->all());
         $micro->update($request->all());
 
         return response()->json($micro);
@@ -36,7 +40,7 @@ class MicroController extends Controller
     public function destroy(string $id)
     {
         $micro = Micro::findOrFail($id);
-        $micro->update(['estado' => 'inactivo']);
+        $this->integridad->desactivar($micro);
 
         return response()->json(['message' => 'Micro desactivado correctamente']);
     }

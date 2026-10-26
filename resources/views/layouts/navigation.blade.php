@@ -88,7 +88,7 @@
         <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
             <i class="bi bi-people me-2"></i><span>Usuarios</span>
         </a>
-        @if(Auth::user()->hasRole(['admin', 'propietario']))
+        @if(Auth::user()->hasRole(['admin', 'fiscalizador']))
         <a class="nav-link {{ request()->routeIs('roles.*') && !request()->routeIs('roles.assign*') ? 'active' : '' }}" href="{{ route('roles.index') }}">
             <i class="bi bi-shield me-2"></i><span>Roles</span>
         </a>

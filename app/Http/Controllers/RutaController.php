@@ -4,17 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Parada;
 use App\Models\Ruta;
+use App\Services\IntegridadAsignacionesService;
 use App\Services\RutaParametrizacionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class RutaController extends Controller
 {
     public function __construct(
-        protected RutaParametrizacionService $parametrizacionService
+        protected RutaParametrizacionService $parametrizacionService,
+        protected IntegridadAsignacionesService $integridad,
     ) {}
 
     /**
@@ -130,7 +133,10 @@ class RutaController extends Controller
             'nombre.unique' => 'Ya existe otra ruta registrada con este nombre.',
         ]);
 
-        $ruta->update($request->only(['nombre', 'descripcion', 'estado']));
+        $datos = $request->only(['nombre', 'descripcion', 'estado']);
+        $this->integridad->asegurarCambioDeEstadoPermitido($ruta, $datos);
+
+        $ruta->update($datos);
 
         $this->parametrizacionService->guardarParametrizacion(
             $ruta,
@@ -145,7 +151,13 @@ class RutaController extends Controller
     public function destroy($id): RedirectResponse
     {
         $ruta = Ruta::findOrFail($id);
-        $ruta->desactivar();
+
+        try {
+            $this->integridad->desactivar($ruta);
+        } catch (ValidationException $e) {
+            return Redirect::route('ruta.index')
+                ->with('error', $e->validator->errors()->first('estado'));
+        }
 
         return Redirect::route('ruta.index')
             ->with('success', 'Ruta desactivada exitosamente.');

@@ -87,7 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::resource('rutas-paradas', RutaParadaController::class);
         });
 
-        Route::middleware('role:admin|propietario')->group(function () {
+        Route::middleware('role:admin|fiscalizador')->group(function () {
             Route::get('roles/asignar', [RolesController::class, 'assignUsers'])->name('roles.assign');
             Route::get('roles/asignar/registrar', [RolesController::class, 'createUserRoleAssignment'])->name('roles.assign.create');
             Route::get('roles/asignar/{id}/editar', [RolesController::class, 'editUserRoleAssignment'])->name('roles.assign.edit');

@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreConductorRequest;
 use App\Models\Conductor;
+use App\Services\IntegridadAsignacionesService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class ConductorController extends Controller
 {
+    public function __construct(protected IntegridadAsignacionesService $integridad) {}
+
     public function index()
     {
         return response()->json(Conductor::where('estado', '!=', 'inactivo')->get());
@@ -50,6 +53,8 @@ class ConductorController extends Controller
             'estado' => 'required|in:activo,inactivo',
         ]);
 
+        $this->integridad->asegurarCambioDeEstadoPermitido($conductor, $validated);
+
         $conductor->update($validated);
 
         return response()->json($conductor);
@@ -58,7 +63,7 @@ class ConductorController extends Controller
     public function destroy(string $id)
     {
         $conductor = Conductor::findOrFail($id);
-        $conductor->update(['estado' => 'inactivo']);
+        $this->integridad->desactivar($conductor);
 
         return response()->json(['message' => 'Conductor desactivado correctamente']);
     }

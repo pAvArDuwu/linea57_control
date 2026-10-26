@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\AsignacionTurno;
+use App\Models\Conductor;
+use App\Models\Micro;
+use App\Models\Ruta;
 use App\Models\Turno;
 use Illuminate\Validation\ValidationException;
 
@@ -14,9 +17,9 @@ class AsignacionTurnoService
     public function crear(array $datos): AsignacionTurno
     {
         $this->validarTurnoActivo($datos['turno_id']);
+        $this->validarRecursosActivos($datos);
         $this->validarDisponibilidad($datos);
 
-        
         $datos['estado'] = 'pendiente';
         unset($datos['hora_salida'], $datos['hora_llegada']);
 
@@ -114,6 +117,41 @@ class AsignacionTurnoService
         if ($turno->estado !== 'activo') {
             throw ValidationException::withMessages([
                 'turno_id' => 'El turno seleccionado está inactivo.',
+            ]);
+        }
+    }
+
+    /**
+     * Valida que los recursos seleccionados para una nueva asignación
+     * estén activos. Las asignaciones históricas conservan sus referencias,
+     * pero una asignación operativa nueva no debe apuntar a un recurso
+     * desactivado.
+     *
+     * @param  array<string, mixed>  $datos
+     */
+    protected function validarRecursosActivos(array $datos): void
+    {
+        $micro = Micro::find($datos['micro_id'] ?? null);
+
+        if (! $micro || $micro->estado !== 'activo') {
+            throw ValidationException::withMessages([
+                'micro_id' => 'El micro seleccionado no está activo o no existe.',
+            ]);
+        }
+
+        $conductor = Conductor::find($datos['conductor_id'] ?? null);
+
+        if (! $conductor || $conductor->estado !== 'activo') {
+            throw ValidationException::withMessages([
+                'conductor_id' => 'El conductor seleccionado no está activo o no existe.',
+            ]);
+        }
+
+        $ruta = Ruta::find($datos['ruta_id'] ?? null);
+
+        if (! $ruta || $ruta->estado !== 'activo') {
+            throw ValidationException::withMessages([
+                'ruta_id' => 'La ruta seleccionada no está activa o no existe.',
             ]);
         }
     }
