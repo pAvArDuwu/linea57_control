@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ControlParadasController;
 use App\Http\Controllers\MonitoreoController;
 use App\Models\User;
 use Illuminate\Contracts\Console\Kernel;
@@ -15,12 +14,7 @@ $kernel->bootstrap();
 $user = User::first();
 Auth::login($user);
 
-// 1. Test ControlParadasController
-$cpController = $app->make(ControlParadasController::class);
-$responseCP = $cpController->index(Request::create('/control-paradas', 'GET'));
-echo 'Control Paradas View: '.$responseCP->name().' (Render: '.strlen($responseCP->render())." bytes)\n";
-
-// 2. Test MonitoreoController (Seguimiento de Rutas)
+// 1. Test MonitoreoController (Seguimiento de Rutas)
 $mController = $app->make(MonitoreoController::class);
 $responseM = $mController->index(Request::create('/seguimiento-rutas', 'GET'));
 echo 'Seguimiento Rutas View: '.$responseM->name().' (Render: '.strlen($responseM->render())." bytes)\n";

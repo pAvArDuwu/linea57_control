@@ -1,200 +1,190 @@
 @extends('layouts.app')
 
 @section('content')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 @vite('resources/css/control-recorrido.css')
 
-<div class="container-fluid py-4">
+@php
+    $estadoClases = [
+        'pendiente' => 'badge-status--pending',
+        'en_curso' => 'badge-status--progress',
+        'completado' => 'badge-status--active',
+        'retrasado' => 'badge-status--warning',
+        'cancelado' => 'badge-status--cancelled',
+    ];
+    $estadoClase = $estadoClases[$asignacion->estado] ?? 'badge-status--inactive';
 
-    {{-- Breadcrumb + header --}}
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><a href="{{ route('control-recorrido.index') }}" class="text-decoration-none">Control de Recorrido</a></li>
-            <li class="breadcrumb-item active">{{ $codigo }}</li>
+    $badgesParada = [
+        'cumplido' => 'badge-status--active',
+        'en_proceso' => 'badge-status--warning',
+        'omitido' => 'badge-status--danger',
+        'pendiente' => 'badge-status--inactive',
+    ];
+    $etiquetasParada = [
+        'cumplido' => 'Cumplida',
+        'en_proceso' => 'En proceso',
+        'omitido' => 'Omitida',
+        'pendiente' => 'Pendiente',
+    ];
+
+    $sentidos = [
+        'Ida' => $filasIda,
+        'Vuelta' => $filasVuelta,
+    ];
+    $sentidoActivo = in_array($sentidoActivo, ['Ida', 'Vuelta'], true) ? $sentidoActivo : 'Ida';
+@endphp
+
+<div class="container-fluid py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('control-recorrido.index') }}" class="text-decoration-none">Control de recorrido</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ $codigo }}</li>
         </ol>
     </nav>
 
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div class="page-header">
         <div>
-            <div class="d-flex align-items-center gap-2">
-                <a href="{{ route('control-recorrido.index') }}" class="btn btn-sm btn-outline-secondary" style="border-radius:8px;">
-                    <i class="bi bi-arrow-left"></i>
-                </a>
-                <h4 class="fw-bold mb-0" style="color:var(--primary);">Detalle de Recorrido — {{ $codigo }}</h4>
-                <span class="badge rounded-pill px-3 py-1 {{ $asignacion->estado === 'en_curso' ? 'bg-success' : ($asignacion->estado === 'completado' ? 'bg-secondary' : 'bg-warning text-dark') }}">
-                    {{ ucfirst(str_replace('_', ' ', $asignacion->estado)) }}
-                </span>
+            <h1 class="page-title">
+                <i class="bi bi-signpost-split" aria-hidden="true"></i>
+                Detalle de Recorrido - {{ $codigo }}
+            </h1>
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
+                <span class="badge-status {{ $estadoClase }}">{{ ucfirst(str_replace('_', ' ', $asignacion->estado)) }}</span>
+                <span class="small text-muted">{{ $paradasCumplidas }} de {{ $totalParadas }} paradas · {{ $porcentaje }}%</span>
             </div>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('control-recorrido.historial', $asignacion->id) }}" class="btn btn-sm btn-outline-primary px-3" style="border-radius:8px;">
-                <i class="bi bi-clock-history me-1"></i>Historial completo
-            </a>
-            <a href="{{ route('control-recorrido.mapa', $asignacion->id) }}" class="btn btn-sm px-3 text-white" style="border-radius:8px; background:var(--accent);">
-                <i class="bi bi-fullscreen me-1"></i>Mapa ampliado
-            </a>
         </div>
     </div>
 
-    {{-- Franja de metadatos --}}
     <div class="d-flex flex-wrap gap-2 mb-4">
-        <span class="meta-chip"><i class="bi bi-signpost-2 me-1 text-primary"></i><strong>Ruta:</strong> {{ $asignacion->ruta->nombre ?? '—' }}</span>
-        <span class="meta-chip"><i class="bi bi-bus-front me-1 text-primary"></i><strong>Micro:</strong> {{ $asignacion->micro->placa ?? 'S/P' }} – Int. {{ $asignacion->micro->interno->numero_interno ?? 'S/I' }}</span>
-        <span class="meta-chip"><i class="bi bi-person-badge me-1 text-primary"></i><strong>Conductor:</strong> {{ $asignacion->conductor?->nombre ?? '—' }} {{ $asignacion->conductor?->apellido ?? '' }}</span>
-        <span class="meta-chip"><i class="bi bi-calendar3 me-1 text-primary"></i><strong>Fecha:</strong> {{ \Carbon\Carbon::parse($asignacion->fecha)->format('d/m/Y') }}</span>
-        <span class="meta-chip"><i class="bi bi-clock me-1 text-primary"></i><strong>Hora inicio:</strong> {{ $asignacion->hora_salida ?? '—' }}</span>
-        <span class="meta-chip text-primary fw-semibold"><i class="bi bi-arrow-right me-1"></i>Fase: {{ $sentidoActivo }}</span>
+        <span class="meta-chip"><i class="bi bi-calendar3 me-1" aria-hidden="true"></i><strong>Fecha:</strong> {{ \Carbon\Carbon::parse($asignacion->fecha)->format('d/m/Y') }}</span>
+        <span class="meta-chip"><i class="bi bi-clock me-1" aria-hidden="true"></i><strong>Turno:</strong> {{ ucfirst($asignacion->turno->nombre ?? '—') }}</span>
+        <span class="meta-chip"><i class="bi bi-signpost-2 me-1" aria-hidden="true"></i><strong>Ruta:</strong> {{ $asignacion->ruta->nombre ?? '—' }}</span>
+        <span class="meta-chip"><i class="bi bi-bus-front me-1" aria-hidden="true"></i><strong>Micro:</strong> {{ $asignacion->micro->placa ?? 'S/P' }} · Int. {{ $asignacion->micro->interno->numero_interno ?? 'S/I' }}</span>
+        <span class="meta-chip"><i class="bi bi-person-badge me-1" aria-hidden="true"></i><strong>Conductor:</strong> {{ trim(($asignacion->conductor?->nombre ?? '').' '.($asignacion->conductor?->apellido ?? '')) ?: '—' }}</span>
+        <span class="meta-chip"><i class="bi bi-flag me-1" aria-hidden="true"></i><strong>Salida:</strong> {{ $asignacion->hora_salida ?? 'Sin registro' }}</span>
     </div>
 
-    <div class="row g-4">
-        {{-- Mapa --}}
-        <div class="col-12 col-lg-8">
-            <div class="card border-0 shadow-sm h-100" style="border-radius:16px;">
-                <div class="card-header py-3 px-4 d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-map-fill"></i>
-                        <span class="fw-bold">Mapa del Recorrido — {{ $asignacion->ruta->nombre ?? '—' }}</span>
-                    </div>
-                    <div class="d-flex gap-3 align-items-center small">
-                        <span><span class="legend-dot bg-success"></span> Cumplida</span>
-                        <span><span class="legend-dot bg-warning"></span> Pendiente</span>
-                        <span><span class="legend-dot bg-danger"></span> Omitida</span>
-                        <span><span class="legend-dot" style="background:#7B1E2B;"></span> Micro</span>
-                    </div>
+    <div class="card overflow-hidden">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <div class="fw-semibold">
+                    <i class="bi bi-list-ol me-1" aria-hidden="true"></i>
+                    Secuencia de paradas
                 </div>
-                <div class="card-body p-3">
-                    <div id="mapDetalle"></div>
-                </div>
+                <div class="text-muted small">Hora real de paso registrada por GPS.</div>
             </div>
+            <ul class="nav cr-route-tabs" role="tablist">
+                @foreach($sentidos as $sentido => $filas)
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {{ $sentidoActivo === $sentido ? 'active' : '' }}"
+                                id="tab-{{ strtolower($sentido) }}"
+                                data-bs-toggle="tab"
+                                data-bs-target="#pane-{{ strtolower($sentido) }}"
+                                type="button"
+                                role="tab"
+                                aria-controls="pane-{{ strtolower($sentido) }}"
+                                aria-selected="{{ $sentidoActivo === $sentido ? 'true' : 'false' }}">
+                            <i class="bi bi-arrow-{{ $sentido === 'Ida' ? 'right' : 'left' }} me-1" aria-hidden="true"></i>
+                            {{ $sentido }}
+                            <span class="cr-route-tabs__count">{{ $filas->count() }}</span>
+                        </button>
+                    </li>
+                @endforeach
+            </ul>
         </div>
 
-        {{-- Panel lateral --}}
-        <div class="col-12 col-lg-4 d-flex flex-column gap-4">
+        <div class="tab-content" id="sentidoTabsContent">
+            @foreach($sentidos as $sentido => $filas)
+                @php
+                    $cumplidas = $filas->where('estado', 'cumplido')->count();
+                    $enProceso = $filas->where('estado', 'en_proceso')->count();
+                    $omitidas = $filas->where('estado', 'omitido')->count();
+                    $pendientes = $filas->where('estado', 'pendiente')->count();
+                @endphp
 
-            {{-- Progreso --}}
-            <div class="card border-0 shadow-sm" style="border-radius:16px;">
-                <div class="card-header py-3 px-4">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-bar-chart-fill"></i>
-                        <span class="fw-bold">Progreso del recorrido</span>
-                    </div>
-                </div>
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="text-muted small">{{ $paradasCumplidas }} / {{ $totalParadas }} paradas</span>
-                        <span class="fw-bold text-primary">{{ $porcentaje }}%</span>
-                    </div>
-                    <div class="progress-bar-custom mb-4">
-                        <div class="fill" style="width: {{ $porcentaje }}%;"></div>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <div class="p-2 rounded-3 text-center" style="background:#f8fafc;">
-                                <div class="text-muted small">Velocidad actual</div>
-                                <div class="fw-bold fs-5 text-primary">{{ $ultimoGps ? number_format((float)$ultimoGps->velocidad, 1) : '0.0' }} <small style="font-size:0.7rem;">km/h</small></div>
+                <div class="tab-pane fade {{ $sentidoActivo === $sentido ? 'show active' : '' }}"
+                     id="pane-{{ strtolower($sentido) }}"
+                     role="tabpanel"
+                     aria-labelledby="tab-{{ strtolower($sentido) }}"
+                     tabindex="0">
+
+                    <div class="p-3">
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-5 g-2">
+                            <div class="col">
+                                <div class="cr-stat-box cr-stat-box--success">
+                                    <div class="cr-stat-box__value">{{ $cumplidas }}</div>
+                                    <div class="meta-label">Cumplidas</div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="cr-stat-box cr-stat-box--warning">
+                                    <div class="cr-stat-box__value">{{ $enProceso }}</div>
+                                    <div class="meta-label">En proceso</div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="cr-stat-box cr-stat-box--danger">
+                                    <div class="cr-stat-box__value">{{ $omitidas }}</div>
+                                    <div class="meta-label">Omitidas</div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="cr-stat-box">
+                                    <div class="cr-stat-box__value">{{ $pendientes }}</div>
+                                    <div class="meta-label">Pendientes</div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="cr-stat-box cr-stat-box--total">
+                                    <div class="cr-stat-box__value">{{ $filas->count() }}</div>
+                                    <div class="meta-label">Total</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="p-2 rounded-3 text-center" style="background:#f8fafc;">
-                                <div class="text-muted small">Fase actual</div>
-                                <div class="fw-bold fs-6 text-primary">{{ $sentidoActivo }}</div>
-                            </div>
-                        </div>
                     </div>
-                    @if($ultimoGps)
-                        <div class="mt-3 pt-3 border-top gps-info">
-                            <div class="text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>Última posición GPS</div>
-                            <div class="fw-semibold font-monospace">{{ number_format((float)$ultimoGps->latitud, 4) }}, {{ number_format((float)$ultimoGps->longitud, 4) }}</div>
-                            <div class="text-muted">{{ $ultimoGps->fecha_hora_gps->format('d/m/Y H:i:s') }}</div>
-                        </div>
-                    @endif
-                </div>
-            </div>
 
-            {{-- Próxima parada --}}
-            @if($siguienteParada && $siguienteParada->parada)
-                <div class="card border-0 shadow-sm" style="border-radius:16px;">
-                    <div class="card-header py-3 px-4">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-geo-alt-fill text-warning"></i>
-                            <span class="fw-bold">Próxima parada</span>
-                        </div>
-                    </div>
-                    <div class="card-body p-4">
-                        <div class="next-stop-card p-3 mb-3">
-                            <div class="fw-bold text-dark">{{ $siguienteParada->parada->nombre }}</div>
-                            @if($siguienteParada->parada->referencia)
-                                <div class="text-muted small">{{ $siguienteParada->parada->referencia }}</div>
-                            @endif
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">⏳ Pendiente</span>
-                            <span class="text-muted small">
-                                Orden #{{ $siguienteParada->orden }} · {{ $sentidoActivo }}
-                            </span>
-                        </div>
+                    <div class="cr-stop-list">
+                        @forelse($filas as $fila)
+                            @php
+                                $estadoParada = $fila['estado'];
+                                $badgeParada = $badgesParada[$estadoParada] ?? 'badge-status--inactive';
+                                $etiquetaParada = $etiquetasParada[$estadoParada] ?? ucfirst($estadoParada);
+                            @endphp
+                            <div class="cr-stop-row {{ $estadoParada === 'en_proceso' ? 'is-current' : '' }}">
+                                <span class="cr-sequence is-{{ $estadoParada }}">{{ $fila['numero'] }}</span>
+
+                                <div class="cr-stop-main">
+                                    <div class="fw-semibold text-truncate">{{ $fila['parada']?->nombre ?? 'Parada sin nombre' }}</div>
+                                    @if($fila['parada']?->referencia)
+                                        <div class="text-muted small text-truncate">{{ $fila['parada']->referencia }}</div>
+                                    @endif
+                                </div>
+
+                                <div class="text-end flex-shrink-0">
+                                    <div class="mono {{ $fila['hora'] ? 'fw-semibold' : 'text-muted' }}">{{ $fila['hora'] ?? '—' }}</div>
+                                    <span class="badge-status {{ $badgeParada }}">{{ $etiquetaParada }}</span>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="empty-state py-4">
+                                <i class="bi bi-filter-circle" aria-hidden="true"></i>
+                                <div class="empty-state-title">Sin paradas en {{ $sentido }}</div>
+                                <p class="mb-0">Esta ruta no tiene paradas configuradas para este sentido.</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
-            @else
-                <div class="card border-0 shadow-sm" style="border-radius:16px;">
-                    <div class="card-body p-4 text-center text-muted">
-                        <i class="bi bi-check-circle-fill text-success fs-2 d-block mb-2"></i>
-                        {{ $porcentaje === 100 ? 'Recorrido completado.' : 'Sin próxima parada configurada.' }}
-                    </div>
-                </div>
+            @endforeach
+        </div>
+
+        <div class="card-footer d-flex flex-wrap align-items-center gap-2 small text-muted">
+            <i class="bi bi-info-circle" aria-hidden="true"></i>
+            <span>La hora mostrada corresponde al paso real detectado por GPS. Las paradas pendientes se muestran con «—» hasta que el micro las alcance.</span>
+            @if($siguienteParada)
+                <span class="ms-auto badge-status badge-status--warning">Próxima: {{ $siguienteParada->parada?->nombre ?? 'Sin nombre' }} ({{ $siguienteParada->sentido }})</span>
+            @elseif($paradasPendientes === 0)
+                <span class="ms-auto badge-status badge-status--active">Recorrido cerrado</span>
             @endif
         </div>
     </div>
-
 </div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    var cumplidasIds = @json($cumplidasIds);
-
-    // Unir ambas secuencias de paradas
-    var paradasIda    = @json($paradasIdaJson);
-    var paradasVuelta = @json($paradasVueltaJson);
-    var todasParadas  = paradasIda.concat(paradasVuelta).filter(p => p.lat !== 0 || p.lng !== 0);
-
-    var latGps  = {{ $ultimoGps ? (float)$ultimoGps->latitud  : 'null' }};
-    var lngGps  = {{ $ultimoGps ? (float)$ultimoGps->longitud : 'null' }};
-    var velGps  = {{ $ultimoGps ? (float)$ultimoGps->velocidad : 0 }};
-
-    var centro = todasParadas.length > 0
-        ? [todasParadas[0].lat, todasParadas[0].lng]
-        : (latGps ? [latGps, lngGps] : [-17.7830, -63.1820]);
-
-    var map = L.map('mapDetalle').setView(centro, 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-
-    var coords = [];
-    todasParadas.forEach(function (p) {
-        coords.push([p.lat, p.lng]);
-        var isCumplida = cumplidasIds.indexOf(p.id) !== -1;
-        var cls = isCumplida ? 'cumplida' : 'pendiente';
-        var icon = L.divIcon({ className: 'marker-stop ' + cls, html: p.orden, iconSize: [24,24], iconAnchor: [12,12] });
-        L.marker([p.lat, p.lng], { icon: icon })
-            .bindPopup('<strong>Parada #' + p.orden + ' (' + p.sentido + '): ' + p.nombre + '</strong><br>Estado: ' + (isCumplida ? '✅ Cumplida' : '⏳ Pendiente'))
-            .addTo(map);
-    });
-
-    if (coords.length > 1) {
-        L.polyline(coords, { color: '#3b82f6', weight: 4, opacity: 0.7, dashArray: '8,6' }).addTo(map);
-    }
-
-    if (latGps) {
-        var busIcon = L.divIcon({ className: 'marker-bus', html: '<i class="bi bi-bus-front" style="font-size:13px;"></i>', iconSize: [34,34], iconAnchor: [17,17] });
-        L.marker([latGps, lngGps], { icon: busIcon })
-            .bindPopup('<strong>Micro {{ $asignacion->micro->placa ?? "" }}</strong><br>Velocidad: ' + velGps + ' km/h')
-            .addTo(map)
-            .openPopup();
-    }
-
-    if (coords.length > 0) {
-        map.fitBounds(coords.length > 1 ? coords : [centro], { padding: [30,30] });
-    }
-});
-</script>
 @endsection

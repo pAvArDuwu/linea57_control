@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\AsignacionTurno;
+use App\Models\ControlRecorrido;
 use App\Models\Ruta;
+use App\Models\RutaParada;
 use App\Services\ControlRecorridoService;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class ControlRecorridoController extends Controller
@@ -23,39 +26,30 @@ class ControlRecorridoController extends Controller
         $fecha = $request->input('fecha', now()->toDateString());
         $rutaId = $request->input('ruta_id');
         $estado = $request->input('estado');
+        $buscar = trim((string) $request->input('buscar', ''));
 
         $query = AsignacionTurno::where('fecha', $fecha)
             ->where('estado', '!=', 'cancelado')
             ->when($rutaId, fn ($q) => $q->where('ruta_id', $rutaId))
             ->when($estado, fn ($q) => $q->where('estado', $estado))
+            ->when($buscar !== '', fn ($q) => $this->buscarAsignaciones($q, $buscar))
             ->with([
                 'turno',
                 'conductor.user',
                 'micro.interno',
                 'ruta',
-                'controlesRecorrido',
-                'seguimientosGps' => fn ($q) => $q->latest('fecha_hora_gps')->take(1),
             ])
             ->orderByDesc('id');
 
-        $asignaciones = $query->paginate(10);
+        $asignaciones = $query->paginate(10)->withQueryString();
 
-        // Calcular métricas de progreso para cada asignación
         $asignaciones->each(function (AsignacionTurno $a) {
-            $totalParadas = $a->ruta
-                ? $a->ruta->rutaParadas()->where('estado', 'activo')->count()
-                : 0;
-            $cumplidas = $a->controlesRecorrido->where('estado', 'cumplido')->count();
-
-            $a->setAttribute('total_paradas', $totalParadas);
-            $a->setAttribute('paradas_cumplidas', $cumplidas);
-            $a->setAttribute('porcentaje', $totalParadas > 0 ? round(($cumplidas / $totalParadas) * 100) : 0);
             $a->setAttribute('codigo', 'AT-'.str_pad($a->id, 3, '0', STR_PAD_LEFT));
         });
 
         $rutas = Ruta::where('estado', 'activo')->orderBy('nombre')->get();
 
-        return view('control_recorrido.index', compact('asignaciones', 'rutas', 'fecha', 'rutaId', 'estado'));
+        return view('control_recorrido.index', compact('asignaciones', 'rutas', 'fecha', 'rutaId', 'estado', 'buscar'));
     }
 
     /**
@@ -68,173 +62,104 @@ class ControlRecorridoController extends Controller
             'conductor.user',
             'micro.interno',
             'ruta.rutaParadas' => fn ($q) => $q->where('estado', 'activo')->with('parada')->orderBy('sentido')->orderBy('orden'),
-            'controlesRecorrido.rutaParada.parada',
-            'seguimientosGps' => fn ($q) => $q->latest('fecha_hora_gps')->take(1),
+            'controlesRecorrido',
         ])->findOrFail($id);
 
         $paradasIda = $asignacion->ruta?->rutaParadas()->where('sentido', 'Ida')->where('estado', 'activo')->with('parada')->orderBy('orden')->get() ?? collect();
         $paradasVuelta = $asignacion->ruta?->rutaParadas()->where('sentido', 'Vuelta')->where('estado', 'activo')->with('parada')->orderBy('orden')->get() ?? collect();
 
-        $cumplidasIds = $asignacion->controlesRecorrido->where('estado', 'cumplido')->pluck('ruta_parada_id')->toArray();
-
-        $todasIdaCumplidas = $paradasIda->isNotEmpty()
-            && $paradasIda->every(fn ($rp) => in_array($rp->id, $cumplidasIds));
-
-        $sentidoActivo = ($todasIdaCumplidas && $paradasVuelta->isNotEmpty()) ? 'Vuelta' : 'Ida';
-        $secuenciaActiva = $sentidoActivo === 'Ida' ? $paradasIda : $paradasVuelta;
-
-        $siguienteParada = $secuenciaActiva->first(fn ($rp) => ! in_array($rp->id, $cumplidasIds));
-
-        $totalParadas = $paradasIda->count() + $paradasVuelta->count();
-        $paradasCumplidas = count($cumplidasIds);
-        $porcentaje = $totalParadas > 0 ? round(($paradasCumplidas / $totalParadas) * 100) : 0;
-
-        $ultimoGps = $asignacion->seguimientosGps->first();
+        $resumen = $this->controlService->resumen($asignacion);
+        $siguienteId = $resumen['siguiente_parada']?->id;
 
         $codigo = 'AT-'.str_pad($asignacion->id, 3, '0', STR_PAD_LEFT);
 
-        $paradasIdaJson = $paradasIda->map(fn ($rp) => [
-            'id' => $rp->id,
-            'lat' => (float) ($rp->parada->latitud ?? 0),
-            'lng' => (float) ($rp->parada->longitud ?? 0),
-            'nombre' => $rp->parada->nombre ?? '?',
-            'orden' => $rp->orden,
-            'sentido' => 'Ida',
-        ])->values()->all();
-
-        $paradasVueltaJson = $paradasVuelta->map(fn ($rp) => [
-            'id' => $rp->id,
-            'lat' => (float) ($rp->parada->latitud ?? 0),
-            'lng' => (float) ($rp->parada->longitud ?? 0),
-            'nombre' => $rp->parada->nombre ?? '?',
-            'orden' => $rp->orden,
-            'sentido' => 'Vuelta',
-        ])->values()->all();
-
-        return view('control_recorrido.show', compact(
-            'asignacion',
-            'paradasIda',
-            'paradasVuelta',
-            'paradasIdaJson',
-            'paradasVueltaJson',
-            'cumplidasIds',
-            'sentidoActivo',
-            'siguienteParada',
-            'totalParadas',
-            'paradasCumplidas',
-            'porcentaje',
-            'ultimoGps',
-            'codigo'
-        ));
+        return view('control_recorrido.show', [
+            'asignacion' => $asignacion,
+            'filasIda' => $this->filasRecorrido($asignacion, $paradasIda, $siguienteId),
+            'filasVuelta' => $this->filasRecorrido($asignacion, $paradasVuelta, $siguienteId),
+            'sentidoActivo' => $resumen['sentido'],
+            'siguienteParada' => $resumen['siguiente_parada'],
+            'totalParadas' => $resumen['total'],
+            'paradasCumplidas' => $resumen['cumplidas'],
+            'paradasOmitidas' => $resumen['omitidas'],
+            'paradasPendientes' => $resumen['pendientes'],
+            'porcentaje' => $resumen['porcentaje'],
+            'codigo' => $codigo,
+        ]);
     }
 
     /**
-     * Pantalla 3: Historial exhaustivo de paradas con horas previstas vs reales.
+     * Filtra asignaciones por código, conductor, micro o ruta.
+     *
+     * @param  Builder<AsignacionTurno>  $query
      */
-    public function historial(int $id): View
+    protected function buscarAsignaciones(Builder $query, string $buscar): void
     {
-        $asignacion = AsignacionTurno::with([
-            'turno',
-            'conductor.user',
-            'micro.interno',
-            'ruta',
-            'ruta.rutaParadas' => fn ($q) => $q->where('estado', 'activo')->with('parada')->orderBy('sentido')->orderBy('orden'),
-            'controlesRecorrido.rutaParada',
-        ])->findOrFail($id);
+        $query->where(function ($subquery) use ($buscar) {
+            $termino = '%'.$buscar.'%';
 
-        $paradasIda = $asignacion->ruta?->rutaParadas()->where('sentido', 'Ida')->where('estado', 'activo')->with('parada')->orderBy('orden')->get() ?? collect();
-        $paradasVuelta = $asignacion->ruta?->rutaParadas()->where('sentido', 'Vuelta')->where('estado', 'activo')->with('parada')->orderBy('orden')->get() ?? collect();
+            $subquery
+                ->whereHas('conductor', fn ($conductor) => $conductor
+                    ->where('nombre', 'like', $termino)
+                    ->orWhere('apellido', 'like', $termino)
+                    ->orWhere('licencia', 'like', $termino)
+                    ->orWhere('ci', 'like', $termino))
+                ->orWhereHas('conductor.user', fn ($user) => $user
+                    ->where('name', 'like', $termino)
+                    ->orWhere('apellido', 'like', $termino))
+                ->orWhereHas('micro', fn ($micro) => $micro->where('placa', 'like', $termino))
+                ->orWhereHas('micro.interno', fn ($interno) => $interno->where('numero_interno', 'like', $termino))
+                ->orWhereHas('ruta', fn ($ruta) => $ruta->where('nombre', 'like', $termino));
 
-        // Calcular hora prevista basada en hora_salida del turno más intervalos estimados (5 min por parada)
-        $horaSalida = $asignacion->hora_salida
-            ? Carbon::parse($asignacion->fecha.' '.$asignacion->hora_salida)
-            : null;
+            if (preg_match('/^(?:AT-?)?0*(\d+)$/i', $buscar, $coincidencia)) {
+                $subquery->orWhere('id', (int) $coincidencia[1]);
+            }
+        });
+    }
 
-        $todasParadas = $paradasIda->concat($paradasVuelta)->values();
+    /**
+     * Filas de paradas con su estado real de paso.
+     *
+     * @param  Collection<int, RutaParada>  $paradas
+     * @return Collection<int, array<string, mixed>>
+     */
+    protected function filasRecorrido(AsignacionTurno $asignacion, Collection $paradas, ?int $siguienteId = null): Collection
+    {
+        return $paradas->values()->map(function (RutaParada $rutaParada, int $index) use ($asignacion, $siguienteId) {
+            $control = $this->controlDeParada($asignacion, $rutaParada->id);
+            $estado = $control?->estado ?? 'pendiente';
 
-        $filas = $todasParadas->map(function ($rp, $index) use ($asignacion, $horaSalida) {
-            $control = $asignacion->controlesRecorrido->firstWhere('ruta_parada_id', $rp->id);
-            $horaPrevista = $horaSalida?->copy()->addMinutes($index * 5);
+            if ($estado === 'pendiente' && $siguienteId === $rutaParada->id) {
+                $estado = 'en_proceso';
+            }
 
             return [
                 'numero' => $index + 1,
-                'parada' => $rp->parada,
-                'ruta_parada' => $rp,
-                'sentido' => $rp->sentido,
-                'hora_prevista' => $horaPrevista?->format('H:i'),
-                'hora_paso' => $control?->fecha_hora?->format('H:i:s'),
-                'estado' => $control?->estado ?? 'pendiente',
+                'parada' => $rutaParada->parada,
+                'ruta_parada' => $rutaParada,
+                'sentido' => $rutaParada->sentido,
+                'hora' => $control?->fecha_hora?->format('H:i'),
+                'estado' => $estado,
                 'distancia' => $control?->distancia_metros,
                 'observacion' => $control?->observacion,
+                'lat' => (float) ($rutaParada->parada?->latitud ?? 0),
+                'lng' => (float) ($rutaParada->parada?->longitud ?? 0),
             ];
         });
-
-        $codigo = 'AT-'.str_pad($asignacion->id, 3, '0', STR_PAD_LEFT);
-
-        return view('control_recorrido.historial', compact('asignacion', 'filas', 'paradasIda', 'paradasVuelta', 'codigo'));
     }
 
     /**
-     * Pantalla 4: Vista de la ruta en modo mapa ampliado.
+     * Control resuelto de una parada, priorizando el estado definitivo.
      */
-    public function mapaAmpliado(int $id): View
+    protected function controlDeParada(AsignacionTurno $asignacion, int $rutaParadaId): ?ControlRecorrido
     {
-        $asignacion = AsignacionTurno::with([
-            'turno',
-            'conductor.user',
-            'micro.interno',
-            'ruta',
-            'ruta.rutaParadas' => fn ($q) => $q->where('estado', 'activo')->with('parada')->orderBy('sentido')->orderBy('orden'),
-            'controlesRecorrido',
-            'seguimientosGps' => fn ($q) => $q->latest('fecha_hora_gps')->take(1),
-        ])->findOrFail($id);
-
-        $paradasIda = $asignacion->ruta?->rutaParadas()->where('sentido', 'Ida')->where('estado', 'activo')->with('parada')->orderBy('orden')->get() ?? collect();
-        $paradasVuelta = $asignacion->ruta?->rutaParadas()->where('sentido', 'Vuelta')->where('estado', 'activo')->with('parada')->orderBy('orden')->get() ?? collect();
-
-        $cumplidasIds = $asignacion->controlesRecorrido->where('estado', 'cumplido')->pluck('ruta_parada_id')->toArray();
-
-        $cumplidas = $asignacion->controlesRecorrido->where('estado', 'cumplido')->count();
-        $omitidas = $asignacion->controlesRecorrido->where('estado', 'omitido')->count();
-        $total = $paradasIda->count() + $paradasVuelta->count();
-        $pendientes = $total - $cumplidas - $omitidas;
-        $porcentaje = $total > 0 ? round(($cumplidas / $total) * 100) : 0;
-
-        $ultimoGps = $asignacion->seguimientosGps->first();
-        $codigo = 'AT-'.str_pad($asignacion->id, 3, '0', STR_PAD_LEFT);
-
-        $paradasIdaJson = $paradasIda->map(fn ($rp) => [
-            'id' => $rp->id,
-            'lat' => (float) ($rp->parada->latitud ?? 0),
-            'lng' => (float) ($rp->parada->longitud ?? 0),
-            'nombre' => $rp->parada->nombre ?? '?',
-            'orden' => $rp->orden,
-            'sentido' => 'Ida',
-        ])->values()->all();
-
-        $paradasVueltaJson = $paradasVuelta->map(fn ($rp) => [
-            'id' => $rp->id,
-            'lat' => (float) ($rp->parada->latitud ?? 0),
-            'lng' => (float) ($rp->parada->longitud ?? 0),
-            'nombre' => $rp->parada->nombre ?? '?',
-            'orden' => $rp->orden,
-            'sentido' => 'Vuelta',
-        ])->values()->all();
-
-        return view('control_recorrido.mapa', compact(
-            'asignacion',
-            'paradasIda',
-            'paradasVuelta',
-            'paradasIdaJson',
-            'paradasVueltaJson',
-            'cumplidasIds',
-            'cumplidas',
-            'omitidas',
-            'pendientes',
-            'total',
-            'porcentaje',
-            'ultimoGps',
-            'codigo'
-        ));
+        return $asignacion->controlesRecorrido
+            ->where('ruta_parada_id', $rutaParadaId)
+            ->sortBy(fn (ControlRecorrido $control) => match ($control->estado) {
+                'cumplido' => 0,
+                'omitido' => 1,
+                default => 2,
+            })
+            ->first();
     }
 }

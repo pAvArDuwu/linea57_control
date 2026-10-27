@@ -136,8 +136,12 @@ class SeguimientoGpsApiTest extends TestCase
             ->assertCreated()
             ->assertJsonPath('message', 'Ubicación procesada correctamente.');
 
+        $controlCumplido = $this->asignacion->controlesRecorrido()
+            ->where('estado', 'cumplido')
+            ->firstOrFail();
+
         $this->assertDatabaseHas('seguimiento_gps', [
-            'control_recorrido_id' => $this->asignacion->controlRecorrido->id,
+            'control_recorrido_id' => $controlCumplido->id,
             'latitud' => -17.78301000,
         ]);
         $this->assertSame(1, $this->asignacion->seguimientosGps()->count());

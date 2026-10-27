@@ -121,6 +121,55 @@ class SeguimientoGpsService
     }
 
     /**
+     * Devuelve la flota activa con su última posición GPS conocida.
+     *
+     * Este servicio es el único dueño del canal de seguimiento: no calcula
+     * cumplimiento de paradas, solo entrega posiciones y datos de la unidad.
+     *
+     * @return array{timestamp: string, total_activas: int, unidades: array<int, array<string, mixed>>}
+     */
+    public function flotaEnVivo(): array
+    {
+        $asignaciones = AsignacionTurno::whereIn('estado', ['en_curso', 'pendiente', 'retrasado'])
+            ->where('fecha', now()->toDateString())
+            ->with([
+                'turno',
+                'conductor.user',
+                'micro.interno',
+                'ruta',
+                'seguimientosGps' => fn ($query) => $query->latest('fecha_hora_gps')->take(1),
+            ])
+            ->orderBy('id')
+            ->get();
+
+        $unidades = $asignaciones->map(function (AsignacionTurno $asignacion) {
+            $ultimoGps = $asignacion->seguimientosGps->first();
+
+            return [
+                'asignacion_id' => $asignacion->id,
+                'placa' => $asignacion->micro->placa ?? 'S/P',
+                'interno' => $asignacion->micro->interno->numero_interno ?? 'S/I',
+                'conductor_id' => $asignacion->conductor?->id,
+                'conductor' => $asignacion->conductor?->nombreCompleto() ?? 'Sin conductor',
+                'ruta' => $asignacion->ruta->nombre ?? 'Sin ruta',
+                'turno' => ucfirst($asignacion->turno->nombre ?? ''),
+                'estado' => $asignacion->estado,
+                'hora_salida' => $asignacion->hora_salida,
+                'latitud' => $ultimoGps ? (float) $ultimoGps->latitud : null,
+                'longitud' => $ultimoGps ? (float) $ultimoGps->longitud : null,
+                'velocidad' => $ultimoGps ? (float) $ultimoGps->velocidad : 0.0,
+                'ultima_actualizacion' => $ultimoGps ? $ultimoGps->fecha_hora_gps->format('H:i:s') : 'Sin reporte',
+            ];
+        })->values();
+
+        return [
+            'timestamp' => now()->toIso8601String(),
+            'total_activas' => $unidades->count(),
+            'unidades' => $unidades->all(),
+        ];
+    }
+
+    /**
      * Valida que la fecha/hora del GPS no esté en el futuro más allá de un margen de 2 minutos.
      */
     protected function validarRangoTemporal(string|Carbon $fechaHoraGps): void

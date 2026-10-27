@@ -13,6 +13,8 @@ use App\Models\RutaParada;
 use App\Models\SeguimientoGps;
 use App\Models\Turno;
 use App\Models\User;
+use App\Services\AsignacionTurnoService;
+use App\Services\SeguimientoGpsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -110,27 +112,43 @@ class ControlRecorridoTest extends TestCase
         $response->assertSee('2020-ABC');
     }
 
+    public function test_index_can_search_assignments_by_code_conductor_micro_and_route(): void
+    {
+        $codigo = 'AT-'.str_pad($this->asignacion->id, 3, '0', STR_PAD_LEFT);
+
+        foreach ([$codigo, 'Juan', '2020-ABC', 'Línea 61 Troncal'] as $termino) {
+            $this->actingAs($this->admin)
+                ->get(route('control-recorrido.index', ['buscar' => $termino]))
+                ->assertOk()
+                ->assertSee($codigo);
+        }
+
+        $this->actingAs($this->admin)
+            ->get(route('control-recorrido.index', ['buscar' => 'sin-coincidencias']))
+            ->assertOk()
+            ->assertSee('Sin asignaciones');
+    }
+
     public function test_show_screen_can_be_rendered(): void
     {
         $response = $this->actingAs($this->admin)->get(route('control-recorrido.show', $this->asignacion->id));
         $response->assertOk();
         $response->assertSee('Detalle de Recorrido');
         $response->assertSee('Parada 1');
+        $response->assertDontSee('Historial completo');
+        $response->assertDontSee('Mapa ampliado');
+        $response->assertDontSee('mapDetalle', false);
     }
 
-    public function test_historial_screen_can_be_rendered(): void
+    public function test_historial_and_mapa_screens_are_no_longer_available(): void
     {
-        $response = $this->actingAs($this->admin)->get(route('control-recorrido.historial', $this->asignacion->id));
-        $response->assertOk();
-        $response->assertSee('Secuencia de Paradas');
-        $response->assertSee('Parada 1');
-    }
+        $this->actingAs($this->admin)
+            ->get("/control-recorrido/{$this->asignacion->id}/historial")
+            ->assertNotFound();
 
-    public function test_mapa_ampliado_screen_can_be_rendered(): void
-    {
-        $response = $this->actingAs($this->admin)->get(route('control-recorrido.mapa', $this->asignacion->id));
-        $response->assertOk();
-        $response->assertSee('mapaAmpliado');
+        $this->actingAs($this->admin)
+            ->get("/control-recorrido/{$this->asignacion->id}/mapa")
+            ->assertNotFound();
     }
 
     public function test_admin_fiscalizador_propietario_can_access_monitoreo(): void
@@ -150,6 +168,100 @@ class ControlRecorridoTest extends TestCase
         $prop = User::factory()->create(['ci' => '8888888']);
         $prop->assignRole($roleProp);
         $this->actingAs($prop)->get(route('monitoreo.index'))->assertOk();
+    }
+
+    public function test_iniciar_turno_planifica_todas_las_paradas_de_la_ruta(): void
+    {
+        $parada2 = Parada::create([
+            'nombre' => 'Parada 2',
+            'latitud' => -17.7840,
+            'longitud' => -63.1830,
+            'estado' => 'activo',
+        ]);
+
+        RutaParada::create([
+            'ruta_id' => $this->asignacion->ruta_id,
+            'parada_id' => $parada2->id,
+            'orden' => 2,
+            'sentido' => 'Ida',
+            'estado' => 'activo',
+        ]);
+
+        $this->asignacion->update(['estado' => 'pendiente']);
+
+        app(AsignacionTurnoService::class)->iniciar($this->asignacion);
+
+        $controles = ControlRecorrido::where('asignacion_turno_id', $this->asignacion->id)->get();
+
+        $this->assertCount(2, $controles);
+        $this->assertTrue($controles->every(fn (ControlRecorrido $control) => $control->estado === 'pendiente'));
+        $this->assertTrue($controles->every(fn (ControlRecorrido $control) => $control->fecha_hora === null));
+    }
+
+    public function test_evaluar_punto_omite_paradas_intermedias_y_cierra_el_recorrido(): void
+    {
+        $parada2 = Parada::create([
+            'nombre' => 'Parada 2',
+            'latitud' => -17.7840,
+            'longitud' => -63.1830,
+            'estado' => 'activo',
+        ]);
+
+        $parada3 = Parada::create([
+            'nombre' => 'Parada 3',
+            'latitud' => -17.7850,
+            'longitud' => -63.1840,
+            'estado' => 'activo',
+        ]);
+
+        RutaParada::create([
+            'ruta_id' => $this->asignacion->ruta_id,
+            'parada_id' => $parada2->id,
+            'orden' => 2,
+            'sentido' => 'Ida',
+            'estado' => 'activo',
+        ]);
+
+        RutaParada::create([
+            'ruta_id' => $this->asignacion->ruta_id,
+            'parada_id' => $parada3->id,
+            'orden' => 3,
+            'sentido' => 'Ida',
+            'estado' => 'activo',
+        ]);
+
+        $resultado = app(SeguimientoGpsService::class)->registrarPunto($this->asignacion, [
+            'fecha_hora_gps' => now()->subMinute()->toDateTimeString(),
+            'latitud' => -17.7850,
+            'longitud' => -63.1840,
+            'velocidad' => 20.0,
+        ]);
+
+        $this->assertSame('cumplido', $resultado['control_recorrido']->estado);
+        $this->assertSame('completado', $this->asignacion->fresh()->estado);
+
+        $estados = ControlRecorrido::where('asignacion_turno_id', $this->asignacion->id)
+            ->whereNotNull('ruta_parada_id')
+            ->pluck('estado', 'ruta_parada_id');
+
+        $this->assertSame('omitido', $estados[RutaParada::where('parada_id', $parada2->id)->first()->id]);
+        $this->assertSame('cumplido', $estados[RutaParada::where('parada_id', $parada3->id)->first()->id]);
+    }
+
+    public function test_monitoreo_solo_expone_datos_de_posicion(): void
+    {
+        $response = $this->actingAs($this->admin)->getJson(route('monitoreo.posiciones'));
+
+        $response->assertOk();
+        $response->assertJsonPath('total_activas', 1);
+
+        $unidad = $response->json('unidades.0');
+
+        $this->assertArrayHasKey('latitud', $unidad);
+        $this->assertArrayHasKey('ultima_actualizacion', $unidad);
+        $this->assertArrayNotHasKey('paradas', $unidad);
+        $this->assertArrayNotHasKey('total_paradas', $unidad);
+        $this->assertArrayNotHasKey('sentido', $unidad);
     }
 
     public function test_control_recorrido_relations_work_via_has_through(): void

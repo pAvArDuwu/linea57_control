@@ -11,6 +11,10 @@ use Illuminate\Validation\ValidationException;
 
 class AsignacionTurnoService
 {
+    public function __construct(
+        protected ControlRecorridoService $controlRecorridoService
+    ) {}
+
     /**
      * Crea una nueva asignación de turno validando reglas de negocio.
      */
@@ -60,6 +64,9 @@ class AsignacionTurnoService
             'estado' => 'en_curso',
             'hora_salida' => now()->format('H:i:s'),
         ]);
+
+        // El control de recorrido toma las paradas de la ruta al iniciar el turno.
+        $this->controlRecorridoService->planificar($asignacion);
 
         return $asignacion->fresh(['turno', 'conductor', 'micro.interno', 'ruta.paradas']);
     }

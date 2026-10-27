@@ -1,27 +1,27 @@
-<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-    <div class="d-flex align-items-center gap-3">
+<div class="page-header">
+    <div class="d-flex align-items-start gap-3">
         <img src="{{ asset('images/logo-linea61.png') }}" alt="Línea 61" class="reportes-logo">
         <div>
-            <h4 class="fw-bold mb-1 reportes-title">
-                <i class="bi bi-file-earmark-bar-graph-fill me-2 reportes-title-icon"></i>{{ $titulo }}
-            </h4>
-            <p class="text-muted mb-0 small">{{ $descripcion }}</p>
+            <h1 class="page-title">
+                <i class="bi bi-file-earmark-bar-graph" aria-hidden="true"></i>{{ $titulo }}
+            </h1>
+            <p class="page-subtitle">{{ $descripcion }}</p>
         </div>
     </div>
-    <div class="d-flex flex-wrap gap-2 reportes-actions">
-        <a href="{{ route('reportes.index') }}" class="btn btn-outline-secondary reportes-action">
-            <i class="bi bi-arrow-left me-1"></i>Volver
+    <div class="page-actions reportes-acciones">
+        <a href="{{ route('reportes.index') }}" class="btn btn-outline-brand reportes-volver">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver
         </a>
-        <button type="button" class="btn btn-outline-primary reportes-action" onclick="window.print()">
-            <i class="bi bi-printer me-1"></i>Imprimir
+        <button type="button" class="btn btn-outline-brand" data-print>
+            <i class="bi bi-printer me-1" aria-hidden="true"></i>Imprimir
         </button>
         <a href="{{ route('reportes.pdf', array_merge(['reporte' => $reporteSlug], $filtros)) }}"
-           class="btn btn-danger reportes-action" target="_blank" rel="noopener">
-            <i class="bi bi-file-earmark-pdf me-1"></i>Exportar PDF
+           class="btn btn-outline-brand" target="_blank" rel="noopener">
+            <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>Exportar PDF
         </a>
         <a href="{{ route('reportes.excel', array_merge(['reporte' => $reporteSlug], $filtros)) }}"
-           class="btn btn-success reportes-action">
-            <i class="bi bi-file-earmark-excel me-1"></i>Exportar Excel
+           class="btn btn-outline-brand">
+            <i class="bi bi-file-earmark-excel me-1" aria-hidden="true"></i>Exportar Excel
         </a>
     </div>
 </div>

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $asignacion_turno_id
  * @property int|null $ruta_parada_id
- * @property string $fecha_hora
+ * @property string|null $fecha_hora
  * @property string $estado pendiente | cumplido | omitido | fuera_ruta | en_curso | completado | cancelado
  * @property float|null $distancia_metros
  * @property string|null $observacion

@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AsignacionTurnoController;
 use App\Http\Controllers\ConductorController;
-use App\Http\Controllers\ControlParadasController;
 use App\Http\Controllers\ControlRecorridoController;
 use App\Http\Controllers\InternoController;
 use App\Http\Controllers\MicroController;
@@ -31,19 +30,6 @@ Route::get('/dashboard', function () {
     $recorridosActivos = AsignacionTurno::where('fecha', now()->toDateString())->whereIn('estado', ['en_curso', 'pendiente', 'retrasado'])->count();
     $microsFueraServicio = Micro::where('estado', '!=', 'activo')->count();
 
-    if ($microsActivos === 0) {
-        $microsActivos = 24;
-    }
-    if ($conductoresDisponibles === 0) {
-        $conductoresDisponibles = 18;
-    }
-    if ($recorridosActivos === 0) {
-        $recorridosActivos = 11;
-    }
-    if ($microsFueraServicio === 0) {
-        $microsFueraServicio = 3;
-    }
-
     return view('dashboard', compact('microsActivos', 'conductoresDisponibles', 'recorridosActivos', 'microsFueraServicio'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -61,11 +47,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('seguimiento-rutas', [MonitoreoController::class, 'index'])->name('seguimiento-rutas.index');
             Route::get('monitoreo', [MonitoreoController::class, 'index'])->name('monitoreo.index');
             Route::get('monitoreo/posiciones', [MonitoreoController::class, 'posicionesEnVivo'])->name('monitoreo.posiciones');
-            Route::get('control-paradas', [ControlParadasController::class, 'index'])->name('control-paradas.index');
             Route::get('control-recorrido', [ControlRecorridoController::class, 'index'])->name('control-recorrido.index');
             Route::get('control-recorrido/{id}', [ControlRecorridoController::class, 'show'])->name('control-recorrido.show');
-            Route::get('control-recorrido/{id}/historial', [ControlRecorridoController::class, 'historial'])->name('control-recorrido.historial');
-            Route::get('control-recorrido/{id}/mapa', [ControlRecorridoController::class, 'mapaAmpliado'])->name('control-recorrido.mapa');
             Route::resource('asignacion-turno', AsignacionTurnoController::class);
         });
 

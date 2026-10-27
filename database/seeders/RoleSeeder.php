@@ -40,7 +40,7 @@ class RoleSeeder extends Seeder
             'parada.index', 'parada.create', 'parada.edit', 'parada.destroy', 'parada.show',
             'turno.index', 'turno.create', 'turno.edit', 'turno.destroy', 'turno.show',
             'asignacion-turno.index', 'asignacion-turno.create', 'asignacion-turno.edit', 'asignacion-turno.destroy', 'asignacion-turno.show',
-            'monitoreo.index', 'control-paradas.index', 'seguimiento-rutas.index', 'dashboard.view',
+            'monitoreo.index', 'seguimiento-rutas.index', 'dashboard.view',
             'roles.index', 'roles.create', 'roles.edit', 'roles.destroy', 'users.index', 'users.create', 'users.edit', 'users.destroy',
         ];
 
@@ -52,7 +52,7 @@ class RoleSeeder extends Seeder
 
         $fiscalizador->syncPermissions([
             'dashboard.view',
-            'monitoreo.index', 'control-paradas.index', 'seguimiento-rutas.index',
+            'monitoreo.index', 'seguimiento-rutas.index',
             'asignacion-turno.index', 'asignacion-turno.create', 'asignacion-turno.edit', 'asignacion-turno.show',
             'ruta.index', 'ruta.show', 'turno.index', 'turno.show',
             'micro.index', 'micro.show', 'parada.index', 'parada.show', 'conductor.index', 'conductor.show',
@@ -66,7 +66,7 @@ class RoleSeeder extends Seeder
 
         $propietario->syncPermissions([
             'dashboard.view',
-            'monitoreo.index', 'control-paradas.index', 'seguimiento-rutas.index',
+            'monitoreo.index', 'seguimiento-rutas.index',
             'conductor.index', 'conductor.create', 'conductor.edit', 'conductor.destroy', 'conductor.show',
             'micro.index', 'micro.create', 'micro.edit', 'micro.destroy', 'micro.show',
             'ruta.index', 'ruta.create', 'ruta.edit', 'ruta.destroy', 'ruta.show',

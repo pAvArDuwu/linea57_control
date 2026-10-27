@@ -3,29 +3,34 @@
 <head>
     <meta charset="utf-8">
     <title>{{ $titulo }}</title>
+    {{-- DomPDF renderiza esta vista de forma aislada: no carga el bundle de Vite ni
+         admite variables CSS, por lo que la hoja del documento es autocontenida. --}}
     <style>
-        /* DOMPDF no descarga la fuente Inter (Google Fonts); se usa DejaVu Sans,
-           la sans-serif disponible en DomPDF más cercana a la tipografía del sistema. */
         * { font-family: "DejaVu Sans", Arial, sans-serif; }
-        body { color: #1f2937; font-size: 11px; margin: 26px; }
-        .encabezado { border-bottom: 3px solid #0B3C78; padding-bottom: 10px; margin-bottom: 14px; }
+        @page { margin: 26px 26px 34px; }
+        body { color: #1F2937; font-size: 10.5px; margin: 0; background: #FFFFFF; }
+        .encabezado { border-bottom: 2px solid #0B3C78; padding-bottom: 9px; margin-bottom: 12px; }
         .encabezado td { vertical-align: middle; }
-        .logo { width: 54px; height: 54px; }
-        .marca { color: #0B3C78; font-weight: bold; font-size: 16px; }
-        .subtitulo { color: #7B1E2B; font-size: 11px; }
-        h1 { font-size: 15px; margin: 12px 0 2px; color: #0B3C78; }
-        .descripcion { color: #6b7280; font-size: 10px; margin-bottom: 8px; }
-        .meta { font-size: 9px; color: #6b7280; margin-bottom: 12px; }
-        .meta span { margin-right: 14px; }
+        .logo { width: 50px; height: 50px; }
+        .marca { color: #0B3C78; font-weight: bold; font-size: 15px; }
+        .subtitulo { color: #7B1E2B; font-size: 10px; }
+        h1 { font-size: 15px; margin: 10px 0 2px; color: #0B3C78; }
+        .descripcion { color: #5B6675; font-size: 10px; margin: 0 0 10px; }
+        table.meta { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        table.meta th { width: 20%; text-align: left; font-weight: bold; font-size: 9px; color: #5B6675; padding: 3px 6px 3px 0; }
+        table.meta td { font-size: 9.5px; padding: 3px 0; }
         table.resumen { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-        table.resumen td { border: 1px solid #e5e7eb; padding: 6px; text-align: center; background: #f8fafc; }
+        table.resumen td { border: 1px solid #E2E8F0; padding: 6px; text-align: center; background: #F7F9FC; }
         table.resumen .valor { font-size: 14px; font-weight: bold; color: #0B3C78; }
-        table.resumen .etiqueta { font-size: 8.5px; color: #6b7280; }
+        table.resumen .etiqueta { font-size: 8.5px; color: #5B6675; }
         table.datos { width: 100%; border-collapse: collapse; }
-        table.datos th { background: #0B3C78; color: #ffffff; padding: 6px 5px; font-size: 9.5px; text-align: left; border: 1px solid #0B3C78; }
-        table.datos td { padding: 5px; border: 1px solid #e5e7eb; font-size: 9.5px; }
-        table.datos tr:nth-child(even) td { background: #f8fafc; }
-        .pie { margin-top: 14px; font-size: 8.5px; color: #9ca3af; text-align: center; border-top: 1px solid #e5e7eb; padding-top: 6px; }
+        table.datos thead { display: table-header-group; }
+        table.datos th { background: #0B3C78; color: #FFFFFF; padding: 6px 5px; font-size: 9px; text-align: left; border: 1px solid #0B3C78; }
+        table.datos td { padding: 5px; border: 1px solid #E2E8F0; font-size: 9px; }
+        table.datos tbody tr { page-break-inside: avoid; break-inside: avoid; }
+        table.datos tbody tr:nth-child(even) td { background: #F7F9FC; }
+        table.datos .sin-registros { text-align: center; color: #5B6675; padding: 14px; }
+        .pie { margin-top: 14px; font-size: 8.5px; color: #5B6675; text-align: center; border-top: 1px solid #E2E8F0; padding-top: 6px; }
     </style>
 </head>
 <body>
@@ -39,7 +44,7 @@
         <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
                 @if($logo)
-                    <td width="64"><img src="{{ $logo }}" class="logo" alt="Línea 61"></td>
+                    <td width="60"><img src="{{ $logo }}" class="logo" alt="Línea 61"></td>
                 @endif
                 <td>
                     <div class="marca">Línea 61 — Sistema de Control y Seguimiento de Micros</div>
@@ -50,17 +55,29 @@
     </div>
 
     <h1>{{ $titulo }}</h1>
-    <div class="descripcion">{{ $descripcion }}</div>
+    <p class="descripcion">{{ $descripcion }}</p>
 
-    <div class="meta">
+    <table class="meta">
         @forelse($filtrosAplicados as $etiqueta => $valor)
-            <span><strong>{{ $etiqueta }}:</strong> {{ $valor }}</span>
+            <tr>
+                <th>{{ $etiqueta }}</th>
+                <td>{{ $valor }}</td>
+            </tr>
         @empty
-            <span>Sin filtros aplicados</span>
+            <tr>
+                <th>Filtros</th>
+                <td>Sin filtros aplicados</td>
+            </tr>
         @endforelse
-        <span><strong>Generado:</strong> {{ $generadoEn->format('d/m/Y H:i') }}</span>
-        <span><strong>Total:</strong> {{ count($filas) }} registros</span>
-    </div>
+        <tr>
+            <th>Generado</th>
+            <td>{{ $generadoEn->format('d/m/Y H:i') }}</td>
+        </tr>
+        <tr>
+            <th>Registros</th>
+            <td>{{ count($filas) }}</td>
+        </tr>
+    </table>
 
     @if(!empty($resumen))
         <table class="resumen">
@@ -92,7 +109,9 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ count($encabezados) }}" style="text-align:center;color:#6b7280;">Sin registros para los filtros seleccionados.</td>
+                    <td colspan="{{ count($encabezados) }}" class="sin-registros">
+                        Sin resultados para los filtros aplicados.
+                    </td>
                 </tr>
             @endforelse
         </tbody>

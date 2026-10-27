@@ -1,80 +1,62 @@
 @extends('layouts.app')
+
 @section('content')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-@vite('resources/css/monitoreo.css')
+@vite(['resources/css/monitoreo.css', 'resources/js/monitoreo.js'])
 
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+<div class="container-fluid py-4" id="monitoreoApp" data-positions-url="{{ route('monitoreo.posiciones') }}">
+    <div class="page-header">
         <div>
-            <h4 class="fw-bold mb-1" style="color: var(--primary);">
-                <i class="bi bi-geo-alt-fill me-2" style="color: var(--accent);"></i>Seguimiento GPS (Monitoreo en Vivo)
-            </h4>
-            <p class="text-muted mb-0 small">Ubicación satelital en tiempo real de unidades en ruta en Santa Cruz de la Sierra (Línea 61)</p>
+            <h1 class="page-title">
+                <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                Seguimiento GPS en vivo
+            </h1>
+            <p class="page-subtitle">Posiciones reportadas por las unidades en ruta. El cumplimiento de paradas se consulta en Control de recorrido.</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <div class="d-flex align-items-center gap-2 bg-white px-3 py-1.5 rounded-3 shadow-sm border" style="font-size: 0.82rem;">
-                <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
-                <span class="fw-semibold text-dark">En vivo (5s)</span>
-            </div>
-            <a href="{{ route('control-recorrido.index') }}" class="btn btn-outline-primary px-3 py-1.5" style="border-radius: 10px; font-size: 0.85rem;">
-                <i class="bi bi-signpost-split me-1"></i>Control de Recorrido
+        <div class="page-actions">
+            <a href="{{ route('control-recorrido.index') }}" class="btn btn-outline-brand">
+                <i class="bi bi-signpost-split me-1" aria-hidden="true"></i>Control de recorrido
             </a>
         </div>
     </div>
 
-    <!-- Contenido Principal: Mapa + Panel Compacto Tabulado -->
+    <div id="monitoreoLiveAlert" class="alert alert-soft-danger d-none" role="alert"></div>
+
     <div class="row g-3">
-        <!-- Mapa de Seguimiento GPS (Ocupa 3/4 en pantallas grandes) -->
         <div class="col-12 col-lg-8 col-xl-9">
-            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
-                <div class="card-header bg-white border-bottom py-2.5 px-3 d-flex justify-content-between align-items-center" style="border-radius: 16px 16px 0 0;">
+            <div class="card h-100">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-map-fill text-primary"></i>
-                        <span class="fw-bold text-dark small">Mapa de Posicionamiento GPS</span>
+                        <i class="bi bi-map" aria-hidden="true"></i>
+                        <span class="fw-semibold">Mapa de posicionamiento GPS</span>
                     </div>
-                    <span id="contadorUnidades" class="badge rounded-pill bg-primary px-3 py-1">Cargando unidades...</span>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span id="contadorUnidades" class="badge-status badge-status--progress">Cargando unidades</span>
+                        <span id="monitoreoUpdatedAt" class="small text-muted">Esperando datos</span>
+                    </div>
                 </div>
                 <div class="card-body p-2">
-                    <div id="mapaMonitoreo"></div>
+                    <div id="mapaMonitoreo" class="monitoreo-map"></div>
+                    <p class="text-muted small mb-0 px-2 py-2">
+                        <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                        Las unidades sin reporte GPS no se ubican en el mapa. La velocidad solo se muestra cuando existe un reporte.
+                    </p>
                 </div>
             </div>
         </div>
 
-        <!-- Panel Lateral Tabulado Compacto (Ocupa 1/4 responsive) -->
         <div class="col-12 col-lg-4 col-xl-3">
-            <div class="card border-0 shadow-sm h-100" style="border-radius: 16px;">
-                <div class="card-header bg-white border-bottom p-2" style="border-radius: 16px 16px 0 0;">
-                    <ul class="nav nav-pills nav-fill gap-1" id="monitoreoTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active py-1.5 px-2 fw-semibold small" id="tabUnidades" data-bs-toggle="tab" data-bs-target="#panelUnidades" type="button" role="tab" style="border-radius: 10px;">
-                                <i class="bi bi-bus-front me-1"></i>Unidades
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link py-1.5 px-2 fw-semibold small" id="tabParadas" data-bs-toggle="tab" data-bs-target="#panelParadas" type="button" role="tab" style="border-radius: 10px;">
-                                <i class="bi bi-pin-map me-1"></i>Paradas <span id="paradasProgresoBadge" class="badge bg-success rounded-pill ms-1" style="font-size: 0.68rem;">0/0</span>
-                            </button>
-                        </li>
-                    </ul>
+            <div class="card h-100">
+                <div class="card-header d-flex align-items-center gap-2">
+                    <i class="bi bi-bus-front" aria-hidden="true"></i>
+                    <span class="fw-semibold">Unidades en ruta</span>
                 </div>
                 <div class="card-body p-2">
-                    <div class="tab-content" id="monitoreoTabsContent">
-                        <!-- Tab 1: Unidades en Ruta -->
-                        <div class="tab-pane fade show active" id="panelUnidades" role="tabpanel">
-                            <div class="side-scroll-container px-1" id="listaUnidadesContainer">
-                                <div class="text-center py-4 text-muted small">Cargando unidades activas...</div>
-                            </div>
-                        </div>
-
-                        <!-- Tab 2: Control de Paradas de la Unidad Seleccionada -->
-                        <div class="tab-pane fade" id="panelParadas" role="tabpanel">
-                            <div class="side-scroll-container px-1" id="listaParadasContainer">
-                                <div class="text-center py-4 text-muted small">
-                                    <i class="bi bi-geo-alt fs-2 d-block mb-1 opacity-50"></i>
-                                    Selecciona una unidad para auditar sus paradas.
-                                </div>
-                            </div>
+                    <div class="monitoreo-scroll px-1" id="listaUnidadesContainer">
+                        <div class="empty-state py-4">
+                            <i class="bi bi-bus-front" aria-hidden="true"></i>
+                            <div class="empty-state-title">Cargando unidades</div>
+                            <p class="mb-0 small">Consultando las posiciones registradas.</p>
                         </div>
                     </div>
                 </div>
@@ -84,187 +66,4 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-let map;
-let markers = {};
-let routePolyline = null;
-let stopMarkers = [];
-let unidadSeleccionadaId = null;
-let unidadesData = [];
-
-document.addEventListener('DOMContentLoaded', function () {
-    // Inicializar Mapa centrado en Santa Cruz
-    map = L.map('mapaMonitoreo').setView([-17.7830, -63.1820], 14);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
-    }).addTo(map);
-
-    // Cargar y actualizar periódicamente (Polling cada 5 segundos)
-    actualizarPosiciones();
-    setInterval(actualizarPosiciones, 5000);
-});
-
-async function actualizarPosiciones() {
-    try {
-        const response = await fetch('{{ route("monitoreo.posiciones") }}');
-        const data = await response.json();
-        unidadesData = data.unidades || [];
-
-        document.getElementById('contadorUnidades').innerText = `${unidadesData.length} Unidades Activas`;
-        renderListaUnidades();
-        renderMapaMarkers();
-
-        if (unidadSeleccionadaId) {
-            const u = unidadesData.find(x => x.asignacion_id === unidadSeleccionadaId);
-            if (u) {
-                renderControlParadas(u);
-            }
-        } else if (unidadesData.length > 0) {
-            seleccionarUnidad(unidadesData[0].asignacion_id);
-        }
-    } catch (e) {
-        console.error('Error al actualizar posiciones GPS:', e);
-    }
-}
-
-function renderListaUnidades() {
-    const container = document.getElementById('listaUnidadesContainer');
-    if (unidadesData.length === 0) {
-        container.innerHTML = `<div class="text-center py-4 text-muted small"><i class="bi bi-info-circle fs-3 d-block mb-1 opacity-50"></i>No hay unidades en ruta hoy.</div>`;
-        return;
-    }
-
-    let html = '';
-    unidadesData.forEach(u => {
-        const isSelected = u.asignacion_id === unidadSeleccionadaId;
-        html += `
-            <div class="p-2.5 mb-2 border cursor-pointer unit-card-item ${isSelected ? 'border-primary bg-primary bg-opacity-10' : 'bg-white'}"
-                 onclick="seleccionarUnidad(${u.asignacion_id})" style="cursor: pointer;">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="fw-bold text-dark small">${u.placa} <span class="badge bg-white text-primary border ms-1">Int. ${u.interno}</span></span>
-                    <span class="badge ${u.estado === 'en_curso' ? 'bg-primary' : 'bg-warning'} text-uppercase" style="font-size: 0.65rem;">${u.estado}</span>
-                </div>
-                <div class="small text-muted text-truncate" style="font-size: 0.78rem;"><i class="bi bi-person-fill me-1 text-primary"></i>${u.conductor}</div>
-                <div class="d-flex justify-content-between align-items-center mt-1 text-muted" style="font-size: 0.72rem;">
-                    <span><i class="bi bi-speedometer2 me-1"></i>${u.velocidad} km/h</span>
-                    <span><i class="bi bi-clock me-1"></i>${u.ultima_actualizacion}</span>
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function renderMapaMarkers() {
-    unidadesData.forEach(u => {
-        if (markers[u.asignacion_id]) {
-            markers[u.asignacion_id].setLatLng([u.latitud, u.longitud]);
-        } else {
-            const icon = L.divIcon({
-                className: 'custom-bus-marker',
-                html: `<i class="bi bi-bus-front"></i>`,
-                iconSize: [32, 32],
-                iconAnchor: [16, 16],
-            });
-
-            const marker = L.marker([u.latitud, u.longitud], { icon: icon })
-                .bindPopup(`
-                    <div class="p-1">
-                        <strong>${u.placa} (Int. ${u.interno})</strong><br>
-                        <span>Conductor: ${u.conductor}</span><br>
-                        <span>Ruta: ${u.ruta} (${u.sentido})</span><br>
-                        <span>Velocidad: ${u.velocidad} km/h</span><br>
-                        <span>Actualizado: ${u.ultima_actualizacion}</span>
-                    </div>
-                `)
-                .on('click', () => seleccionarUnidad(u.asignacion_id))
-                .addTo(map);
-
-            markers[u.asignacion_id] = marker;
-        }
-    });
-}
-
-function seleccionarUnidad(asignacionId) {
-    unidadSeleccionadaId = asignacionId;
-    const u = unidadesData.find(x => x.asignacion_id === asignacionId);
-    if (!u) return;
-
-    renderListaUnidades();
-    renderControlParadas(u);
-
-    map.setView([u.latitud, u.longitud], 15);
-
-    stopMarkers.forEach(m => map.removeLayer(m));
-    stopMarkers = [];
-
-    if (u.paradas && u.paradas.length > 0) {
-        const routeCoords = [];
-
-        u.paradas.forEach((p) => {
-            routeCoords.push([p.latitud, p.longitud]);
-
-            const stopIcon = L.divIcon({
-                className: `custom-stop-marker ${p.cumplida ? 'cumplida' : ''}`,
-                html: `${p.orden}`,
-                iconSize: [22, 22],
-                iconAnchor: [11, 11],
-            });
-
-            const sm = L.marker([p.latitud, p.longitud], { icon: stopIcon })
-                .bindPopup(`
-                    <strong>Parada #${p.orden}: ${p.nombre}</strong><br>
-                    <span>Estado: ${p.cumplida ? '✅ Cumplida (' + p.hora_cumplida + ')' : '⏳ Pendiente'}</span>
-                `)
-                .addTo(map);
-
-            stopMarkers.push(sm);
-        });
-
-        if (routePolyline) {
-            map.removeLayer(routePolyline);
-        }
-        routePolyline = L.polyline(routeCoords, { color: '#0B3C78', weight: 4, opacity: 0.6, dashArray: '6, 6' }).addTo(map);
-    }
-}
-
-function renderControlParadas(u) {
-    const badge = document.getElementById('paradasProgresoBadge');
-    const container = document.getElementById('listaParadasContainer');
-
-    badge.innerText = `${u.paradas_cumplidas}/${u.total_paradas}`;
-
-    if (!u.paradas || u.paradas.length === 0) {
-        container.innerHTML = `<div class="text-center py-4 text-muted small">Esta ruta no tiene paradas configuradas.</div>`;
-        return;
-    }
-
-    let html = '';
-    u.paradas.forEach((p, idx) => {
-        const isLast = idx === u.paradas.length - 1;
-        html += `
-            <div class="d-flex align-items-center justify-content-between p-2 mb-1.5 rounded-2 ${p.cumplida ? 'bg-success-subtle border border-success' : 'bg-light border'}">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge ${p.cumplida ? 'bg-success' : 'bg-secondary'} rounded-circle" style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem;">
-                        ${p.orden}
-                    </span>
-                    <div>
-                        <div class="fw-semibold text-dark small" style="font-size: 0.78rem;">${p.nombre}</div>
-                        ${isLast ? '<span class="badge bg-primary text-white" style="font-size: 0.6rem;">Cierre Automático</span>' : ''}
-                    </div>
-                </div>
-                <div>
-                    ${p.cumplida
-                        ? `<span class="badge bg-success" style="font-size: 0.68rem;"><i class="bi bi-check-lg me-1"></i>${p.hora_cumplida || 'Cumplido'}</span>`
-                        : `<span class="badge bg-secondary-subtle text-muted" style="font-size: 0.68rem;">Pendiente</span>`
-                    }
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-</script>
 @endsection

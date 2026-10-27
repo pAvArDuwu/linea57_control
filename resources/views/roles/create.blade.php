@@ -1,48 +1,65 @@
 @extends('layouts.app')
 @section('content')
 <div class="container-fluid py-4">
-    <div class="d-flex align-items-center mb-4">
-        <a href="{{ route('roles.index') }}" class="btn btn-outline-secondary me-3" style="border-radius: 50%; width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center;">
-            <i class="bi bi-arrow-left"></i>
-        </a>
+    <nav aria-label="Ruta de navegación">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('roles.index') }}">Roles</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Registrar rol</li>
+        </ol>
+    </nav>
+
+    <div class="page-header">
         <div>
-            <h4 class="fw-bold mb-1" style="color: var(--primary);">Registrar Nuevo Rol</h4>
-            <p class="text-muted mb-0">Completa los datos para registrar un nuevo rol</p>
+            <h1 class="page-title"><i class="bi bi-shield-plus" aria-hidden="true"></i>Registrar rol</h1>
+            <p class="page-subtitle">Define el nombre, estado y descripción del nuevo rol.</p>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm" style="border-radius: 16px;">
-        <div class="card-body p-4 p-md-5">
-            <form action="{{ route('roles.store') }}" method="POST">
-                @csrf
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-muted" style="font-size: 0.9rem;">Nombre del Rol <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control p-3 bg-light border-0" value="{{ old('name') }}" placeholder="Ej: Administrador" required style="border-radius: 10px;">
-                        @error('name') <span class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</span> @enderror
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-muted" style="font-size: 0.9rem;">Estado <span class="text-danger">*</span></label>
-                        <select name="estado" class="form-select p-3 bg-light border-0" required style="border-radius: 10px;">
-                            <option value="activo" {{ old('estado') == 'activo' ? 'selected' : '' }}>Activo</option>
-                            <option value="inactivo" {{ old('estado') == 'inactivo' ? 'selected' : '' }}>Inactivo</option>
-                        </select>
-                        @error('estado') <span class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</span> @enderror
-                    </div>
-                    <div class="col-md-12">
-                        <label class="form-label fw-semibold text-muted" style="font-size: 0.9rem;">Descripción</label>
-                        <textarea name="descripcion" class="form-control p-3 bg-light border-0" rows="3" placeholder="Describe brevemente el rol" style="border-radius: 10px;">{{ old('descripcion') }}</textarea>
-                        @error('descripcion') <span class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</span> @enderror
-                    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <form action="{{ route('roles.store') }}" method="POST">
+                        @csrf
+                        <fieldset class="form-section">
+                            <legend class="form-section-title">Datos del rol</legend>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Nombre del rol <span class="form-hint-required">*</span></label>
+                                    <input type="text" id="name" name="name"
+                                           class="form-control @error('name') is-invalid @enderror"
+                                           value="{{ old('name') }}" placeholder="Ej: Administrador" required>
+                                    @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="estado" class="form-label">Estado <span class="form-hint-required">*</span></label>
+                                    <select id="estado" name="estado" class="form-select @error('estado') is-invalid @enderror" required>
+                                        <option value="activo" {{ old('estado') === 'activo' ? 'selected' : '' }}>Activo</option>
+                                        <option value="inactivo" {{ old('estado') === 'inactivo' ? 'selected' : '' }}>Inactivo</option>
+                                    </select>
+                                    @error('estado')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="col-12">
+                                    <label for="descripcion" class="form-label">Descripción</label>
+                                    <textarea id="descripcion" name="descripcion" rows="3"
+                                              class="form-control @error('descripcion') is-invalid @enderror"
+                                              placeholder="Describe brevemente la función de este rol">{{ old('descripcion') }}</textarea>
+                                    @error('descripcion')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a href="{{ route('roles.index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-brand">
+                                <i class="bi bi-check-lg me-1" aria-hidden="true"></i>Guardar rol
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <hr class="my-4" style="opacity: 0.1;">
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="{{ route('roles.index') }}" class="btn btn-light px-4 py-2" style="border-radius: 10px; font-weight: 500;">Cancelar</a>
-                    <button type="submit" class="btn px-4 py-2" style="border-radius: 10px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; font-weight: 600;">
-                        <i class="bi bi-save me-2"></i>Guardar Rol
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

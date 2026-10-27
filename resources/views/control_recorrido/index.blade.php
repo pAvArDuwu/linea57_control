@@ -3,57 +3,81 @@
 @section('content')
 @vite('resources/css/control-recorrido.css')
 
-<div class="container-fluid py-4">
+@php
+    $estadoClases = [
+        'pendiente' => 'badge-status--pending',
+        'en_curso' => 'badge-status--progress',
+        'completado' => 'badge-status--active',
+        'retrasado' => 'badge-status--warning',
+        'cancelado' => 'badge-status--cancelled',
+    ];
+    $estadoEtiquetas = [
+        'pendiente' => 'Pendiente',
+        'en_curso' => 'En curso',
+        'completado' => 'Finalizado',
+        'retrasado' => 'Retrasado',
+        'cancelado' => 'Cancelado',
+    ];
+@endphp
 
-    {{-- Header --}}
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+<div class="container-fluid py-4">
+    <div class="page-header">
         <div>
-            <h4 class="fw-bold mb-1" style="color: var(--primary);">
-                <i class="bi bi-pin-map-fill me-2" style="color: var(--accent);"></i>Control de Recorrido
-            </h4>
-            <p class="text-muted mb-0 small">Segunda transacción — Auditoría automática del cumplimiento de paradas por GPS</p>
+            <h1 class="page-title">
+                <i class="bi bi-pin-map" aria-hidden="true"></i>
+                Control de recorrido
+            </h1>
+            <p class="page-subtitle">Auditoría automática del cumplimiento de paradas registrado por GPS.</p>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('monitoreo.index') }}" class="btn btn-outline-primary px-3" style="border-radius: 10px;">
-                <i class="bi bi-map me-1"></i>Seguimiento en Vivo
+        <div class="page-actions">
+            <a href="{{ route('monitoreo.index') }}" class="btn btn-outline-brand">
+                <i class="bi bi-map me-1" aria-hidden="true"></i>Seguimiento en vivo
             </a>
         </div>
     </div>
 
-    {{-- Filtros --}}
-    <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
-        <div class="card-body p-3">
-            <form method="GET" action="{{ route('control-recorrido.index') }}" class="row g-2 align-items-end">
-                <div class="col-12 col-md-3">
-                    <label class="form-label small fw-semibold text-muted mb-1">Fecha</label>
-                    <input type="date" name="fecha" value="{{ $fecha }}" class="form-control" style="border-radius: 10px;">
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('control-recorrido.index') }}" class="row g-3 align-items-end">
+                <div class="col-12 col-lg-4">
+                    <label for="buscar" class="form-label">Buscar</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+                        <input type="search" id="buscar" name="buscar" value="{{ $buscar }}" class="form-control"
+                               placeholder="Conductor, micro, ruta o N.º de asignación">
+                    </div>
                 </div>
-                <div class="col-12 col-md-4">
-                    <label class="form-label small fw-semibold text-muted mb-1">Ruta</label>
-                    <select name="ruta_id" class="form-select" style="border-radius: 10px;">
+                <div class="col-6 col-lg-2">
+                    <label for="fecha" class="form-label">Fecha</label>
+                    <input type="date" id="fecha" name="fecha" value="{{ $fecha }}" class="form-control">
+                </div>
+                <div class="col-6 col-lg-2">
+                    <label for="ruta_id" class="form-label">Ruta</label>
+                    <select id="ruta_id" name="ruta_id" class="form-select">
                         <option value="">Todas</option>
                         @foreach($rutas as $r)
-                            <option value="{{ $r->id }}" {{ (string)$rutaId === (string)$r->id ? 'selected' : '' }}>{{ $r->nombre }}</option>
+                            <option value="{{ $r->id }}" {{ (string) $rutaId === (string) $r->id ? 'selected' : '' }}>{{ $r->nombre }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12 col-md-3">
-                    <label class="form-label small fw-semibold text-muted mb-1">Estado</label>
-                    <select name="estado" class="form-select" style="border-radius: 10px;">
+                <div class="col-6 col-lg-2">
+                    <label for="estado" class="form-label">Estado</label>
+                    <select id="estado" name="estado" class="form-select">
                         <option value="">Todos</option>
-                        <option value="en_curso"   {{ $estado === 'en_curso'   ? 'selected' : '' }}>En curso</option>
-                        <option value="pendiente"  {{ $estado === 'pendiente'  ? 'selected' : '' }}>Pendiente</option>
+                        <option value="en_curso" {{ $estado === 'en_curso' ? 'selected' : '' }}>En curso</option>
+                        <option value="pendiente" {{ $estado === 'pendiente' ? 'selected' : '' }}>Pendiente</option>
                         <option value="completado" {{ $estado === 'completado' ? 'selected' : '' }}>Completado</option>
-                        <option value="retrasado"  {{ $estado === 'retrasado'  ? 'selected' : '' }}>Retrasado</option>
+                        <option value="retrasado" {{ $estado === 'retrasado' ? 'selected' : '' }}>Retrasado</option>
                     </select>
                 </div>
-                <div class="col-12 col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100" style="border-radius: 10px;">
-                        <i class="bi bi-search me-1"></i>Buscar
+                <div class="col-6 col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-brand flex-grow-1">
+                        <i class="bi bi-funnel me-1" aria-hidden="true"></i>Filtrar
                     </button>
-                    @if($rutaId || $estado || $fecha !== now()->toDateString())
-                        <a href="{{ route('control-recorrido.index') }}" class="btn btn-outline-secondary" style="border-radius: 10px;" title="Limpiar">
-                            <i class="bi bi-x-lg"></i>
+                    @if($buscar !== '' || $rutaId || $estado || $fecha !== now()->toDateString())
+                        <a href="{{ route('control-recorrido.index') }}" class="btn btn-outline-brand" title="Limpiar filtros">
+                            <i class="bi bi-x-lg" aria-hidden="true"></i>
+                            <span class="visually-hidden">Limpiar filtros</span>
                         </a>
                     @endif
                 </div>
@@ -61,82 +85,60 @@
         </div>
     </div>
 
-    {{-- Tabla de Asignaciones --}}
-    <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
-        <div class="card-header py-3 px-4 d-flex justify-content-between align-items-center">
+    <div class="card">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-list-check fs-5"></i>
-                <span class="fw-bold">Asignaciones de Turno ({{ $asignaciones->total() }} registros)</span>
+                <i class="bi bi-list-check" aria-hidden="true"></i>
+                <span class="fw-semibold">Asignaciones de turno ({{ $asignaciones->total() }} registros)</span>
             </div>
-            <span class="badge bg-white bg-opacity-20 px-3 py-1 rounded-pill small">{{ $fecha }}</span>
+            <span class="badge-status badge-status--inactive">{{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }}</span>
         </div>
         <div class="table-responsive">
-            <table class="table table-cr align-middle mb-0">
+            <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th>ID Asignación</th>
-                        <th>Fecha</th>
+                        <th>N.º Asignación</th>
+                        <th>Conductor / Micro</th>
                         <th>Ruta</th>
                         <th>Turno</th>
-                        <th>Micro</th>
-                        <th>Conductor</th>
-                        <th>Progreso</th>
                         <th>Estado</th>
-                        <th>Acciones</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($asignaciones as $a)
+                        @php
+                            $estadoClase = $estadoClases[$a->estado] ?? 'badge-status--inactive';
+                            $estadoEtiqueta = $estadoEtiquetas[$a->estado] ?? ucfirst($a->estado);
+                        @endphp
                         <tr>
-                            <td><span class="fw-bold text-primary">{{ $a->codigo }}</span></td>
-                            <td><span class="text-muted small">{{ \Carbon\Carbon::parse($a->fecha)->format('d/m/Y') }}</span></td>
                             <td>
-                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1">
-                                    {{ $a->ruta->nombre ?? '—' }}
-                                </span>
-                            </td>
-                            <td><span class="text-muted">{{ ucfirst($a->turno->nombre ?? '—') }}</span></td>
-                            <td>
-                                <span class="fw-semibold">{{ $a->micro->placa ?? 'S/P' }}</span>
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary ms-1 small">{{ $a->micro->interno->numero_interno ?? '' }}</span>
-                            </td>
-                            <td class="text-muted">{{ $a->conductor ? ($a->conductor->nombre . ' ' . $a->conductor->apellido) : 'Sin conductor' }}</td>
-                            <td style="min-width: 130px;">
-                                <div class="small text-muted mb-1">{{ $a->paradas_cumplidas }}/{{ $a->total_paradas }} paradas ({{ $a->porcentaje }}%)</div>
-                                <div class="progress-mini"><div class="bar" style="width: {{ $a->porcentaje }}%;"></div></div>
+                                <span class="fw-semibold text-brand d-block">{{ $a->codigo }}</span>
+                                <span class="text-muted small">{{ \Carbon\Carbon::parse($a->fecha)->format('d/m/Y') }} · {{ $a->hora_salida ?? 'Sin hora' }}</span>
                             </td>
                             <td>
-                                <span class="badge rounded-pill px-3 py-1 badge-{{ $a->estado }}" style="font-size: 0.78rem; font-weight: 600;">
-                                    @if($a->estado === 'en_curso') 🟢 En ruta
-                                    @elseif($a->estado === 'pendiente') 🟡 Pendiente
-                                    @elseif($a->estado === 'completado') ✅ Finalizado
-                                    @elseif($a->estado === 'retrasado') 🟠 Retrasado
-                                    @else ⚪ {{ ucfirst($a->estado) }}
-                                    @endif
-                                </span>
+                                <span class="fw-semibold d-block">{{ $a->conductor ? trim(($a->conductor->nombre ?? '').' '.($a->conductor->apellido ?? '')) : 'Sin conductor' }}</span>
+                                <span class="text-muted small">{{ $a->micro->placa ?? 'S/P' }} · Int. {{ $a->micro->interno->numero_interno ?? 'S/I' }}</span>
                             </td>
+                            <td>{{ $a->ruta->nombre ?? '—' }}</td>
+                            <td class="text-muted">{{ ucfirst($a->turno->nombre ?? '—') }}</td>
+                            <td><span class="badge-status {{ $estadoClase }}">{{ $estadoEtiqueta }}</span></td>
                             <td>
-                                <div class="d-flex gap-1">
-                                    <a href="{{ route('control-recorrido.show', $a->id) }}"
-                                       class="btn-action-cr d-inline-flex align-items-center gap-1" title="Ver recorrido">
-                                        <i class="bi bi-eye-fill"></i>
-                                    </a>
-                                    <a href="{{ route('control-recorrido.mapa', $a->id) }}"
-                                       class="btn-action-cr d-inline-flex align-items-center gap-1" title="Ubicar en mapa" style="color: var(--accent);">
-                                        <i class="bi bi-geo-alt-fill"></i>
-                                    </a>
-                                    <a href="{{ route('control-recorrido.historial', $a->id) }}"
-                                       class="btn-action-cr d-inline-flex align-items-center gap-1" title="Historial completo" style="color: #059669;">
-                                        <i class="bi bi-clock-history"></i>
+                                <div class="table-actions justify-content-end">
+                                    <a href="{{ route('control-recorrido.show', $a->id) }}" class="btn btn-outline-brand btn-sm">
+                                        <i class="bi bi-eye me-1" aria-hidden="true"></i>Ver
                                     </a>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center py-5 text-muted">
-                                <i class="bi bi-pin-map d-block fs-1 mb-2 opacity-30"></i>
-                                No hay asignaciones para la fecha y filtros seleccionados.
+                            <td colspan="6">
+                                <div class="empty-state py-4">
+                                    <i class="bi bi-pin-map" aria-hidden="true"></i>
+                                    <div class="empty-state-title">Sin asignaciones</div>
+                                    <p class="mb-0">No hay asignaciones para la fecha y filtros seleccionados.</p>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -144,11 +146,10 @@
             </table>
         </div>
         @if($asignaciones->hasPages())
-            <div class="card-footer py-3 px-4">
-                {{ $asignaciones->appends(['fecha' => $fecha, 'ruta_id' => $rutaId, 'estado' => $estado])->links() }}
+            <div class="card-footer py-3">
+                {{ $asignaciones->links() }}
             </div>
         @endif
     </div>
-
 </div>
 @endsection

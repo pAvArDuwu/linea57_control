@@ -1,57 +1,96 @@
 @extends('layouts.app')
+
 @section('content')
+@php
+    $estadoClases = [
+        'pendiente' => 'badge-status--pending',
+        'en_curso' => 'badge-status--progress',
+        'completado' => 'badge-status--active',
+        'retrasado' => 'badge-status--warning',
+        'cancelado' => 'badge-status--cancelled',
+    ];
+@endphp
+
 <div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div class="page-header">
         <div>
-            <h4 class="fw-bold mb-1 assignment-page-title">
-                <i class="bi bi-calendar2-check-fill me-2 assignment-page-title-icon"></i>Asignación de Turnos
-            </h4>
-            <p class="text-muted mb-0 small">Gestión y programación de turnos asignados a conductores, micros y rutas</p>
+            <h1 class="page-title">
+                <i class="bi bi-calendar2-check" aria-hidden="true"></i>
+                Asignación de turnos
+            </h1>
+            <p class="page-subtitle">Programación de turnos para conductores, micros y rutas.</p>
         </div>
-        <div class="d-flex gap-2">
-                <a href="{{ route('asignacion-turno.create') }}" class="btn px-4 py-2 assignment-action-primary">
-                <i class="bi bi-plus-lg me-2"></i>Registrar Nueva Asignación
+        <div class="page-actions">
+            <a href="{{ route('asignacion-turno.create') }}" class="btn btn-brand">
+                <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nueva asignación
             </a>
         </div>
     </div>
 
-    <!-- Alertas Flash -->
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4 assignment-alert">
-            <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-    @if(session('info'))
-        <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm mb-4 assignment-alert">
-            <i class="bi bi-info-circle-fill me-2"></i>{{ session('info') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert alert-soft-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2" aria-hidden="true"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
         </div>
     @endif
 
-    <!-- Filtros de Búsqueda y Fecha -->
-    <div class="card border-0 shadow-sm mb-4 assignment-filter-card">
-        <div class="card-body p-3">
-            <form method="GET" action="{{ route('asignacion-turno.index') }}" class="row g-2 align-items-end">
+    @if(session('info'))
+        <div class="alert alert-soft-info alert-dismissible fade show" role="alert">
+            <i class="bi bi-info-circle me-2" aria-hidden="true"></i>{{ session('info') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    @endif
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="meta-label">Turnos cubiertos hoy</div>
+                    <div class="h3 fw-semibold mb-0">{{ $stats['turnos_cubiertos'] }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="meta-label">Conductores libres</div>
+                    <div class="h3 fw-semibold mb-0">{{ $stats['conductores_libres'] }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="meta-label">Unidades en ruta</div>
+                    <div class="h3 fw-semibold mb-0">{{ $stats['unidades_en_ruta'] }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('asignacion-turno.index') }}" class="row g-3 align-items-end">
                 <div class="col-12 col-md-3">
-                    <label class="form-label small fw-semibold text-muted mb-1">Fecha</label>
-                    <input type="date" name="fecha" value="{{ $fecha }}" class="form-control assignment-control" onchange="this.form.submit()">
+                    <label for="fecha" class="form-label">Fecha</label>
+                    <input type="date" id="fecha" name="fecha" value="{{ $fecha }}" class="form-control">
                 </div>
                 <div class="col-12 col-md-7">
-                    <label class="form-label small fw-semibold text-muted mb-1">Buscar</label>
+                    <label for="buscar" class="form-label">Buscar</label>
                     <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
-                        <input type="text" name="buscar" class="form-control border-start-0 assignment-control" placeholder="Buscar por conductor, código o placa..." value="{{ $buscar ?? '' }}">
+                        <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+                        <input type="text" id="buscar" name="buscar" class="form-control"
+                               placeholder="Conductor, código o placa" value="{{ $buscar ?? '' }}">
                     </div>
                 </div>
                 <div class="col-12 col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100 assignment-filter-button">
-                        <i class="bi bi-funnel me-1"></i>Filtrar
+                    <button type="submit" class="btn btn-brand flex-grow-1">
+                        <i class="bi bi-funnel me-1" aria-hidden="true"></i>Filtrar
                     </button>
                     @if($buscar || $fecha !== now()->toDateString())
-                        <a href="{{ route('asignacion-turno.index') }}" class="btn btn-outline-secondary assignment-filter-button" title="Limpiar Filtros">
-                            <i class="bi bi-x-lg"></i>
+                        <a href="{{ route('asignacion-turno.index') }}" class="btn btn-outline-brand" title="Limpiar filtros">
+                            <i class="bi bi-x-lg" aria-hidden="true"></i>
+                            <span class="visually-hidden">Limpiar filtros</span>
                         </a>
                     @endif
                 </div>
@@ -59,95 +98,89 @@
         </div>
     </div>
 
-    <!-- Tabla Principal de Asignaciones de Turno -->
-    <div class="card border-0 shadow-sm assignment-table-card">
-        <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2 assignment-table-header">
+    <div class="card">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-list-check text-primary fs-5"></i>
-                <span class="fw-bold text-dark">Tabla de Asignaciones de Turnos ({{ $asignaciones->total() }} registros)</span>
+                <i class="bi bi-list-check" aria-hidden="true"></i>
+                <span class="fw-semibold">Asignaciones de turno ({{ $asignaciones->total() }} registros)</span>
             </div>
-                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1 fw-semibold assignment-table-date">
-                Fecha: {{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }}
-            </span>
+            <span class="badge-status badge-status--inactive">{{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }}</span>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="assignment-table-head">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Fecha</th>
+                        <th>Turno</th>
+                        <th>Conductor</th>
+                        <th>Unidad / micro</th>
+                        <th>Ruta</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($asignaciones as $a)
+                        @php
+                            $estadoClase = $estadoClases[$a->estado] ?? 'badge-status--inactive';
+                            $codigoAsignacion = 'AT-' . str_pad($a->id, 3, '0', STR_PAD_LEFT);
+                        @endphp
                         <tr>
-                            <th class="ps-4 py-3 text-muted fw-semibold assignment-table-heading">Código</th>
-                            <th class="py-3 text-muted fw-semibold assignment-table-heading">Fecha</th>
-                            <th class="py-3 text-muted fw-semibold assignment-table-heading">Turno</th>
-                            <th class="py-3 text-muted fw-semibold assignment-table-heading">Conductor</th>
-                            <th class="py-3 text-muted fw-semibold assignment-table-heading">Unidad / Micro</th>
-                            <th class="py-3 text-muted fw-semibold assignment-table-heading">Ruta</th>
-                            <th class="py-3 text-muted fw-semibold assignment-table-heading">Estado</th>
-                            <th class="py-3 text-muted fw-semibold text-end pe-4 assignment-table-heading">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($asignaciones as $a)
-                            <tr>
-                                <td class="ps-4 fw-bold text-primary">{{ $a->codigo }}</td>
-                                <td class="fw-semibold text-dark">{{ \Carbon\Carbon::parse($a->fecha)->format('d/m/Y') }}</td>
-                                <td>
-                                    <span class="badge rounded-pill px-3 py-1 assignment-shift-badge">
-                                        {{ $a->turno_emoji }} {{ $a->turno?->nombre_label ?? '—' }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @if($a->conductor)
-                                        <div class="fw-semibold text-dark small">{{ $a->conductor->nombre }} {{ $a->conductor->apellido }}</div>
-                                        <div class="text-muted assignment-meta">Lic: {{ $a->conductor->licencia ?? 'S/L' }}</div>
-                                    @else
-                                        <span class="text-muted">—</span>
+                            <td class="fw-semibold text-brand">{{ $codigoAsignacion }}</td>
+                            <td>{{ \Carbon\Carbon::parse($a->fecha)->format('d/m/Y') }}</td>
+                            <td>{{ $a->turno?->nombre_label ?? '—' }}</td>
+                            <td>
+                                @if($a->conductor)
+                                    <span class="d-block fw-semibold">{{ $a->conductor->nombre }} {{ $a->conductor->apellido }}</span>
+                                    <span class="text-muted small">Lic. {{ $a->conductor->licencia ?? 'S/L' }}</span>
+                                @else
+                                    <span class="text-muted">Sin conductor</span>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="d-block fw-semibold">{{ $a->micro->placa ?? 'S/P' }}</span>
+                                <span class="text-muted small">Int. {{ $a->micro->interno->numero_interno ?? 'S/I' }} · {{ $a->micro->modelo ?? 'Sin modelo' }}</span>
+                            </td>
+                            <td class="text-muted">{{ $a->ruta?->nombre ?? '—' }}</td>
+                            <td><span class="badge-status {{ $estadoClase }}">{{ $a->estado_badge['label'] }}</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <a href="{{ route('asignacion-turno.show', $a->id) }}" class="btn btn-outline-brand btn-sm-action" title="Ver detalle">
+                                        <i class="bi bi-eye me-1" aria-hidden="true"></i>Ver
+                                    </a>
+                                    <a href="{{ route('asignacion-turno.edit', $a->id) }}" class="btn btn-outline-brand btn-sm-action" title="Editar asignación">
+                                        <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
+                                    </a>
+                                    @if($a->estado !== 'cancelado')
+                                        <form action="{{ route('asignacion-turno.destroy', $a->id) }}" method="POST" class="d-inline"
+                                              data-confirm="¿Cancelar la asignación {{ $codigoAsignacion }}? Esta acción cambia su estado a cancelada.">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-outline-brand btn-sm-action" title="Cancelar asignación">
+                                                <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Cancelar
+                                            </button>
+                                        </form>
                                     @endif
-                                </td>
-                                <td>
-                                    <div class="fw-semibold text-dark small"><i class="bi bi-bus-front me-1 text-primary"></i>{{ $a->micro->placa ?? 'S/P' }}</div>
-                                        <div class="text-muted assignment-meta">Int. {{ $a->micro->interno->numero_interno ?? 'S/I' }} · {{ $a->micro->modelo ?? '' }}</div>
-                                </td>
-                                <td class="text-muted small">
-                                    <span class="badge bg-light text-dark border px-2 py-1">{{ $a->ruta?->nombre ?? '—' }}</span>
-                                </td>
-                                <td>
-                                    <span class="badge rounded-pill px-3 py-1 assignment-state-badge" style="background: {{ $a->estado_badge['bg'] }}; color: {{ $a->estado_badge['color'] }};">
-                                        {{ $a->estado_badge['label'] }}
-                                    </span>
-                                </td>
-                                <td class="text-end pe-4">
-                                    <div class="d-flex justify-content-end gap-1">
-                                        <a href="{{ route('asignacion-turno.show', $a->id) }}" class="btn btn-sm btn-outline-primary assignment-row-action" title="Ver Detalle">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a href="{{ route('asignacion-turno.edit', $a->id) }}" class="btn btn-sm btn-outline-secondary assignment-row-action" title="Editar">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>
-                                        @if($a->estado !== 'cancelado')
-                                            <form action="{{ route('asignacion-turno.destroy', $a->id) }}" method="POST" class="d-inline">
-                                                @csrf @method('DELETE')
-                                                    <button type="submit" onclick="return confirm('¿Cancelar esta asignación?')" class="btn btn-sm btn-outline-danger assignment-row-action" title="Cancelar Asignación">
-                                                    <i class="bi bi-x-circle"></i>
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center py-5 text-muted">
-                                    <i class="bi bi-calendar-x fs-1 d-block mb-2 opacity-30"></i>
-                                    No se encontraron asignaciones para la fecha o búsqueda seleccionada.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8">
+                                <div class="empty-state py-4">
+                                    <i class="bi bi-calendar-x" aria-hidden="true"></i>
+                                    <div class="empty-state-title">Sin asignaciones</div>
+                                    <p class="mb-0">No se encontraron asignaciones para la fecha o búsqueda seleccionada.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
         @if($asignaciones->hasPages())
-            <div class="card-footer bg-white border-top py-3 px-4 assignment-table-footer">
+            <div class="card-footer py-3">
                 {{ $asignaciones->appends(['buscar' => $buscar, 'fecha' => $fecha])->links() }}
             </div>
         @endif
