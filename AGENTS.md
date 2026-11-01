@@ -1,146 +1,70 @@
-<laravel-boost-guidelines>
-=== foundation rules ===
+# AGENTS.md
 
-# Laravel Boost Guidelines
+## Project
 
-The Laravel Boost guidelines are specifically curated by Laravel maintainers for this application. These guidelines should be followed closely to ensure the best experience when building Laravel applications.
+Sistema web de control de turnos, recorridos y seguimiento GPS para la **Línea 61** (Santa Cruz, Bolivia).
 
-## Foundational Context
+- Laravel 13 + Blade + Bootstrap 5 (CDN) + Tailwind/Vite. No Livewire, Inertia ni SPA.
+- PHP objetivo: **8.4.1+** (aunque `composer.json` declare `^8.3`).
+- Base local: MySQL; tests: SQLite en memoria.
+- `README.md` es el README genérico de Laravel: no describe este proyecto.
+- Contexto de dominio: `NORMALIZACION_USUARIOS_PERFILES.md` (SDD), `REPORTES.md` e `INFORME_CAMBIOS_UIUX_LINEA61.md`.
 
-This application is a Laravel application running on PHP 8.4. You are an expert with the Laravel ecosystem. Always use the APIs that match the installed major version of each package — do not assume a version.
+## Comandos
 
-Before relying on a package's API, confirm its installed version:
-- PHP packages: run `composer show --direct` to list direct dependencies with versions, or `composer show <vendor/package>` for a single package.
-- JS packages: check `package.json` for the installed versions.
+```bash
+composer run setup          # instala, crea .env, migra, compila frontend
+composer run dev            # serve + queue:listen + vite
+php artisan test --compact  # suite completa
+php artisan test --compact tests/Feature/ControlRecorridoTest.php
+php artisan test --compact tests/Feature/ControlRecorridoTest.php --filter=test_show_screen_can_be_rendered
+vendor/bin/pint --dirty --format agent   # obligatorio tras tocar PHP
+npm run build               # verifica el manifest de Vite
+php artisan db:seed         # catálogos Línea 61 + usuarios demo
+php artisan route:list --path=control-recorrido
+```
 
-## Skills Activation
+- **Gotcha PHP:** `composer.lock` resuelve paquetes Symfony que exigen PHP >= 8.4.1. Con el PHP 8.3.30 de este entorno, `composer install` falla la comprobación de plataforma; usar PHP 8.4.1+ o, solo en local, `composer install --ignore-platform-reqs`.
+- No hay CI ni pre-commit hooks: ejecutar tests, Pint y build localmente.
 
-This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
+## Arquitectura
 
-## Conventions
+- `routes/web.php`: UI administrativa con `auth`, `verified`, `ensure.role.assigned` y `role:...`.
+- `routes/api.php`: API Sanctum para la app móvil. Usa `/api/mis/...` y valida que el usuario autenticado tenga un `Conductor` asociado y sea el dueño de la asignación.
+- Roles Spatie: `admin`, `fiscalizador`, `propietario`, `conductor`. Un usuario sin rol es redirigido a `pending.role`.
+- Catálogos con eliminación lógica (`estado = activo|inactivo`) mediante `TieneEstadoLogico`. No hacer borrados físicos.
+- `IntegridadAsignacionesService` impide desactivar conductor, micro, ruta o turno si tienen asignaciones `pendiente`, `en_curso` o `retrasado`.
+- `AsignacionTurnoService` concentra las reglas de creación, inicio, fin y cancelación (incluida la no duplicidad conductor/micro por fecha + turno).
+- Reportes: clases en `app/Reportes`; `ReporteController` resuelve `show`, `pdf` (DomPDF) y `excel` (CSV). Ver `REPORTES.md`.
+- Frontend: cada módulo es una entrada separada de Vite. Al crear CSS/JS nuevo hay que agregarlo a `input` en `vite.config.js` y cargarlo con `@vite` en la vista.
+- JS propio en `resources/js/*.js`; el sidebar, confirmaciones (`data-confirm`) e impresión (`data-print`) viven en `app.js`.
 
-- You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, and naming.
-- Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
-- Check for existing components to reuse before writing a new one.
+## Control de Recorrido y GPS: invariantes
 
-## Verification Scripts
+- `ControlRecorridoService` es la única fuente de verdad para `planificar()`, `evaluarPunto()` y `resumen()`.
+- `AsignacionTurnoService::iniciar()` crea el itinerario planificado con todas las paradas activas de la ruta.
+- Radio de tolerancia: **80 m**. Si el GPS detecta una parada posterior, las paradas intermedias se marcan `omitido`.
+- `control_recorrido.fecha_hora` es nullable: las paradas pendientes se muestran con `—`. No inventar horarios previstos.
+- `Control de Recorrido` solo muestra la secuencia de paradas, contadores y hora real de paso. **No** tiene mapa ni pantallas de historial/mapa ampliado; fueron eliminadas a propósito.
+- `Seguimiento GPS` es el único dueño del mapa en vivo: `MonitoreoController` + `SeguimientoGpsService::flotaEnVivo()` + `resources/js/monitoreo.js`.
+- Ingesta GPS: `POST /api/mis/asignaciones/{id}/ubicaciones` y sincronización en lote (máx. 300 puntos). Límite de 120 req/min; la hora GPS no puede superar 2 minutos en el futuro.
+- El estado `en_proceso` de una parada es derivado en la UI para la siguiente parada pendiente; no es un estado persistido nuevo.
 
-- Do not create verification scripts or tinker when tests cover that functionality and prove they work. Unit and feature tests are more important.
+## Tests y convenciones
 
-## Application Structure & Architecture
+- PHPUnit, no Pest. La suite usa SQLite `:memory:` y `RefreshDatabase`; no requiere MySQL.
+- Solo existen factories para `User`, `Ruta` y `Parada`; el resto de modelos se crean explícitamente en los tests.
+- `tests/Feature/ControlRecorridoTest.php` cubre planificación, omisiones, contadores y vistas de Control de Recorrido.
+- No crear scripts de verificación ni usar tinker si un test ya cubre el comportamiento.
+- UI, mensajes y rutas están en español. Rutas de recursos en singular (`conductor`, `micro`, `ruta`, `parada`, `turno`) y `rutas-paradas`.
+- Usar rutas nombradas (`route()`) y componentes/estilos existentes antes de crear otros.
+- No cambiar dependencias ni crear carpetas base nuevas sin aprobación.
+- Solo crear documentación si el usuario la pide explícitamente.
 
-- Stick to existing directory structure; don't create new base folders without approval.
-- Do not change the application's dependencies without approval.
+## Usuarios demo
 
-## Frontend Bundling
+`php artisan db:seed` crea:
 
-- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `npm run build`, `npm run dev`, or `composer run dev`. Ask them.
-
-## Documentation Files
-
-- You must only create documentation files if explicitly requested by the user.
-
-## Replies
-
-- Be concise in your explanations - focus on what's important rather than explaining obvious details.
-
-=== boost rules ===
-
-# Laravel Boost
-
-## Project Rules
-
-- This project contains committed, area-grouped rules in `.ai/rules` when that directory exists (settled decisions, non-obvious traps, standing constraints). Framework and package guidelines that only apply to specific paths (testing, frontend, components) also live there, under `.ai/rules/boost` — this is not just recorded decisions, it is load-bearing guidance you have not seen inline. Before you enter plan mode or create/edit any file, you MUST first: open @.ai/rules/index.md (it maps file globs to rule files), read every rule file whose globs cover the path(s) in scope, and run `grep -rin 'keyword' .ai/rules` to catch what a path match alone misses. Do not write code until you have read and are following every matching rule. If `.ai/rules` does not exist, continue without it.
-
-## Artisan
-
-- Run Artisan commands directly via the command line (e.g., `php artisan route:list`). Use `php artisan list` to discover available commands and `php artisan [command] --help` to check parameters.
-- Inspect routes with `php artisan route:list`. Filter with: `--method=GET`, `--name=users`, `--path=api`, `--except-vendor`, `--only-vendor`.
-- Read configuration values using dot notation: `php artisan config:show app.name`, `php artisan config:show database.default`. Or read config files directly from the `config/` directory.
-
-## Tinker
-
-- Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
-- Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
-
-=== php rules ===
-
-# PHP
-
-- Always use curly braces for control structures, even for single-line bodies.
-- Use PHP 8 constructor property promotion: `public function __construct(public GitHub $github) { }`. Do not leave empty zero-parameter `__construct()` methods unless the constructor is private.
-- Use explicit return type declarations and type hints for all method parameters: `function isAccessible(User $user, ?string $path = null): bool`
-- Use TitleCase for Enum keys: `FavoritePerson`, `BestLake`, `Monthly`.
-- Prefer PHPDoc blocks over inline comments. Only add inline comments for exceptionally complex logic.
-- Use array shape type definitions in PHPDoc blocks.
-
-=== deployments rules ===
-
-# Deployment
-
-- Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
-- Activate the `deploying-to-cloud` skill whenever deploying to Laravel Cloud, configuring Cloud environments or resources, using the Cloud CLI, or troubleshooting Cloud deployments.
-
-=== tests rules ===
-
-# Test Enforcement
-
-- Add or update tests for behavior and logic changes when a test provides meaningful regression coverage.
-- Pure copy, styling, and layout-only changes do not require new or updated tests.
-- When test coverage applies, run the affected tests and ensure they pass.
-- Test the changed behavior and its important failure modes, but do not add tests beyond them.
-- Read the `testing-best-practices` skill before writing tests.
-
-=== laravel/core rules ===
-
-# Do Things the Laravel Way
-
-- Use `php artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using `php artisan list` and check their parameters with `php artisan [command] --help`.
-- If you're creating a generic PHP class, use `php artisan make:class`.
-- Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
-
-### Model Creation
-
-- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `php artisan make:model --help` to check the available options.
-
-## APIs & Eloquent Resources
-
-- For APIs, default to using Eloquent API Resources and API versioning unless existing API routes do not, then you should follow existing application convention.
-
-## URL Generation
-
-- When generating links to other pages, prefer named routes and the `route()` function.
-
-## Testing
-
-- When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
-- Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `php artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
-
-## Vite Error
-
-- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
-
-=== pint/core rules ===
-
-# Laravel Pint Code Formatter
-
-- If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
-
-=== phpunit/core rules ===
-
-# PHPUnit
-
-- This project uses PHPUnit. Create tests with `php artisan make:test --phpunit {name}`.
-- Do not include the test suite directory in `{name}`. Use `SomeFeatureTest`, not `Feature/SomeFeatureTest`.
-- Read the `testing-best-practices` skill for guidance on coverage, naming, structure, dependency isolation, and review.
-
-## Running Tests
-
-- Run the narrowest set of tests that covers the change. Pass a file path or `--filter=testName` to `php artisan test --compact`.
-- Rerun a test after each change to it.
-- Run `vendor/bin/phpunit` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
-
-</laravel-boost-guidelines>
+- `admin@example.com` / `password` (admin)
+- `conductor@linea61.test` / `password` (conductor)
+- Una asignación de turno para el día actual y catálogos con paradas reales de la Línea 61.
