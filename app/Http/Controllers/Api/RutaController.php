@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Ruta;
 use App\Services\IntegridadAsignacionesService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class RutaController extends Controller
 {
@@ -18,7 +19,7 @@ class RutaController extends Controller
 
     public function store(Request $request)
     {
-        $ruta = Ruta::create($request->all());
+        $ruta = Ruta::create($this->validar($request));
 
         return response()->json($ruta, 201);
     }
@@ -31,10 +32,11 @@ class RutaController extends Controller
     public function update(Request $request, string $id)
     {
         $ruta = Ruta::findOrFail($id);
-        $this->integridad->asegurarCambioDeEstadoPermitido($ruta, $request->all());
-        $ruta->update($request->all());
+        $datos = $this->validar($request);
+        $this->integridad->asegurarCambioDeEstadoPermitido($ruta, $datos);
+        $ruta->update($datos);
 
-        return response()->json($ruta);
+        return response()->json($ruta->fresh());
     }
 
     public function destroy(string $id)
@@ -43,5 +45,15 @@ class RutaController extends Controller
         $this->integridad->desactivar($ruta);
 
         return response()->json(['message' => 'Ruta desactivada correctamente']);
+    }
+
+    private function validar(Request $request): array
+    {
+        return $request->validate([
+            'nombre' => ['required', 'string', 'max:50'],
+            'descripcion' => ['nullable', 'string'],
+            'sentido' => ['nullable', 'string', 'max:20'],
+            'estado' => ['nullable', 'string', Rule::in(['activo', 'inactivo'])],
+        ]);
     }
 }

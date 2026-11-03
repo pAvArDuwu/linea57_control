@@ -7,6 +7,7 @@ use App\Models\Conductor;
 use App\Models\Micro;
 use App\Models\Ruta;
 use App\Models\Turno;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class AsignacionTurnoService
@@ -48,27 +49,34 @@ class AsignacionTurnoService
      */
     public function iniciar(AsignacionTurno $asignacion, ?int $conductorId = null): AsignacionTurno
     {
-        if ($conductorId !== null && (int) $asignacion->conductor_id !== (int) $conductorId) {
-            throw ValidationException::withMessages([
-                'conductor' => 'No tienes autorización para iniciar esta asignación de turno.',
+        return DB::transaction(function () use ($asignacion, $conductorId) {
+            // Bloquear la fila evita dos inicios simultáneos de la misma asignación.
+            $asignacion = AsignacionTurno::query()
+                ->lockForUpdate()
+                ->findOrFail($asignacion->id);
+
+            if ($conductorId !== null && (int) $asignacion->conductor_id !== (int) $conductorId) {
+                throw ValidationException::withMessages([
+                    'conductor' => 'No tienes autorización para iniciar esta asignación de turno.',
+                ]);
+            }
+
+            if ($asignacion->estado !== 'pendiente') {
+                throw ValidationException::withMessages([
+                    'estado' => "La asignación no puede iniciarse porque su estado actual es '{$asignacion->estado}'.",
+                ]);
+            }
+
+            $asignacion->update([
+                'estado' => 'en_curso',
+                'hora_salida' => now()->format('H:i:s'),
             ]);
-        }
 
-        if ($asignacion->estado !== 'pendiente') {
-            throw ValidationException::withMessages([
-                'estado' => "La asignación no puede iniciarse porque su estado actual es '{$asignacion->estado}'.",
-            ]);
-        }
+            // El control de recorrido toma las paradas de la ruta al iniciar el turno.
+            $this->controlRecorridoService->planificar($asignacion);
 
-        $asignacion->update([
-            'estado' => 'en_curso',
-            'hora_salida' => now()->format('H:i:s'),
-        ]);
-
-        // El control de recorrido toma las paradas de la ruta al iniciar el turno.
-        $this->controlRecorridoService->planificar($asignacion);
-
-        return $asignacion->fresh(['turno', 'conductor', 'micro.interno', 'ruta.paradas']);
+            return $asignacion->fresh(['turno', 'conductor', 'micro.interno', 'ruta.paradas']);
+        });
     }
 
     /**

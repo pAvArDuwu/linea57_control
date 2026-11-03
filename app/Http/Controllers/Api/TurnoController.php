@@ -57,6 +57,19 @@ class TurnoController extends Controller
     {
         $requerido = $partial ? 'sometimes' : 'required';
 
+        // La app móvil envía "Mañana" y horas en formato HH:MM. El catálogo
+        // usa el enum mañana/tarde/noche y columnas TIME (HH:MM:SS).
+        $nombre = $request->input('nombre', $request->input('tipo'));
+        if ($nombre !== null) {
+            $request->merge(['nombre' => $this->normalizarNombre((string) $nombre)]);
+        }
+
+        foreach (['hora_inicio', 'hora_fin'] as $campo) {
+            if ($request->filled($campo)) {
+                $request->merge([$campo => $this->normalizarHora((string) $request->input($campo))]);
+            }
+        }
+
         $datos = $request->validate([
             'nombre' => [$requerido, 'string', 'in:mañana,tarde,noche'],
             'tipo' => ['nullable', 'string', 'in:mañana,tarde,noche'],
@@ -71,5 +84,32 @@ class TurnoController extends Controller
         unset($datos['tipo'], $datos['fiscalizador_id']);
 
         return $datos;
+    }
+
+    private function normalizarNombre(string $nombre): string
+    {
+        $clave = mb_strtolower(trim($nombre));
+
+        return [
+            'manana' => 'mañana',
+            'mañana' => 'mañana',
+            'tarde' => 'tarde',
+            'noche' => 'noche',
+        ][$clave] ?? $nombre;
+    }
+
+    private function normalizarHora(string $hora): string
+    {
+        $partes = array_map('trim', explode(':', $hora));
+
+        if (count($partes) === 2) {
+            $partes[] = '00';
+        }
+
+        if (count($partes) !== 3 || ! is_numeric($partes[0]) || ! is_numeric($partes[1]) || ! is_numeric($partes[2])) {
+            return $hora;
+        }
+
+        return sprintf('%02d:%02d:%02d', (int) $partes[0], (int) $partes[1], (int) $partes[2]);
     }
 }

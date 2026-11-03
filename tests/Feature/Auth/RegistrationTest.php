@@ -31,6 +31,10 @@ class RegistrationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('verification.notice', absolute: false));
+        $this->assertDatabaseHas('users', [
+            'email' => 'test@example.com',
+            'email_verified_at' => null,
+        ]);
     }
 
     public function test_unverified_users_are_redirected_to_verification_notice_after_login(): void
@@ -65,6 +69,27 @@ class RegistrationTest extends TestCase
 
         $this->assertAuthenticatedAs($user);
         $response->assertRedirect(route('pending.role', absolute: false));
+    }
+
+    public function test_new_users_are_auto_verified_when_email_link_is_disabled(): void
+    {
+        config(['linea61.auto_verify_email' => true]);
+
+        $response = $this->post('/register', [
+            'name' => 'Auto Verificado',
+            'apellido' => 'Prueba',
+            'ci' => '87654321',
+            'telefono' => '76543210',
+            'email' => 'autoverificado@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('pending.role', absolute: false));
+
+        $user = User::where('email', 'autoverificado@example.com')->firstOrFail();
+        $this->assertNotNull($user->email_verified_at);
     }
 
     public function test_users_cannot_register_with_duplicate_ci(): void

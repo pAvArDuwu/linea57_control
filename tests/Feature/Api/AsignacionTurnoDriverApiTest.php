@@ -11,6 +11,7 @@ use App\Models\Ruta;
 use App\Models\Turno;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class AsignacionTurnoDriverApiTest extends TestCase
@@ -40,6 +41,8 @@ class AsignacionTurnoDriverApiTest extends TestCase
             'email' => 'carlos.gomez@linea61.com',
             'password' => 'password123',
         ]);
+        Role::findOrCreate('conductor', 'web');
+        $this->userConductor->assignRole('conductor');
 
         $this->conductor = Conductor::create([
             'user_id' => $this->userConductor->id,
@@ -190,5 +193,17 @@ class AsignacionTurnoDriverApiTest extends TestCase
             ->postJson("/api/mis/asignaciones/{$asignacionAjena->id}/iniciar")
             ->assertStatus(422)
             ->assertJsonValidationErrors(['conductor']);
+    }
+
+    public function test_user_without_conductor_role_cannot_use_driver_api(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => now(),
+        ]);
+        $token = $user->createToken('mobile')->plainTextToken;
+
+        $this->withToken($token)
+            ->getJson('/api/mis/asignaciones')
+            ->assertForbidden();
     }
 }

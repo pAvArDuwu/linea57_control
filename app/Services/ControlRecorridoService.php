@@ -115,7 +115,7 @@ class ControlRecorridoService
     /**
      * Resumen de cumplimiento de una asignación.
      *
-     * @return array{
+     * @return array
      *     total: int,
      *     cumplidas: int,
      *     omitidas: int,

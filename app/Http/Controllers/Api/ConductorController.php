@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\StoreConductorRequest;
 use App\Models\Conductor;
+use App\Models\User;
 use App\Services\IntegridadAsignacionesService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -66,5 +67,47 @@ class ConductorController extends Controller
         $this->integridad->desactivar($conductor);
 
         return response()->json(['message' => 'Conductor desactivado correctamente']);
+    }
+
+    /**
+     * Vincula manualmente una ficha de conductor con una cuenta de usuario.
+     * Útil cuando el admin crea la cuenta y la ficha por separado.
+     */
+    public function vincularUsuario(Request $request, string $id)
+    {
+        $conductor = Conductor::findOrFail($id);
+
+        $datos = $request->validate([
+            'user_id' => ['nullable', 'integer', 'exists:users,id'],
+            'email' => ['nullable', 'email', 'exists:users,email'],
+        ]);
+
+        if (empty($datos['user_id']) && empty($datos['email'])) {
+            return response()->json([
+                'message' => 'Debe indicar user_id o email.',
+            ], 422);
+        }
+
+        $user = ! empty($datos['user_id'])
+            ? User::findOrFail($datos['user_id'])
+            : User::where('email', $datos['email'])->firstOrFail();
+
+        $ocupado = Conductor::where('user_id', $user->id)
+            ->whereKeyNot($conductor->id)
+            ->exists();
+
+        if ($ocupado) {
+            return response()->json([
+                'message' => 'El usuario ya está vinculado a otro conductor.',
+            ], 422);
+        }
+
+        $conductor->update(['user_id' => $user->id]);
+        $user->assignRole('conductor');
+
+        return response()->json([
+            'message' => 'Conductor vinculado correctamente.',
+            'conductor' => $conductor->fresh(['user']),
+        ]);
     }
 }

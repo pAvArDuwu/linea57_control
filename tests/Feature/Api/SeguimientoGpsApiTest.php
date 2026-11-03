@@ -4,6 +4,7 @@ namespace Tests\Feature\Api;
 
 use App\Models\AsignacionTurno;
 use App\Models\Conductor;
+use App\Models\ControlRecorrido;
 use App\Models\Interno;
 use App\Models\Micro;
 use App\Models\Parada;
@@ -13,6 +14,7 @@ use App\Models\RutaParada;
 use App\Models\Turno;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class SeguimientoGpsApiTest extends TestCase
@@ -41,6 +43,8 @@ class SeguimientoGpsApiTest extends TestCase
             'email' => 'conductor.gps@linea61.com',
             'password' => 'secret123',
         ]);
+        Role::findOrCreate('conductor', 'web');
+        $this->user->assignRole('conductor');
 
         $this->conductor = Conductor::create([
             'user_id' => $this->user->id,
@@ -264,6 +268,7 @@ class SeguimientoGpsApiTest extends TestCase
             'email' => 'otro.conductor@linea61.com',
             'password' => 'secret123',
         ]);
+        $otherUser->assignRole('conductor');
         Conductor::create([
             'user_id' => $otherUser->id,
             'licencia' => 'LIC-GPS-OTHER',
@@ -279,5 +284,30 @@ class SeguimientoGpsApiTest extends TestCase
             ->getJson("/api/mis/asignaciones/{$this->asignacion->id}/recorrido")
             ->assertForbidden()
             ->assertJsonPath('message', 'No tienes autorización para consultar esta asignación.');
+    }
+
+    public function test_conductor_can_query_own_route_status_for_mobile(): void
+    {
+        $rutaParada = RutaParada::where('ruta_id', $this->ruta->id)
+            ->where('orden', 1)
+            ->firstOrFail();
+
+        ControlRecorrido::create([
+            'asignacion_turno_id' => $this->asignacion->id,
+            'ruta_parada_id' => $rutaParada->id,
+            'fecha_hora' => now()->subMinute(),
+            'estado' => 'cumplido',
+            'distancia_metros' => 4.5,
+            'observacion' => 'Parada detectada por GPS',
+        ]);
+
+        $response = $this->withToken($this->token)
+            ->getJson("/api/mis/asignaciones/{$this->asignacion->id}/recorrido")
+            ->assertOk()
+            ->assertJsonPath('asignacion.controles_recorrido.0.estado', 'cumplido')
+            ->assertJsonPath('asignacion.controles_recorrido.0.ruta_parada.parada.nombre', 'Parada 1 Inicial')
+            ->assertJsonPath('paradas_cumplidas.0.estado', 'cumplido');
+
+        $this->assertSame($this->asignacion->id, $response->json('asignacion.id'));
     }
 }
