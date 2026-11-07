@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e9228a9398e4121eda0fe16a98f00dac",
+    "content-hash": "72f6fb4a9b1a656a65f55228c44366a3",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -6854,12 +6854,12 @@
             "version": "v5.6.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/vlucas/phpdotenv.git",
+                "url": "https://github.com/phpdotenv/phpdotenv.git",
                 "reference": "955e7815d677a3eaa7075231212f2110983adecc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vlucas/phpdotenv/zipball/955e7815d677a3eaa7075231212f2110983adecc",
+                "url": "https://api.github.com/repos/phpdotenv/phpdotenv/zipball/955e7815d677a3eaa7075231212f2110983adecc",
                 "reference": "955e7815d677a3eaa7075231212f2110983adecc",
                 "shasum": ""
             },
